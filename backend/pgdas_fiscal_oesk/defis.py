@@ -1,32 +1,11 @@
 
 # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
-from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, ginfess_driver
+from utilities.default import *
 
-from default.sets import get_compt
 from pgdas_fiscal_oesk import Consultar
-
-from default.webdriver_utilities import WDShorcuts
-from default.sets import InitialSetting
 from pgdas_fiscal_oesk.defis_utils.legato import Legato
 # from pgdas_fiscal_oesk.defis_utils.legato import transformers as tfms
 from .rotina_pgdas_simplesnacional_utils import SimplesNacionalUtilities
-
-import os
-
-from default.interact import *
-
-from selenium.webdriver.common.action_chains import ActionChains
-
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, UnexpectedAlertPresentException, TimeoutException
-
-
-from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua
-from time import sleep
-
 COMPT = get_compt(-1)
 CONS = Consultar(COMPT)
 
@@ -37,8 +16,6 @@ class Defis(Legato, SimplesNacionalUtilities):
         :param compt: from GUI
         # remember past_only arg from self.get_atual_competencia
         """
-        import pandas as pd
-        from default.webdriver_utilities.pre_drivers import pgdas_driver
         # O vencimento DAS(seja pra qual for a compt) está certo, haja vista que se trata do mes atual
         sh_name = 'DEFIS'
 

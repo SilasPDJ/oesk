@@ -1,6 +1,6 @@
 from backend.database import MySqlInitConnection
-from default.sets import Initial
-from default.sets import get_compt
+from utilities.default.sets import Initial
+from utilities.default import get_compt
 import pandas as pd
 
 

@@ -1,5 +1,5 @@
-from default.sets.init_email import EmailExecutor
-from default.sets import InitialSetting
+from utilities.default.sets.init_email import EmailExecutor
+from utilities.default.sets import InitialSetting
 
 
 class SendDividas(EmailExecutor, InitialSetting):

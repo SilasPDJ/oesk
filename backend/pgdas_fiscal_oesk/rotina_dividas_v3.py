@@ -1,14 +1,14 @@
 from pgdas_fiscal_oesk import Consultar
 import sys
 from time import sleep
-from default.interact import all_keys
+from utilities.default.interact import all_keys
 
 import webbrowser as wb
 # wb.open("https://www.google.com.br")
 import pyautogui as pygui
 from clipboard import paste, copy
 import ctypes
-from default.sets import InitialSetting, get_compt
+from utilities.default.sets import InitialSetting, get_compt
 
 
 def jscript_exec(scrpt: str, open_console=False, close_console=False, delay=2.5):
