@@ -1,6 +1,6 @@
+.env
 /venv/
 /pgdas_fiscal_oesk/data_clients_files/
 *.pyc
 test.html
 /.streamlit
-.env
