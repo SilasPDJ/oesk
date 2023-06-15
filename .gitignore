@@ -3,3 +3,4 @@
 *.pyc
 test.html
 /.streamlit
+.env
