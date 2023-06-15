@@ -1,19 +1,6 @@
 # dale
-from default.sets import InitialSetting
-from default.webdriver_utilities.pre_drivers import pgdas_driver
-from default.webdriver_utilities.wbs import WDShorcuts
-from default.interact import *
-from default.interact import _contmatic_select_by_name
+from utilities.default import *
 
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import NoAlertPresentException,  NoSuchElementException, ElementClickInterceptedException
-from time import sleep
-
-import pyautogui as pygui
-import os
 
 link = "ChromeDriver/chromedriver.exe"
 possible = ['GIA']

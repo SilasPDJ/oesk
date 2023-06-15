@@ -1,19 +1,9 @@
 # dale
 from random import randint
-from typing_extensions import override
-# from default.sets import InitialSetting
-# from default.webdriver_utilities.wbs import WDShorcuts
-from default.interact import press_keys_b4, press_key_b4
-from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, default_qrcode_driver
+from typing_extensions import overload
+from utilities.default import *
 from .rotina_pgdas_simplesnacional_utils import SimplesNacionalUtilities
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
-from selenium import webdriver
-from time import sleep
-from default.sets.pathmanager import HasJson
+
 # from . import *
 # qualquer coisa me devolve
 
@@ -373,7 +363,6 @@ class PgdasDeclaracaoRetificaVarias(PgdasDeclaracao):
             else:
                 print('is already declared')
 
-    @override
     def compt_already_declared(self, compt, pode_retificar=False):
         driver = self.driver
         try:

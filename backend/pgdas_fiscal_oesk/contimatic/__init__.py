@@ -1,5 +1,5 @@
-from default.sets import InitialSetting
-from default.interact import *
+from utilities.default.sets import InitialSetting
+from utilities.default.interact import *
 from time import sleep
 import pyautogui as pygui
 from os import path

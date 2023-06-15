@@ -1,9 +1,9 @@
 # dale
 from bs4 import BeautifulSoup
-from default.sets import InitialSetting
-from default.webdriver_utilities.pre_drivers import ginfess_driver, pgdas_driver
-from default.webdriver_utilities.wbs import WDShorcuts
-from default.interact import press_keys_b4, press_key_b4
+from utilities.default.sets import InitialSetting
+from utilities.default.webdriver_utilities.pre_drivers import ginfess_driver, pgdas_driver
+from utilities.default.webdriver_utilities.wbs import WDShorcuts
+from utilities.default.interact import press_keys_b4, press_key_b4
 
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.keys import Keys

@@ -1,6 +1,6 @@
-# from default import NewSetPaths, ExcelToData
-from default.sets.init_email import EmailExecutor
-from default.sets import InitialSetting
+# from utilities.default import NewSetPaths, ExcelToData
+from utilities.default.sets.init_email import EmailExecutor
+from utilities.default.sets import InitialSetting
 from win32com import client as win32
 import os
 from time import sleep

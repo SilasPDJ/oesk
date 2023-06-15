@@ -1,20 +1,4 @@
-import os
-from typing import final
-from typing_extensions import override
-import pyautogui as pygui
-from time import sleep
-
-from default.interact import *
-# from default.sets import InitialSetting
-from default.webdriver_utilities.wbs import WDShorcuts
-
-# from pgdas_fiscal_oesk.contimatic import InitialSetting
-from pgdas_fiscal_oesk.contimatic import Contimatic
-
-from pgdas_fiscal_oesk.relacao_nfs import NfCanceled
-
-# from default.webdriver_utilities import *
-from subprocess import Popen
+from utilities.default import *
 
 """
 from LE_NF_CANCELADAS_cor import main as nf_canceled
@@ -477,7 +461,6 @@ class G5(Contimatic):
                                importable_files[:max_files_amount]))
         return final_files
 
-    @override
     def start_walk_menu(self):  # overriden, not necessary
         # this decorator is not obligatory, but it's a good practice
         x, y = 30, 30
