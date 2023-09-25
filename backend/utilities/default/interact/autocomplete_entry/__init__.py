@@ -168,7 +168,7 @@ def matches(fieldValue, acListEntry):
 
 # if __name__ == '__main__':
 #     autocompleteList = [
-#         'Teste DASDASFASFAS AKFSKJLAS FLKJAS LKJFLKJAS LKJFLKJASF LKJASFLJK ASLKJ FLKJASKLJFKJLASF SA', 'Silas', 'Osiel']
+# 'Teste DASDASFASFAS AKFSKJLAS FLKJAS LKJFLKJAS LKJFLKJASF LKJASFLJK ASLKJ FLKJASKLJFKJLASF SA', 'Silas', 'Osiel']
 
 
 #     root = Tk()
