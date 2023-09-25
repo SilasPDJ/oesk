@@ -1,4 +1,5 @@
 from utilities.default import *
+from contimatic import *
 
 """
 from LE_NF_CANCELADAS_cor import main as nf_canceled
@@ -30,6 +31,8 @@ class G5(Contimatic):
             print(__client)
             # Se tem 3valores[excel], tem XML. Se não tem, não tem
             # (pois o xml e excel vem do ginfess_download)....
+            self._extract_folder(True)
+
             if self.registronta():
                 self.abre_ativa_programa('G5 ')  # vscode's cause
                 self.activating_client(self.formatar_cnpj(__cnpj))
@@ -190,20 +193,27 @@ class G5(Contimatic):
         self.abre_ativa_programa('G5')
         # go2robo options
 
-    def _extract_folder(self) -> bool:
+    def _extract_folder(self, extract_to_current_dir: bool = False) -> bool:
         import zipfile
 
         zips_path = self.files_get_anexos_v4(self.client_path, 'zip')
         if len(zips_path) == 1:
+
             with zipfile.ZipFile(zips_path[0], 'r') as zip_ref:
-                # extract the contents of the zip file to a folder
-                zip_ref.extractall(os.path.join(self.client_path, "NFS"))
-                return True
+                if extract_to_current_dir:
+                    zip_ref.extractall()
+                else:
+                    # extract the contents of the zip file to a folder
+                    zip_ref.extractall(os.path.join(self.client_path, "NFS"))
+                    return True
         elif len(zips_path) >= 1:
             print('\033[1;31mMais de um zip path\033[m')
 
         else:
-            print(f'\033[1;33mAinda sem zip para {self.client_path}\033[m')
+            if extract_to_current_dir:
+                # pois provavelmente é ISS extraindo para o current dir
+                return False
+            print(f'\033[1;Sem zip para {self.client_path}\033[m')
         return False
 
     def importa_nf_icms_saidas(self):
@@ -324,8 +334,8 @@ class G5(Contimatic):
                 aut_path, self.caminho_canceladas_destino)
 
     def _remove_icms_folders(self):
-        os.remove(self.caminho_autorizadas_destino)
-        os.remove(self.caminho_canceladas_destino)
+        # os.remove(self.caminho_autorizadas_destino)
+        # os.remove(self.caminho_canceladas_destino)
         os.remove(os.path.join(self.client_path, 'NFS'))
 
     def importa_nfs_iss(self):
@@ -461,6 +471,7 @@ class G5(Contimatic):
                                importable_files[:max_files_amount]))
         return final_files
 
+    @override
     def start_walk_menu(self):  # overriden, not necessary
         # this decorator is not obligatory, but it's a good practice
         x, y = 30, 30

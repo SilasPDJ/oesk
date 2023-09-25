@@ -1,6 +1,7 @@
 from .interact import ativa_janela, press_keys_b4, press_key_b4, all_keys, tk_msg, _contmatic_select_by_name
 from .sets import InitialSetting
 from .sets import get_all_valores
+from .sets.init_email import EmailExecutor
 
 # dates
 from .sets import calc_date_compt_offset, get_compt, compt_to_date_obj
@@ -15,3 +16,4 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
 from selenium.webdriver import Remote
+from selenium import webdriver

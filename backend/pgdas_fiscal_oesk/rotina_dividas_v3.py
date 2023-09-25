@@ -6,7 +6,6 @@ from utilities.default.interact import all_keys
 import webbrowser as wb
 # wb.open("https://www.google.com.br")
 import pyautogui as pygui
-from clipboard import paste, copy
 import ctypes
 from utilities.default.sets import InitialSetting, get_compt
 

@@ -1,18 +1,18 @@
 
 # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
-from utilities.default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, ginfess_driver
+from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, ginfess_driver
 
-from utilities.default.sets import get_compt
+from default.sets import get_compt
 from pgdas_fiscal_oesk import Consultar
 
-from utilities.default.webdriver_utilities import WDShorcuts
-from utilities.default.sets import InitialSetting
+from default.webdriver_utilities import WDShorcuts
+from default.sets import InitialSetting
 from pgdas_fiscal_oesk.defis_utils.legato import Legato
 from pgdas_fiscal_oesk.defis_utils.legato import transformers as tfms
 
 import os
 
-from utilities.default.interact import *
+from default.interact import *
 
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -22,7 +22,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, UnexpectedAlertPresentException, TimeoutException
 
-from utilities.default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua
+from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua
 from time import sleep
 
 COMPT = get_compt(-1)
@@ -40,7 +40,7 @@ class VisualizaTicket(InitialSetting, Legato):
         # remember past_only arg from self.get_atual_competencia
         """
         import pandas as pd
-        from utilities.default.webdriver_utilities.pre_drivers import pgdas_driver
+        from default.webdriver_utilities.pre_drivers import pgdas_driver
 
         # O vencimento DAS(seja pra qual for a compt) está certo, haja vista que se trata do mes atual
 

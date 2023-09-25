@@ -1,4 +1,3 @@
-from backend.database import MySqlInitConnection
 from utilities.default.sets import Initial
 from utilities.default import get_compt
 import pandas as pd
