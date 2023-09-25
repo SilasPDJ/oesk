@@ -2,7 +2,7 @@
 from random import randint
 from typing_extensions import overload
 from utilities.default import *
-from .rotina_pgdas_simplesnacional_utils import SimplesNacionalUtilities
+from simples_nacional_utilities import SimplesNacionalUtilities
 
 # from . import *
 # qualquer coisa me devolve
@@ -20,6 +20,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
         print(
             "\033[1;31m Estou procurando declarações. EXCLUIR CASO RETIFICAR\033[m")
+        self.is_logged_with_certif = False
+
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
         if not self.walget_searpath("PGDASD-DECLARACAO", self.client_path, 2):
             # drivers declarados
@@ -36,10 +38,11 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
             [print('\033[1;33m', __cod_simples, '\033[m')for i in range(1)]
 
             if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':
+                self.is_logged_with_certif = True
 
                 self.loga_cert()
                 self.change_ecac_client(__cnpj)
-                self.enable_download_in_headless_chrome(self.files_pathit(__r_social.strip(), self.compt))
+                self.enable_download_in_headless_chrome(self.client_path)
             else:
                 self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
             if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":
@@ -77,11 +80,17 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
                 if float(__valor_competencia) == 0:
                     self.declaracao_sem_movimento(__valor_competencia)
-
+                    _num_files_to_move = 2
                 else:
 
                     self.declaracao_anexos(
                         all_valores, __valor_competencia, __cnpj)
+                    _num_files_to_move = 4
+
+                if self.is_logged_with_certif:
+                    print("")
+                    # not necessary
+                    # self.move_files_after_download(_num_files_to_move)
 
             else:
                 print('is already declared')
@@ -284,8 +293,15 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
             if n_parc == "0":
                 self.simples_and_ecac_utilities(1, pend_compts[e])
                 self.driver.get(self.current_url)
-                # TODO: testar-me
+
         self.driver.get(self.current_url)
+
+    def move_files_after_download(self, num_files_to_move):
+        for file in self.get_most_recent_files_in_dir(
+                num_files=num_files_to_move):
+            _file_name = os.path.split(file)[-1]
+            self.move_file(file, os.path.join(
+                self.client_path, _file_name))
 
 
 class PgdasDeclaracaoRetificaVarias(PgdasDeclaracao):
@@ -363,6 +379,7 @@ class PgdasDeclaracaoRetificaVarias(PgdasDeclaracao):
             else:
                 print('is already declared')
 
+    @override
     def compt_already_declared(self, compt, pode_retificar=False):
         driver = self.driver
         try:

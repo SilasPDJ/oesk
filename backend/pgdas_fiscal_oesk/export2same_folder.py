@@ -1,8 +1,11 @@
 # dale
 from re import search
 import openpyxl
-from utilities.default import Contimatic
+from contimatic import Contimatic
 import os
+from shutil import copy2
+
+from pgdas_fiscal_oesk.contimatic import Contimatic
 
 
 class Export2SameFolder(Contimatic):

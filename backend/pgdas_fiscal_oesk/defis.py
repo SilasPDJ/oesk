@@ -1,11 +1,14 @@
-
+import pandas as pd
+import os
+from win10toast import ToastNotifier
 # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 from utilities.default import *
 
 from pgdas_fiscal_oesk import Consultar
 from pgdas_fiscal_oesk.defis_utils.legato import Legato
 # from pgdas_fiscal_oesk.defis_utils.legato import transformers as tfms
-from .rotina_pgdas_simplesnacional_utils import SimplesNacionalUtilities
+from simples_nacional_utilities import SimplesNacionalUtilities
+
 COMPT = get_compt(-1)
 CONS = Consultar(COMPT)
 
@@ -24,7 +27,7 @@ class Defis(Legato, SimplesNacionalUtilities):
         # transcrevendo compt para que não confunda com PGDAS
         _path = os.path.dirname(CONS.MAIN_FILE)
         excel_file_name = os.path.join(_path,
-                                       'DEFIS', f'{self.y()-1}-DEFIS-anual.xlsx')
+                                       'DEFIS', f'{self.y() - 1}-DEFIS-anual.xlsx')
         pdExcelFile = pd.ExcelFile(excel_file_name)
         #######
         msh = pdExcelFile.parse(sheet_name=str(sh_name))
@@ -55,7 +58,7 @@ class Defis(Legato, SimplesNacionalUtilities):
             # Defis exclusivos
 
             # +2 Pois começa da linha 2, logo o excel está reconhendo isso como index
-            while int(self.after_socio[SK[-4]][cont_soc])-2 != i:
+            while int(self.after_socio[SK[-4]][cont_soc]) - 2 != i:
                 cont_soc += 1
             __ate_soc = self.after_socio[SK[-3]][cont_soc]
             __ate_soc = int(__ate_soc) + cont_soc
@@ -66,9 +69,9 @@ class Defis(Legato, SimplesNacionalUtilities):
             self.socios_now__cota = self.after_socio[SK[3]][cont_soc:__ate_soc]
             self.socios_now__tipo = self.after_socio[SK[5]][cont_soc:__ate_soc]
             self.socios_valor_isento = self.after_socio[SK[6]
-                                                        ][cont_soc:__ate_soc]
+                                       ][cont_soc:__ate_soc]
             self.socios_valor_tributado = self.after_socio[SK[7]
-                                                           ][cont_soc:__ate_soc]
+                                          ][cont_soc:__ate_soc]
 
             self._socios__soma_cotas = sum(int(v)
                                            for v in self.socios_now__cota)
@@ -119,7 +122,7 @@ class Defis(Legato, SimplesNacionalUtilities):
                 (print('sleeping'), sleep(5))
                 self.send_keys_anywhere(Keys.TAB, 2)
                 self.send_keys_anywhere(Keys.ENTER, 1)
-                self.contains_text(str(self.y()-1)).click()
+                self.contains_text(str(self.y() - 1)).click()
                 self.contains_text('Continuar').click()
                 driver.implicitly_wait(10)
                 # apos continuar
@@ -168,7 +171,7 @@ class Defis(Legato, SimplesNacionalUtilities):
                 self.send_keys_anywhere(Keys.TAB, 2, pause=.01)
                 self.send_keys_anywhere('0')
 
-                for ins in range(len(self.socios_now__cnpj)-1):
+                for ins in range(len(self.socios_now__cnpj) - 1):
                     self.driver.find_element(
                         By.CSS_SELECTOR, ("#ctl00_conteudo_InfEconEmpConteudo > div:nth-child(7) > p > a")).click()
                 __cpfs_elements = self.driver.find_elements(
@@ -212,7 +215,6 @@ class Defis(Legato, SimplesNacionalUtilities):
                     # break
 
                 # Chega até os campos padrão
-                from win10toast import ToastNotifier
                 ToastNotifier().show_toast("DIGITE F8 p/ prosseguir")
                 print('\033[1;31m DIGITE F8 p/ prosseguir \033[m')
                 which_one = press_key_b4('f8')
@@ -228,7 +230,6 @@ class Defis(Legato, SimplesNacionalUtilities):
         print(f'{"CNPJ":<10}{"Nome":>10}{"CPF":>38}{"COTA":>21}{"COTA %":>10}')
 
         for ins in range(len(self.socios_now__cnpj)):
-
             soc_cnpj = self.socios_now__cnpj[ins]
             soc_nome = self.socios_now__nome[ins]
             soc_cpf = self.socios_now__cpf[ins]
