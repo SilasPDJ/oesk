@@ -57,8 +57,14 @@ class Dirs:
                 if searched in dirpath:
                     return dirpath
             elif whatis == 1:
-                if searched in dirnames:
-                    return dirnames
+                listof = []
+                for path_level_1 in dirnames:
+                    for file in os.listdir(os.path.join(dirpath, path_level_1)):
+                        if file.find(searched) > -1:
+                            listof.append(os.path.join(
+                                dirpath, path_level_1, file))
+                return listof
+
             elif whatis == 2:
                 try:
                     listof = []
@@ -74,7 +80,7 @@ class Dirs:
         """[File/folder moved from a place[where_from] to another[destiny]]
         Args:
             where_from (str):
-            destiny (str): 
+            destiny (str):
         """
         from shutil import move
         move(where_from, destiny)
@@ -160,9 +166,22 @@ class Dirs:
                       reverse=True)
 
     @staticmethod
+    def get_most_recent_files_in_dir(num_files, path=os.path.expanduser('~' + os.sep + 'Downloads')):
+        # Get a list of all files in the specified directory
+        list_of_files = glob.glob(path + '/*')
+
+        # Sort the list of files by their creation time in descending order (most recent first)
+        list_of_files.sort(key=os.path.getctime, reverse=True)
+
+        # Get the top 'num_files' files
+        most_recent_files = list_of_files[:num_files]
+
+        return most_recent_files
+
+    @staticmethod
     def get_documents_folder_location():
         """
-        :returns: user Documents folder location 
+        :returns: user Documents folder location
         """
         from platform import system
         import win32com
@@ -203,3 +222,12 @@ class HasJson:
         """
         with open(file, 'w', encoding='utf-8') as file:
             json.dump(objeto, file, ensure_ascii=False, indent=8)
+
+
+if __name__ == "__main__":
+    test = Dirs.walget_searpath(
+        'emission_report', r'O:\OneDrive\_FISCAL-2021\2023\07-2023', 1)
+    print(test)
+
+    most_recent_Files = Dirs.get_most_recent_files_in_dir(num_files=4)
+    print(most_recent_Files)
