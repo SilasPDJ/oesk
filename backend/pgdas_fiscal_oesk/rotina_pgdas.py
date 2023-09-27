@@ -128,7 +128,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # https://www.contabeis.com.br/ferramentas/simples-nacional/6920601/
         driver = self.driver
         compt = self.compt
-        valor_competencia = self.trata_money_excel(valor_competencia)
+        valor_competencia = trata_money_excel(valor_competencia)
         self.compt_typist_valtotal(valor_competencia)
 
         exibe_tutti = self.webdriverwait_el_by(By.ID, 'btn-exibe-todos', 30)
@@ -188,9 +188,9 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                                                 "input[type='text']")
         _count = 0
         for tres_valores in __valores_de_anexos:
-            v_n_ret = self.trata_money_excel(
+            v_n_ret = trata_money_excel(
                 tres_valores.get("sem_retencao"))
-            v_ret = self.trata_money_excel(tres_valores.get("com_retencao"))
+            v_ret = trata_money_excel(tres_valores.get("com_retencao"))
 
             if float(tres_valores.get("sem_retencao")) != 0:
                 inputs_text[_count].clear()

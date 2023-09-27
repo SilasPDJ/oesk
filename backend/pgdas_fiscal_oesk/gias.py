@@ -9,10 +9,10 @@ link = "ChromeDriver/chromedriver.exe"
 possible = ['GIA']
 
 
-class GIA(InitialSetting, WDShorcuts):
+class GIA(WDShorcuts):
+    file_operations = HandleFileOperations()
 
     def __init__(self, *args, compt, first_compt=None):
-
         __r_social, __ecac, login, senha = args
 
         # __anexo,  __valor_n_ret, __valor_ret, already_declared
@@ -20,7 +20,7 @@ class GIA(InitialSetting, WDShorcuts):
         # competencia declarada
         # loop_compt = compt
 
-        self.client_path = self.files_pathit(
+        self.client_path = self.file_operations.files_pathit(
             __r_social.strip(), compt)
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
 
@@ -32,6 +32,7 @@ class GIA(InitialSetting, WDShorcuts):
             sleep(1)
             pygui.click(1322, 333, duration=.5)
             pygui.hotkey('left', 'enter')
+
         # self.GIA()
 
         # if certificado...
@@ -61,7 +62,7 @@ class GIA(InitialSetting, WDShorcuts):
                     print('Não precisei fechar')
                 self.pt1_gia_software(IE, loop_compt)
 
-                pygui.doubleClick(self.menuX+35, self.menuY)
+                pygui.doubleClick(self.menuX + 35, self.menuY)
                 # consistir
                 sleep(3)
                 pygui.click(self.menuX, self.menuY)
