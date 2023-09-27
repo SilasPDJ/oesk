@@ -2,6 +2,7 @@ import os
 import json
 import glob
 from json import decoder
+from shutil import move
 
 
 class Dirs:
@@ -133,6 +134,14 @@ class Dirs:
 
         return most_recent_files
 
+    @staticmethod
+    def move_file(where_from, destiny):
+        """[File/folder moved from a place[where_from] to another[destiny]]
+        Args:
+            where_from (str):
+            destiny (str):
+        """
+        move(where_from, destiny)
 
 class HasJson:
     @staticmethod
@@ -160,6 +169,7 @@ class HasJson:
         """
         with open(file, 'w', encoding='utf-8') as file:
             json.dump(objeto, file, ensure_ascii=False, indent=8)
+
 
 if __name__ == "__main__":
     test = Dirs.walget_searpath(

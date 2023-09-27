@@ -6,7 +6,6 @@ from .now import Now
 import os
 import glob
 
-
 # @ staticmethod
 
 def trata_money_excel(faturado):
@@ -31,16 +30,6 @@ def trata_money_excel(faturado):
 # class FileOperations(Dirs, Now)
 class FileOperations(Dirs, Now):
     files_location = InitialSetFilesLocation()
-
-    @staticmethod
-    def move_file(where_from, destiny):
-        """[File/folder moved from a place[where_from] to another[destiny]]
-        Args:
-            where_from (str):
-            destiny (str):
-        """
-        from shutil import move
-        move(where_from, destiny)
 
     def certifs_exist(self, main_path, startswith, at_least=2, endswith: bool = False):
         # if endswith is True, it will search for endswith instead
