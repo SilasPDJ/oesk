@@ -5,7 +5,7 @@ from utilities.default import *
 # qualquer coisa me devolve
 
 
-class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
+class SimplesNacionalUtilities(HandleFileOperations, WDShorcuts):
 
     def __init__(self, driver: Remote, compt, client_path):
         # super().__init__(driver)

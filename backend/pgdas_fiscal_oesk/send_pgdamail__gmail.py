@@ -1,7 +1,7 @@
 # from utilities.default import NewSetPaths, ExcelToData
 from utilities.default import *
 
-class PgDasmailSender(EmailExecutor, InitialSetting):
+class PgDasmailSender(EmailExecutor, HandleFileOperations):
     def __init__(self, *args, email, compt, all_valores=None):
 
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args

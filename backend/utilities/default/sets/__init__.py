@@ -117,7 +117,7 @@ def get_all_valores(sem_ret, com_ret, anexo, valor_tot) -> list:
         print('Vou retornar None')
 
 
-class InitialSetting(Dirs, Now):
+class HandleFileOperations(Dirs, Now):
     files_location = InitialSetFilesLocation()
 
     @classmethod
