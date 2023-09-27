@@ -29,7 +29,7 @@ def trata_money_excel(faturado):
 
 # TODO:
 # class FileOperations(Dirs, Now)
-class HandleFileOperations(Dirs, Now):
+class FileOperations(Dirs, Now):
     files_location = InitialSetFilesLocation()
 
     @staticmethod

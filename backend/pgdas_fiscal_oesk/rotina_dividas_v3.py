@@ -7,7 +7,7 @@ import webbrowser as wb
 # wb.open("https://www.google.com.br")
 import pyautogui as pygui
 import ctypes
-from utilities.default.sets import HandleFileOperations
+from utilities.default.sets import FileOperations
 
 
 def jscript_exec(scrpt: str, open_console=False, close_console=False, delay=2.5):

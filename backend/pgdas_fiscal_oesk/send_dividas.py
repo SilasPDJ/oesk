@@ -1,8 +1,8 @@
 from utilities.default.sets.init_email import EmailExecutor
-from utilities.default.sets import HandleFileOperations
+from utilities.default.sets import FileOperations
 
 
-class SendDividas(EmailExecutor, HandleFileOperations):
+class SendDividas(EmailExecutor, FileOperations):
     def __init__(self, *args, email, compt):
         __razao_social, __cnpj = args
         now_email = email
