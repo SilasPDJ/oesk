@@ -3,7 +3,7 @@ from win32com import client
 from utilities.default.sets.init_email import EmailExecutor
 
 
-class PgDasmailSender(EmailExecutor, HandleFileOperations):
+class PgDasmailSender(EmailExecutor, FileOperations):
 
     def __init__(self, *args, email, compt, venc_das, all_valores=None):
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args

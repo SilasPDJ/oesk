@@ -10,7 +10,7 @@ possible = ['GIA']
 
 
 class GIA(WDShorcuts):
-    file_operations = HandleFileOperations()
+    file_operations = FileOperations()
 
     def __init__(self, *args, compt, first_compt=None):
         __r_social, __ecac, login, senha = args
