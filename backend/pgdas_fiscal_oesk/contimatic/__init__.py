@@ -1,4 +1,4 @@
-from utilities.default.sets import InitialSetting
+from utilities.default.sets import HandleFileOperations
 from utilities.default.interact import *
 import pyautogui as pygui
 import os
@@ -8,7 +8,7 @@ from time import sleep
 import pandas as pd
 
 
-class Contimatic(InitialSetting):
+class Contimatic(HandleFileOperations):
     def __init__(self, client_path):
         self.client_path = client_path
 

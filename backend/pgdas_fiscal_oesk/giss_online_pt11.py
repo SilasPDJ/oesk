@@ -15,7 +15,7 @@ link = "ChromeDriver/chromedriver.exe"
 
 
 # self.pyautogui
-class GissGui(InitialSetting, WDShorcuts):
+class GissGui(HandleFileOperations, WDShorcuts):
 
     def __init__(self, dados, compt, first_compt, headless=True):
         from functools import partial

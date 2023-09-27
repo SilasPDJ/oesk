@@ -1,5 +1,5 @@
 from .interact import ativa_janela, press_keys_b4, press_key_b4, all_keys, tk_msg, _contmatic_select_by_name
-from .sets import InitialSetting
+from .sets import HandleFileOperations
 from .sets import get_all_valores
 from .sets.init_email import EmailExecutor
 

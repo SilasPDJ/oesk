@@ -1,6 +1,6 @@
 # from default import NewSetPaths, ExcelToData
 from utilities.default.sets.init_email import EmailExecutor
-from utilities.default.sets import InitialSetting
+from utilities.default.sets import HandleFileOperations
 from win32com import client as win32
 import os
 from time import sleep
@@ -11,7 +11,7 @@ from openpyxl import load_workbook
 # f'{__r_social[:__r_social.find(" ")]}_{__cnpj}.xlsx'
 
 
-class ShopeeExcel(InitialSetting):
+class ShopeeExcel(HandleFileOperations):
     shall_sleep = True
 
     def __init__(self, *args, compt):

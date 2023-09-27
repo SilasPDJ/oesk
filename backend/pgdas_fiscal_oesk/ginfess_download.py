@@ -8,7 +8,7 @@ import os
 from win10toast import ToastNotifier
 
 
-class DownloadGinfessGui(InitialSetting, WDShorcuts):
+class DownloadGinfessGui(HandleFileOperations, WDShorcuts):
 
     # only static methods from JsonDateWithDataImprove
 
