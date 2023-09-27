@@ -1,7 +1,10 @@
 from datetime import date, datetime
+
+from utilities.default.sets.initial_set_files_location import InitialSetFilesLocation
 from .pathmanager import Dirs
 from .now import Now
 import os
+
 
 # @ staticmethod
 
@@ -69,6 +72,7 @@ def get_all_valores(sem_ret, com_ret, anexo, valor_tot) -> list:
 
     def greater_than(l1, l2):
         return len(l1) > len(l2)
+
     sem_ret = split_sep_vals(sem_ret)
     com_ret = split_sep_vals(com_ret)
     anexo = split_sep_vals(anexo)
@@ -113,62 +117,10 @@ def get_all_valores(sem_ret, com_ret, anexo, valor_tot) -> list:
         print('Vou retornar None')
 
 
-class Initial:
-    __main_path = os.path.dirname(os.path.realpath(__file__))
-    __main_path = os.path.join(__main_path, 'with_titlePATH.txt')
+class InitialSetting(Dirs, Now):
+    files_location = InitialSetFilesLocation()
 
     @classmethod
-    def getset_folderspath(cls, folder_path_only=True):
-        """Seleciona onde estão as pastas e planihas
-
-        Returns:
-            [type]: [description]
-        """
-        # filepath = os.path.realpath(__file__)
-        # os.path.dirname(filepath)
-        mainpath = False
-        try:
-
-            with open(cls.__main_path) as f:
-                mainpath = f.read()
-        # except FileNotFoundError:
-        except (OSError, FileNotFoundError) as e:
-            # e('WITH TITLE PATH NOT EXISTENTE ')
-            mainpath = cls.__select_path_if_not_exists(cls)
-
-        if mainpath and folder_path_only:
-            return mainpath
-        else:
-            return os.path.join(mainpath, "__EXCEL POR COMPETENCIAS__", "NOVA_FORMA_DE_DADOS.xlsm")
-
-    def __select_path_if_not_exists(self, some_message="SELECIONE ONDE ESTÁ SUA PASTA PRINCIPAL", savit=__main_path):
-        """[summary]
-        Args:
-            some_message (str, optional): []. Defaults to "SELECIONE ONDE ESTÁ SUA PASTA PRINCIPAL".
-            savit (str, optional): customizable, where to save the info
-        Returns:
-            [type]: [description]
-        """
-        from tkinter import Tk, filedialog, messagebox
-        # sh_management = SheetPathManager(file_with_name)
-        way = None
-        while way is None:
-            way = filedialog.askdirectory(title=some_message)
-            if len(way) <= 0:
-                way = None
-                resp = messagebox.askokcancel(
-                    'ATENÇÃO!', message='Favor, selecione uma pasta ou clique em CANCELAR.')
-                if not resp:
-                    return False
-            else:
-                wf = open(savit, 'w')
-                wf.write(way)
-                return way
-
-
-class InitialSetting(Initial, Dirs, Now):
-
-    @ classmethod
     def files_pathit(cls, pasta_client, insyear=None, ano=None):
         from dateutil import relativedelta as du_rl
 
@@ -196,13 +148,14 @@ class InitialSetting(Initial, Dirs, Now):
                 ano = date(cls.y(), cls.m(), 1) - du_rl.relativedelta(months=1)
                 # Se ele não achar o ano vindo do split...
 
-        __path = cls.getset_folderspath()
+        __path = cls.files_location.getset_folderspath()
         path_final = [__path,
                       ano, insyear, pasta_client]
         salva_path = Dirs.pathit(*path_final)
         return salva_path
 
-    def certif_feito(self, save_path, add=''):
+    @staticmethod
+    def certif_feito(save_path, add=''):
         """
         certificado de que está feito
         :param save_path: nome da pasta
@@ -233,7 +186,7 @@ class InitialSetting(Initial, Dirs, Now):
         if excluir_png:
             os.remove(filepath_png)
 
-    @ staticmethod
+    @staticmethod
     def ate_atual_compt(compt_atual, first_compt=None):
         from datetime import date
         from dateutil import relativedelta
@@ -255,15 +208,15 @@ class InitialSetting(Initial, Dirs, Now):
 
             # list_compts = []
             while first_compt <= last_compt:
-
                 compt = first_compt
                 first_compt = first_compt + \
-                    relativedelta.relativedelta(months=1)
+                              relativedelta.relativedelta(months=1)
                 compt_appended = f'{compt.month:02d}-{compt.year}'
                 # list_compts.append(compt_appended)
                 yield compt_appended
 
-    def trata_money_excel(self, faturado):
+    @staticmethod
+    def trata_money_excel(faturado):
         # TODO: refaturar em _backend com foco em já definir os valores e pegar do bd se tem DAS pendentes ou não
         if faturado is None:
             faturado = 0
