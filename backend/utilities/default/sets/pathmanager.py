@@ -1,5 +1,6 @@
 import os
 import json
+import glob
 from json import decoder
 
 
@@ -23,22 +24,6 @@ class Dirs:
             os.makedirs(pathit)
         pathit = pathit.replace('/', sep)
         return pathit
-
-    def certifs_exist(self, startswith, at_least=2, endswith: bool = False):
-        # if endswith is True, it will search for endswith instead
-        arqs_search = self.files_get_anexos_v4(self.client_path, 'png')
-        arqs_search += self.files_get_anexos_v4(self.client_path, 'pdf')
-        # certificados gias são em PDF...
-        arqs_search = [
-            self.path_leaf(f, True) for f in arqs_search]
-        if endswith is False:
-            arqs_search = [f for f in arqs_search if f.startswith(startswith)]
-        else:
-            arqs_search = [f for f in arqs_search if f.endswith(startswith)]
-
-        if len(arqs_search) >= at_least:
-            return True
-        return False
 
     @staticmethod
     def walget_searpath(searched, initial_path, whatis: int = 0):
@@ -76,16 +61,6 @@ class Dirs:
                     return False
 
     @staticmethod
-    def move_file(where_from, destiny):
-        """[File/folder moved from a place[where_from] to another[destiny]]
-        Args:
-            where_from (str):
-            destiny (str):
-        """
-        from shutil import move
-        move(where_from, destiny)
-
-    @staticmethod
     def path_leaf(path, only_file=False):
         """
         :param path: Any path
@@ -102,34 +77,22 @@ class Dirs:
         # else
         return tail or os.path.basename(head)
 
-    def files_get_anexos_v4(self, path, file_type='pdf', upload=True):
+    @staticmethod
+    def get_documents_folder_location():
         """
-        :param path: get anexos from the following path
-        :param file_type: file annexed type
-        :param compt: 10-2020; 02-2019 etc
-        :param upload: False -> email it! True: upload it!
-        :return: pdf_files or whatever
-
-        # _files_path
+        :returns: user Documents folder location
         """
-        from email.mime.application import MIMEApplication
-        pdf_files = list()
-        # Lucas Restaurante
-
-        dir_searched_now = path
-        list_checked_returned = [os.path.join(dir_searched_now, fname)
-                                 for fname in os.listdir(dir_searched_now) if fname.lower().endswith(file_type)]
-
-        for fname in list_checked_returned:
-            if not upload:
-                file_opened = MIMEApplication(open(fname, 'rb').read())
-                fname_title = self.path_leaf(fname)
-                file_opened.add_header(
-                    'Content-Disposition', 'attachment', filename=fname_title)
-                pdf_files.append(file_opened)
-            else:
-                pdf_files.append(f'{fname}')
-        return pdf_files
+        from platform import system
+        import win32com
+        import pythoncom
+        if system() == 'Windows':
+            pythoncom.CoInitialize()
+            shell = win32com.client.Dispatch("WScript.Shell")
+            my_documents = shell.SpecialFolders("MyDocuments")
+            # print(my_documents)
+        else:
+            my_documents = os.path.expanduser("~/Documents")
+        return my_documents
 
     def unzip_folder(self, full_path, rm_zip=True):
         """
@@ -158,14 +121,6 @@ class Dirs:
                         remove(file)
 
     @staticmethod
-    def sort_files_by_most_recent(folderpath):
-        return sorted([os.path.join(folderpath, f)
-                       for f in os.listdir(folderpath)],
-                      key=lambda x: os.path.getmtime(
-                          os.path.join(folderpath, x)),
-                      reverse=True)
-
-    @staticmethod
     def get_most_recent_files_in_dir(num_files, path=os.path.expanduser('~' + os.sep + 'Downloads')):
         # Get a list of all files in the specified directory
         list_of_files = glob.glob(path + '/*')
@@ -177,23 +132,6 @@ class Dirs:
         most_recent_files = list_of_files[:num_files]
 
         return most_recent_files
-
-    @staticmethod
-    def get_documents_folder_location():
-        """
-        :returns: user Documents folder location
-        """
-        from platform import system
-        import win32com
-        import pythoncom
-        if system() == 'Windows':
-            pythoncom.CoInitialize()
-            shell = win32com.client.Dispatch("WScript.Shell")
-            my_documents = shell.SpecialFolders("MyDocuments")
-            # print(my_documents)
-        else:
-            my_documents = os.path.expanduser("~/Documents")
-        return my_documents
 
 
 class HasJson:
@@ -222,7 +160,6 @@ class HasJson:
         """
         with open(file, 'w', encoding='utf-8') as file:
             json.dump(objeto, file, ensure_ascii=False, indent=8)
-
 
 if __name__ == "__main__":
     test = Dirs.walget_searpath(

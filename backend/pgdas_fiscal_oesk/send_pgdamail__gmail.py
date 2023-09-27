@@ -14,7 +14,7 @@ class PgDasmailSender(EmailExecutor, HandleFileOperations):
 
         mail_header = f"Fechamentos para apuração do imposto PGDAS, competência: {compt.replace('-', '/')}"
         print('titulo: ', mail_header)
-        _valor = self.trata_money_excel(__valor_competencia)
+        _valor = trata_money_excel(__valor_competencia)
         print(_valor)
         print(__valor_competencia)
         print(__valor_competencia)

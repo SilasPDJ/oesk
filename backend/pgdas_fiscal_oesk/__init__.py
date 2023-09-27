@@ -1,9 +1,9 @@
-from utilities.default.sets import Initial
-from utilities.default import get_compt
+from utilities.default.sets import InitialSetFilesLocation
+from compt_utils import get_compt
 import pandas as pd
 
 
-class Consultar(Initial):
+class Consultar(InitialSetFilesLocation):
     def __init__(self, compt=None) -> None:
         super().__init__()
 

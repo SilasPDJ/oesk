@@ -29,7 +29,7 @@ class GissGui(HandleFileOperations, WDShorcuts):
         self.client_path = self.files_pathit(
             __r_social.strip(), compt)
 
-        if not self.certifs_exist(f'{compt}_giss'):
+        if not self.certifs_exist(self.client_path, f'{compt}_giss'):
             if headless:
                 self.driver = driver = ginfess_driver(self.client_path)
             else:
@@ -171,7 +171,7 @@ class GissGui(HandleFileOperations, WDShorcuts):
         if not constr:
             self.calls_write_date()
 
-        if not self.certifs_exist('GUIASpendentes-giss.png', endswith=True, at_least=1):
+        if not self.certifs_exist(self.client_path, 'GUIASpendentes-giss.png', endswith=True, at_least=1):
             try:
                 self.__check_prestador_guias()
             except StaleElementReferenceException:
