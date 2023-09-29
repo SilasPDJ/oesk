@@ -1,5 +1,5 @@
 from utilities.default.sets import InitialSetFilesLocation
-from compt_utils import get_compt
+from utilities.compt_utils import get_compt
 import pandas as pd
 
 
