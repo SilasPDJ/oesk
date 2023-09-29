@@ -8,7 +8,7 @@ import webbrowser as wb
 import pyautogui as pygui
 import ctypes
 from utilities.default.sets import FileOperations
-
+from pyperclip import copy
 
 def jscript_exec(scrpt: str, open_console=False, close_console=False, delay=2.5):
     # WIN is a constant in fact

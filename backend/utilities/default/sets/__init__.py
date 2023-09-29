@@ -6,7 +6,6 @@ from .now import Now
 import os
 import glob
 
-# @ staticmethod
 
 def trata_money_excel(faturado):
     # TODO: refaturar em _backend com foco em já definir os valores e pegar do bd se tem DAS pendentes ou não
@@ -26,8 +25,6 @@ def trata_money_excel(faturado):
     return faturado
 
 
-# TODO:
-# class FileOperations(Dirs, Now)
 class FileOperations(Dirs, Now):
     files_location = InitialSetFilesLocation()
 

@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 
 from time import sleep
 from utilities.default import *
+from compt_utils import *
 
 # from . import *
 # qualquer coisa me devolve
@@ -11,7 +12,6 @@ from utilities.default import *
 weblink = 'https://portal.gissonline.com.br/login/index.html'
 
 link = "ChromeDriver/chromedriver.exe"
-# ...
 
 
 # self.pyautogui
@@ -37,7 +37,7 @@ class GissGui(FileOperations, WDShorcuts):
             # self.driver.set_window_position(2000, 0)
             super().__init__(self.driver)
             [print(a)
-                for a in self.ate_atual_compt(first_compt)]
+                for a in ate_atual_compt(first_compt)]
             print(__r_social)
             # self.driver = ginfess_driver()
 
@@ -67,7 +67,7 @@ class GissGui(FileOperations, WDShorcuts):
                 except TimeoutException:
                     print("no alert, sem alerta, exceptado")
                     break
-            for loop_compt in self.ate_atual_compt(first_compt):
+            for loop_compt in ate_atual_compt(first_compt):
                 # driver.get(
                 #     'https://www10.gissonline.com.br/interna/default.cfm')
                 while True:
@@ -149,7 +149,7 @@ class GissGui(FileOperations, WDShorcuts):
         #     query = f"#vNumero > img:nth-child({i})"
         #     el = self.driver.find_element(By.CSS_SELECTOR, query)
         #     autenticate[tec] = el
-            # print("~~Gerando giss cpt~~", src)
+        # print("~~Gerando giss cpt~~", src)
         print("~~Gerando giss cpt~~")
         # print(autenticate)
         for v in autentic_list:
@@ -301,6 +301,7 @@ class GissGui(FileOperations, WDShorcuts):
                         except ValueError:
                             print('value error')
                             return v
+
                     _vcobs, _vrecs = [r for r in row.find_all('td')[5:7]]
                     vals_pagos.append(trata_val(_vcobs.text))
                     vals_abertos.append(trata_val(_vrecs.text))
@@ -318,7 +319,7 @@ class GissGui(FileOperations, WDShorcuts):
                         guia, mes = GUIAS[indx], MESES[indx].text
                     except IndexError:
                         try:
-                            guia, mes = GUIAS[indx-1], MESES[indx-1].text
+                            guia, mes = GUIAS[indx - 1], MESES[indx - 1].text
                         except IndexError:
                             mes = ""
                     __meses.append(mes)
@@ -336,7 +337,7 @@ class GissGui(FileOperations, WDShorcuts):
             except IndexError:  # THERE IS NO GUIA
                 pass
             print('Downlaod da ultima guia funcional')
-            print('~'*10, f'meses abertos: {__meses}')
+            print('~' * 10, f'meses abertos: {__meses}')
 
         driver = self.driver
 
@@ -443,36 +444,3 @@ class GissGui(FileOperations, WDShorcuts):
         a.clear()
         m.send_keys(mes)
         a.send_keys(ano)
-
-    # overriden
-    def ate_atual_compt(self, first_compt=None):
-        from datetime import date
-        from dateutil import relativedelta
-        if first_compt is None:
-            yield self.compt_atual
-        else:
-            first_compt = first_compt.split('-')
-            if len(first_compt) == 1:
-                first_compt = first_compt.split('/')
-            first_compt = [int(val) for val in first_compt]
-            first_compt = date(first_compt[1], first_compt[0], 1)
-
-            # next_date = first_compt + relativedelta.relativedelta(months=1)
-
-            last_compt = self.compt_atual.split('-')
-            # compt = [int(c) for c in compt]
-            last_compt = [int(v) for v in last_compt]
-            last_compt = date(last_compt[1], last_compt[0], 1)
-
-            # list_compts = []
-            while first_compt <= last_compt:
-                compt = first_compt
-                first_compt = first_compt + \
-                    relativedelta.relativedelta(months=1)
-
-                compt_appended = f'{compt.month:02d}-{compt.year}'
-                # list_compts.append(compt_appended)
-                yield compt_appended
-        # O objetivo dessa função é retornar yildar um range de compt, partindo do first_compt
-
-        # yield list_compts

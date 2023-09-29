@@ -112,8 +112,6 @@ def get_all_valores(sem_ret, com_ret, anexo, valor_tot) -> list:
 
 
 def ate_atual_compt(compt_atual, first_compt=None):
-    from datetime import date
-    from dateutil import relativedelta
     # yield list_compts
     if first_compt is None or first_compt == compt_atual:
         yield compt_atual
@@ -139,3 +137,4 @@ def ate_atual_compt(compt_atual, first_compt=None):
             compt_appended = f'{compt.month:02d}-{compt.year}'
             # list_compts.append(compt_appended)
             yield compt_appended
+    # O objetivo dessa função é retornar yildar um range de compt, partindo do first_compt
