@@ -50,6 +50,9 @@ class OrmTables:
         compt = Column(Date())
         pode_declarar = Column(Boolean())
 
+        def __repr__(self):
+            return f"{self.id} - {self.main_empresa_id:03d} - {self.main_empresas.razao_social}"
+
     @classmethod
     def get_classes(cls) -> dict:
         classes = [eval(f"OrmTables.{class_name}") for class_name in dir(cls) if
