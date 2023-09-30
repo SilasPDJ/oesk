@@ -1,5 +1,4 @@
 import pandas as pd
-import os
 from win10toast import ToastNotifier
 # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 from utilities.default import *
@@ -8,7 +7,7 @@ from pgdas_fiscal_oesk import Consultar
 from pgdas_fiscal_oesk.defis_utils.legato import Legato
 # from pgdas_fiscal_oesk.defis_utils.legato import transformers as tfms
 from simples_nacional_utilities import SimplesNacionalUtilities
-from compt_utils import get_compt
+from utilities.compt_utils import get_compt
 
 COMPT = get_compt(-1)
 CONS = Consultar(COMPT)

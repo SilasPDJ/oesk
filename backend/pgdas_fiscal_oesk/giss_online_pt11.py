@@ -1,9 +1,8 @@
 # dale
 from bs4 import BeautifulSoup
 
-from time import sleep
 from utilities.default import *
-from compt_utils import *
+from utilities.compt_utils import *
 
 # from . import *
 # qualquer coisa me devolve
