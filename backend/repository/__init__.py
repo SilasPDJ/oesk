@@ -11,27 +11,34 @@ import sqlalchemy as sql
 main_empresas, clients_compts = OrmTables.get_classes().values()
 
 
-class Default:
+class CustomMethods:
+    def __init__(self, orm):
+        self.orm = orm
+    @staticmethod
+    def sort_dataframe(main_df: pd.DataFrame, order_list: list, sorting_key: str) -> pd.DataFrame:
+        """Sorts a DataFrame based on a specified order list and a sorting key."""
 
-    def get_ordered_by(self, orm, order_list, key):
-        _str_col = key
+        main_df['sorting_key'] = main_df[sorting_key].apply(
+            lambda x: order_list.index(x) if x in order_list else len(order_list))
+        sorted_df = main_df.sort_values(by='sorting_key').drop(columns='sorting_key')
+        return sorted_df
 
 
-
-
-class MainEmpresasRepository:
+class MainEmpresasRepository(CustomMethods):
     def __init__(self):
         self.dba = DbAccessManager()
         self.Session = self.dba.Session
         self.orm = OrmTables.MainEmpresas
+        super().__init__(self.orm)
 
 
-class ClientComptsRepository:
+class ClientComptsRepository(CustomMethods):
     def __init__(self, compt: str):
         self.main_compt = compt_to_date_obj(compt)
         self.dba = DbAccessManager()
         self.Session = self.dba.Session
         self.orm = OrmTables.ClientsCompts
+        super().__init__(self.orm)
         self.main_empresas = OrmTables.MainEmpresas
 
     def get_full_df_in_compt(self, is_authorized=False, must_have_status_ativo=True) -> pd.DataFrame:
@@ -48,8 +55,6 @@ class ClientComptsRepository:
             if must_have_status_ativo:
                 query = query.filter_by(status_ativo=True)
 
-            # for q in query:
-            #     print(q)
             return self.dba.query_to_dataframe(query)
 
     def get_ordered_by_imposto_a_calcular(self, order_list: list, allow_lucro_presumido=False,
@@ -58,29 +63,18 @@ class ClientComptsRepository:
         Retrieve and sort a DataFrame of financial data by 'imposto_a_calcular' column based on a custom order list.
 
         :param order_list: A list specifying the desired sorting order for 'imposto_a_calcular' values.
-        :type order_list: list
         :param allow_lucro_presumido: If False, filter out rows with 'imposto_a_calcular' value 'LP'
                                       (Lucro Presumido). Default is False.
-        :type allow_lucro_presumido: bool, optional
         :param allow_only_authorized: If True, filter the DataFrame to include only authorized data.
                                       Default is True.
-        :type allow_only_authorized: bool, optional
-
         :return: A sorted DataFrame containing financial data with 'imposto_a_calcular' column values
                  ordered according to the provided order list.
 '        """
         main_df = self.get_full_df_in_compt(is_authorized=allow_only_authorized)
-
-        # Create a custom sorting key based on the order_list
-        _str_col = 'imposto_a_calcular'
-        main_df['sorting_key'] = main_df[_str_col].apply(
-            lambda x: order_list.index(x) if x in order_list else len(order_list))
-
-        # Sort the DataFrame by the custom sorting key and drop the sorting_key column
-        sorted_df = main_df.sort_values(by='sorting_key').drop(columns='sorting_key')
+        sorted_df = self.sort_dataframe(main_df, order_list, 'imposto_a_calcular')
 
         if not allow_lucro_presumido:
-            sorted_df = sorted_df.loc[sorted_df[_str_col] != 'LP']
+            sorted_df = sorted_df.loc[sorted_df['imposto_a_calcular'] != 'LP']
 
         return sorted_df
 
