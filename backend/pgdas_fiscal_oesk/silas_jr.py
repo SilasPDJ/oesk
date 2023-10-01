@@ -26,7 +26,7 @@ class JR(Contimatic):
         __client = __r_social
 
         self.compt_used = compt
-        self.client_path = self.files_pathit(__client)
+        self.client_path = self.files_pathit(__client, self.compt_used)
 
         registronta = self.registronta()
         print(__client)

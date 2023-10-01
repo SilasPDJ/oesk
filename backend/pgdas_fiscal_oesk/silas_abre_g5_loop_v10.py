@@ -471,8 +471,10 @@ class G5(Contimatic):
                                importable_files[:max_files_amount]))
         return final_files
 
-    @override
     def start_walk_menu(self):  # overriden, not necessary
         # this decorator is not obligatory, but it's a good practice
         x, y = 30, 30
         pygui.click(x, y)
+
+if "__name__" == "__main__":
+    pass

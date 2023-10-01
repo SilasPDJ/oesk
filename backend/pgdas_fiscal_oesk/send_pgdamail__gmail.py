@@ -1,7 +1,7 @@
 # from utilities.default import NewSetPaths, ExcelToData
 from utilities.default import *
 
-class PgDasmailSender(EmailExecutor, InitialSetting):
+class PgDasmailSender(EmailExecutor, FileOperations):
     def __init__(self, *args, email, compt, all_valores=None):
 
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
@@ -14,7 +14,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
         mail_header = f"Fechamentos para apuração do imposto PGDAS, competência: {compt.replace('-', '/')}"
         print('titulo: ', mail_header)
-        _valor = self.trata_money_excel(__valor_competencia)
+        _valor = trata_money_excel(__valor_competencia)
         print(_valor)
         print(__valor_competencia)
         print(__valor_competencia)

@@ -7,7 +7,8 @@ import webbrowser as wb
 # wb.open("https://www.google.com.br")
 import pyautogui as pygui
 import ctypes
-from utilities.default.sets import InitialSetting, get_compt
+from utilities.default.sets import FileOperations
+from pyperclip import copy
 
 
 def jscript_exec(scrpt: str, open_console=False, close_console=False, delay=2.5):
@@ -16,7 +17,7 @@ def jscript_exec(scrpt: str, open_console=False, close_console=False, delay=2.5)
         all_keys("ctrl", "shift", "j")
         sleep(1)
         ctypes.windll.user32.SetCursorPos(2759, 769)
-        pygui.click(WIN.midright[0]-300, WIN.midright[1])
+        pygui.click(WIN.midright[0] - 300, WIN.midright[1])
         # pygui.hotkey("tab")
     copy(scrpt)
     sleep(.25)
@@ -42,6 +43,7 @@ FINDSPECIFC = '''
 # ---------------------
 
 CHROMEPATH = r"C:\Program Files\Google\Chrome\Application\chrome.exe %s --incognito"
+
 
 # Focus mainWindow
 
@@ -117,7 +119,6 @@ def dividas_ativas_complete(cnpj, compt=None):
     '''
 
     jscript_exec(script)
-
 
 # pj = "07083804000140"  # CNPJ de TESTE
 # pj = sys.argv[-1]

@@ -3,7 +3,7 @@ from win32com import client
 from utilities.default.sets.init_email import EmailExecutor
 
 
-class PgDasmailSender(EmailExecutor, InitialSetting):
+class PgDasmailSender(EmailExecutor, FileOperations):
 
     def __init__(self, *args, email, compt, venc_das, all_valores=None):
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
@@ -14,7 +14,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
         mail_header = f"{compt.replace('-', '/')} - Relatórios e fechamento da competência. Simples Nacional."
         print('titulo: ', mail_header)
-        _valor = self.trata_money_excel(__valor_competencia)
+        _valor = trata_money_excel(__valor_competencia)
         print(_valor)
         print(__valor_competencia)
         print(__valor_competencia)
