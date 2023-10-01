@@ -4,6 +4,7 @@ from utilities.db import DbAccessManager
 from models import OrmTables
 from utilities.compt_utils import get_compt, compt_to_date_obj, calc_date_compt_offset, ate_atual_compt, get_all_valores
 import sqlalchemy as sql
+from typing import Union, List
 
 # OrmTables.MainEmpresas
 # OrmTables.ClientsCompts
@@ -70,11 +71,14 @@ class ClientComptsRepository(CustomMethods):
         self.main_empresas = OrmTables.MainEmpresas
 
     # Queries
-    def get_full_df_in_compt(self, is_authorized=False, must_have_status_ativo=True) -> pd.DataFrame:
-        """ Get df joining all register fields
-        :param is_authorized: pode_declarar in orm
-        :param must_have_status_ativo: filter with status_ativo. Defaults to True
-        :return:
+    def get_full_data_in_compt(self, is_authorized=False, must_have_status_ativo=True, to_df=True) -> Union[
+        pd.DataFrame, List[sql]]:
+        """Get a DataFrame or a list of ORM queries by joining all registered fields.
+
+        :param is_authorized: Filter by 'pode_declarar' in the ORM.
+        :param must_have_status_ativo: Filter by 'status_ativo'. Defaults to True.
+        :param to_df: If True, return a DataFrame; if False, return a list of ORM queries.
+        :return: Either a DataFrame or a list of ORM queries.
         """
         with self.Session() as session:
             query = session.query(self.orm, self.main_empresas).filter_by(compt=self.main_compt)
@@ -83,8 +87,10 @@ class ClientComptsRepository(CustomMethods):
             query = query.join(self.main_empresas, self.orm.main_empresa_id == self.main_empresas.id)
             if must_have_status_ativo:
                 query = query.filter_by(status_ativo=True)
-
-            return self.dba.query_to_dataframe(query)
+            if to_df:
+                return self.dba.query_to_dataframe(query)
+            else:
+                return query.all()
 
     def get_ordered_by_imposto_a_calcular(self, order_list: list = None, allow_lucro_presumido=False,
                                           allow_only_authorized=True) -> pd.DataFrame:
@@ -102,7 +108,7 @@ class ClientComptsRepository(CustomMethods):
                  ordered according to the provided order list.
 '        """
         default_order = ["SEM_MOV", "ISS", "ICMS"]
-        main_df = self.get_full_df_in_compt(is_authorized=allow_only_authorized)
+        main_df = self.get_full_data_in_compt(is_authorized=allow_only_authorized)
         sorted_df = self.sort_dataframe(main_df, order_list or default_order, 'imposto_a_calcular')
 
         if not allow_lucro_presumido:
@@ -117,7 +123,7 @@ if __name__ == '__main__':
     cc = ClientComptsRepository(compt='08-2023')
     me = MainEmpresasRepository()
     # df = cc.query(id=2)
-    df = cc.get_full_df_in_compt()
+    df = cc.get_full_data_in_compt()
 
     df = cc.get_ordered_by_imposto_a_calcular(['ISS', 'ICMS', 'SEM_MOV'])
 
