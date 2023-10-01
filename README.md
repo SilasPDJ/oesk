@@ -15,3 +15,19 @@
     -   selenium webdriver chrome tipos de drivers diferentes "pré-configurados"
 -   ### interact
     -   função press_key_b4: pausa o script até que o programa seja executado novamente
+
+## "utilities" package
+
+-   ### compt_utiles
+    - compt = competencia
+
+-   ### db
+    - `DbAccessManager` gerencia o acesso à base de dados sql
+
+## "repository" package
+
+-   Gerencia operações no banco dados, com métodos reutilizáveis por todo o projeto
+
+## "models" package
+
+- Utilizando sqlalchemy orm
