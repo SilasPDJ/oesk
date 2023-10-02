@@ -19,7 +19,8 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
         # TODO passar a competencia por variavel atualizavel
-        self.client_repository = ClientComptsRepository('08-2023')
+        self.compts_repository = ClientComptsRepository('08-2023')
+        self.client_compts_df = self.compts_repository.get_interface_df()
 
         # configure window
         self.title("ctk complex_example.py")
@@ -28,6 +29,15 @@ class App(ctk.CTk):
         self.create_sidebar__routine_calls()
         self.crate_helpy_methods_frame()
         self.display_clientes()
+
+    @property
+    def client_compts_df(self) -> pd.DataFrame:
+        return self._client_compts_df
+
+    @client_compts_df.setter
+    def client_compts_df(self, value):
+        self._client_compts_df = value
+
 
     def _set_button_data(self, function: callable, text: str, text_color=None, fg_color=None, hover_color=None) -> dict:
         button_info = {
@@ -133,25 +143,30 @@ class App(ctk.CTk):
         widget.activate(next_index)
 
     def display_clientes(self):
+        # Cria o frame principal
         main_frame = ctk.CTkFrame(self, width=200)
         main_frame.grid(row=0, column=2, padx=(10, 10), pady=(5, 10), sticky="nsew")
 
-        # opções clientes
+        # Lista de opções de clientes
         options = ["ISS", "ICMS", "SEM_MOV", "LP"]
 
+        # Frame de opções de cliente
         scrollable_frame = ctk.CTkScrollableFrame(main_frame, label_text="Categoria cliente",
                                                   label_font=ctk.CTkFont(size=16, weight="bold"))
         scrollable_frame.grid(sticky="nsew", pady=10)
 
-        df = self.client_repository.get_interface_df(allowing_list=options)
-        listvariable = df['razao_social'].to_list()
+        # Inicializa a lista variável com os valores da coluna 'razao_social'
+        listvariable = self.client_compts_df['razao_social'].to_list()
         listvariable = tk.StringVar(value=listvariable)
 
         def update_allow_list(df_col):
+            # Função para atualizar a lista com base nos switches
             allowing_list = [v.cget("text") for v in switches if v.get()]
-            df_updater = self.client_repository.get_interface_df(allowing_list=allowing_list)
-            listvariable.set(df_updater[df_col].to_list())
+            self.client_compts_df = self.compts_repository.get_interface_df(allowing_list=allowing_list)
 
+            listvariable.set(self.client_compts_df[df_col].to_list())
+
+        # Cria os switches (selecionando opções de clientes)
         switches = []
         for i in range(len(options)):
             switch = ctk.CTkSwitch(master=scrollable_frame, text=options[i],
@@ -159,11 +174,12 @@ class App(ctk.CTk):
             switch.grid(row=i, column=0, padx=10, pady=(0, 20))
             switches.append(switch)
 
-        # Display Clientes
+        # Rótulo para seleção do cliente
         label = ctk.CTkLabel(main_frame, text="Selecione o cliente",
                              font=ctk.CTkFont(size=16, weight="bold"))
         label.grid()
 
+        # Cria a lista rolável com base na lista variável
         listbox = CTkListbox(main_frame, command=lambda x: print(x), text_color="#000", listvariable=listvariable,
                              width=300, height=255)
         listbox.bind("<Down>", lambda event: self._on_keyup_keydown(listbox, 1))
