@@ -108,11 +108,6 @@ class App(ctk.CTk):
 
             button.grid(row=row, column=1, padx=20, pady=10)
 
-    def crate_helpy_methods_frame(self):
-        # TODO: create a main frame for both
-        main_frame = ctk.CTkFrame(self, width=180)
-        main_frame.grid(row=0, column=2, padx=(20, 10), pady=(5, 0))
-
         # Dicas...
         tips_frame = ctk.CTkFrame(main_frame)
         tips_frame.grid(pady=(10,20))
@@ -120,19 +115,29 @@ class App(ctk.CTk):
         tips = [
             # f'Vencimento DAS: {VENC_DAS}',
             ['Atalhos', 'Comandos'],
-            ['Ctrl+F5', 'Reinicializa Aplicação'],
+            ['Ctrl + F5', 'Reinicializa Aplicação'],
             ['F1', 'Abrir Pasta Cliente'],
+            ['F2', 'Copia Pasta Cliente'],
+            ['F4', 'Copia Campo Cliente'],
             ['F12', 'GShopee Emission_Reports'],
         ]
-
         CTkTable(tips_frame,
                  values=tips,
                  header_color="#989798").grid()
 
+    def _on_keyup_keydown(self, widget, direction):
+        current_index = widget.curselection()
+        next_index = (current_index + direction) % widget.size()
+        widget.activate(next_index)
+
+    def display_clientes(self):
+        main_frame = ctk.CTkFrame(self, width=200)
+        main_frame.grid(row=0, column=2, padx=(10, 10), pady=(5, 10), sticky="nsew")
+
         # opções clientes
-        scrollable_frame = ctk.CTkScrollableFrame(main_frame, label_text="Selecione as opções",
+        scrollable_frame = ctk.CTkScrollableFrame(main_frame, label_text="Selecione o cliente",
                                                   label_font=ctk.CTkFont(size=16, weight="bold"))
-        scrollable_frame.grid(sticky="nsew")
+        scrollable_frame.grid(sticky="nsew",pady=10)
 
         options = ["ISS", "ICMS", "SEM_MOV", "LP"]
 
@@ -144,29 +149,22 @@ class App(ctk.CTk):
             if options[i] != options[-1]:
                 switch.select()
 
-    def display_clientes(self):
-        listbox_frame = ctk.CTkFrame(self, width=200)
-        listbox_frame.grid(row=0, column=3, padx=(10, 10), pady=(5, 10), sticky="nsew")
-        label = ctk.CTkLabel(listbox_frame, text="Selecione clientes",
-                             font=ctk.CTkFont(size=16, weight="bold"))
-        label.grid(row=0, column=0, rowspan=1, columnspan=2, pady=10)
-
+        # Display Clientes
         df = self.client_repository.get_interface_df()
 
         listvariable = df['razao_social'].to_list()
         listvariable = tk.StringVar(value=listvariable)
 
-        listbox = CTkListbox(listbox_frame, command=lambda x: print(x), text_color="#000", listvariable=listvariable,
+        listbox = CTkListbox(main_frame, command=lambda x: print(x), text_color="#000", listvariable=listvariable,
                              width=300, height=275)
         listbox.bind("<Down>", lambda event: self._on_keyup_keydown(listbox, 1))
         listbox.bind("<Up>", lambda event: self._on_keyup_keydown(listbox, -1))
         listbox.grid(row=1, column=0)
 
-    def _on_keyup_keydown(self, widget, direction):
-        current_index = widget.curselection()
-        next_index = (current_index + direction) % widget.size()
-        widget.activate(next_index)
-
+    def crate_helpy_methods_frame(self):
+        # TODO: create a main frame for both
+        main_frame = ctk.CTkFrame(self, width=180)
+        # main_frame.grid(row=0, column=3, padx=(20, 10), pady=(5, 0), sticky="nsew")
 
 if __name__ == "__main__":
     app = App()
