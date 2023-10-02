@@ -1,5 +1,7 @@
 import tkinter as tk
 import tkinter.messagebox
+
+import pandas as pd
 from CTkListbox import *
 from CTkTable import *
 
@@ -110,7 +112,7 @@ class App(ctk.CTk):
 
         # Dicas...
         tips_frame = ctk.CTkFrame(main_frame)
-        tips_frame.grid(pady=(10,20))
+        tips_frame.grid(pady=(10, 20))
 
         tips = [
             # f'Vencimento DAS: {VENC_DAS}',
@@ -135,36 +137,47 @@ class App(ctk.CTk):
         main_frame.grid(row=0, column=2, padx=(10, 10), pady=(5, 10), sticky="nsew")
 
         # opções clientes
-        scrollable_frame = ctk.CTkScrollableFrame(main_frame, label_text="Selecione o cliente",
-                                                  label_font=ctk.CTkFont(size=16, weight="bold"))
-        scrollable_frame.grid(sticky="nsew",pady=10)
-
         options = ["ISS", "ICMS", "SEM_MOV", "LP"]
 
-        for i in range(len(options)):
-            switch = ctk.CTkSwitch(master=scrollable_frame, text=options[i])
-            switch.grid(row=i, column=0, padx=10, pady=(0, 20))
+        scrollable_frame = ctk.CTkScrollableFrame(main_frame, label_text="Categoria cliente",
+                                                  label_font=ctk.CTkFont(size=16, weight="bold"))
+        scrollable_frame.grid(sticky="nsew", pady=10)
 
-            # set default value
-            if options[i] != options[-1]:
-                switch.select()
-
-        # Display Clientes
-        df = self.client_repository.get_interface_df()
-
+        df = self.client_repository.get_interface_df(allowing_list=options)
         listvariable = df['razao_social'].to_list()
         listvariable = tk.StringVar(value=listvariable)
 
+        def update_allow_list(df_col):
+            allowing_list = [v.cget("text") for v in switches if v.get()]
+            df_updater = self.client_repository.get_interface_df(allowing_list=allowing_list)
+            listvariable.set(df_updater[df_col].to_list())
+
+        switches = []
+        for i in range(len(options)):
+            switch = ctk.CTkSwitch(master=scrollable_frame, text=options[i],
+                                   command=lambda: update_allow_list(df_col='razao_social'))
+            switch.grid(row=i, column=0, padx=10, pady=(0, 20))
+            switches.append(switch)
+
+        # Display Clientes
+        label = ctk.CTkLabel(main_frame, text="Selecione o cliente",
+                             font=ctk.CTkFont(size=16, weight="bold"))
+        label.grid()
+
         listbox = CTkListbox(main_frame, command=lambda x: print(x), text_color="#000", listvariable=listvariable,
-                             width=300, height=275)
+                             width=300, height=255)
         listbox.bind("<Down>", lambda event: self._on_keyup_keydown(listbox, 1))
         listbox.bind("<Up>", lambda event: self._on_keyup_keydown(listbox, -1))
-        listbox.grid(row=1, column=0)
+        listbox.grid()
+
+    def _update_interface_df(self) -> pd.DataFrame():
+        pass
 
     def crate_helpy_methods_frame(self):
         # TODO: create a main frame for both
         main_frame = ctk.CTkFrame(self, width=180)
         # main_frame.grid(row=0, column=3, padx=(20, 10), pady=(5, 0), sticky="nsew")
+
 
 if __name__ == "__main__":
     app = App()

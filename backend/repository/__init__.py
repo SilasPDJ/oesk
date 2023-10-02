@@ -82,7 +82,7 @@ class ClientComptsRepository(CustomMethods):
 
     # Queries
     def _query_all_data_in_compt(self, is_authorized=False, must_have_status_ativo=True, to_df=True) -> Union[
-                                pd.DataFrame, List[sql.orm.Query]]:
+        pd.DataFrame, List[sql.orm.Query]]:
         """Get a DataFrame or a list of ORM queries by joining all registered fields.
 
         :param is_authorized: Filter by 'pode_declarar' in the ORM.
@@ -122,15 +122,17 @@ class ClientComptsRepository(CustomMethods):
         main_df = self._query_all_data_in_compt(is_authorized=allow_only_authorized)
         sorted_df = self.sort_dataframe(main_df, sorting_list or default_order, 'imposto_a_calcular')
 
-        if not allow_lucro_presumido:
+        if not allow_lucro_presumido and 'LP' not in allowing_list:
             sorted_df = sorted_df.loc[sorted_df['imposto_a_calcular'] != 'LP']
 
         if allowing_list:
             sorted_df = sorted_df.loc[sorted_df['imposto_a_calcular'].isin(allowing_list)]
 
         return sorted_df
-    def get_interface_df(self) -> pd.DataFrame:
-        df = self._get_ordered_by_imposto_a_calcular(sorting_list=['ISS', 'ICMS', 'SEM_MOV', 'LP'])
+
+    def get_interface_df(self, allowing_list=None) -> pd.DataFrame:
+        df = self._get_ordered_by_imposto_a_calcular(sorting_list=['ISS', 'ICMS', 'SEM_MOV', 'LP'],
+                                                     allowing_list=allowing_list)
         return df
 
     def get_g5_df(self) -> Tuple[list, pd.DataFrame]:
@@ -142,8 +144,6 @@ class ClientComptsRepository(CustomMethods):
         df_required = df[attributes_required]
         # TODO: separar G5 por ISS e ICMS
         print(df)
-
-
 
     # Updates...
 
