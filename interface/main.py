@@ -43,11 +43,11 @@ class App(ctk.CTk):
         main_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
 
         label_1 = ctk.CTkLabel(main_frame, text="Funções Principais",
-                               font=ctk.CTkFont(size=20, weight="bold"))
+                               font=ctk.CTkFont(size=16, weight="bold"))
         label_1.grid(row=0, column=0, rowspan=1, columnspan=4, pady=10)
 
         label_2 = ctk.CTkLabel(main_frame, text="Funções Principais",
-                               font=ctk.CTkFont(size=20, weight="bold"))
+                               font=ctk.CTkFont(size=16, weight="bold"))
         label_2.grid(row=0, column=0, rowspan=1, columnspan=4, pady=10)
 
         frame = ctk.CTkFrame(main_frame, corner_radius=0)
@@ -113,20 +113,6 @@ class App(ctk.CTk):
         main_frame = ctk.CTkFrame(self, width=180)
         main_frame.grid(row=0, column=2, padx=(20, 10), pady=(5, 0))
 
-        scrollable_frame = ctk.CTkScrollableFrame(main_frame, label_text="Selecione as opções",
-                                                  label_font=('sans-serif', 16))
-        scrollable_frame.grid(sticky="nsew")
-
-        options = ["ISS", "ICMS", "SEM_MOV", "LP"]
-
-        for i in range(len(options)):
-            switch = ctk.CTkSwitch(master=scrollable_frame, text=options[i])
-            switch.grid(row=i, column=0, padx=10, pady=(0, 20))
-
-            # set default value
-            if options[i] != options[-1]:
-                switch.select()
-
         # Dicas...
         tips_frame = ctk.CTkFrame(main_frame)
         tips_frame.grid(pady=(10,20))
@@ -143,11 +129,26 @@ class App(ctk.CTk):
                  values=tips,
                  header_color="#989798").grid()
 
+        # opções clientes
+        scrollable_frame = ctk.CTkScrollableFrame(main_frame, label_text="Selecione as opções",
+                                                  label_font=ctk.CTkFont(size=16, weight="bold"))
+        scrollable_frame.grid(sticky="nsew")
+
+        options = ["ISS", "ICMS", "SEM_MOV", "LP"]
+
+        for i in range(len(options)):
+            switch = ctk.CTkSwitch(master=scrollable_frame, text=options[i])
+            switch.grid(row=i, column=0, padx=10, pady=(0, 20))
+
+            # set default value
+            if options[i] != options[-1]:
+                switch.select()
+
     def display_clientes(self):
         listbox_frame = ctk.CTkFrame(self, width=200)
         listbox_frame.grid(row=0, column=3, padx=(10, 10), pady=(5, 10), sticky="nsew")
         label = ctk.CTkLabel(listbox_frame, text="Selecione clientes",
-                             font=ctk.CTkFont(size=20, weight="bold"))
+                             font=ctk.CTkFont(size=16, weight="bold"))
         label.grid(row=0, column=0, rowspan=1, columnspan=2, pady=10)
 
         df = self.client_repository.get_interface_df()
