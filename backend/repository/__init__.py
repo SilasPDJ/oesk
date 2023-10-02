@@ -122,7 +122,7 @@ class ClientComptsRepository(CustomMethods):
         main_df = self._query_all_data_in_compt(is_authorized=allow_only_authorized)
         sorted_df = self.sort_dataframe(main_df, sorting_list or default_order, 'imposto_a_calcular')
 
-        if not allow_lucro_presumido and 'LP' not in allowing_list:
+        if not allow_lucro_presumido and allowing_list is not None and 'LP' not in allowing_list:
             sorted_df = sorted_df.loc[sorted_df['imposto_a_calcular'] != 'LP']
 
         if allowing_list:
