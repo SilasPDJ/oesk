@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.messagebox
-from CTkListbox import CTkListbox
+from CTkListbox import *
+from CTkTable import *
 
 import customtkinter as ctk
 from actions import call_g5, call_gias, call_giss, call_ginfess, call_func_v3
@@ -42,11 +43,11 @@ class App(ctk.CTk):
         main_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
 
         label_1 = ctk.CTkLabel(main_frame, text="Funções Principais",
-                                       font=ctk.CTkFont(size=20, weight="bold"))
+                               font=ctk.CTkFont(size=20, weight="bold"))
         label_1.grid(row=0, column=0, rowspan=1, columnspan=4, pady=10)
 
         label_2 = ctk.CTkLabel(main_frame, text="Funções Principais",
-                                       font=ctk.CTkFont(size=20, weight="bold"))
+                               font=ctk.CTkFont(size=20, weight="bold"))
         label_2.grid(row=0, column=0, rowspan=1, columnspan=4, pady=10)
 
         frame = ctk.CTkFrame(main_frame, corner_radius=0)
@@ -91,7 +92,7 @@ class App(ctk.CTk):
             hover_color = button_info['hover_color']
 
             button = ctk.CTkButton(frame, text=text, command=function,
-                                             fg_color=fg_color, text_color=text_color, hover_color=hover_color)
+                                   fg_color=fg_color, text_color=text_color, hover_color=hover_color)
 
             button.grid(row=row, column=0, padx=20, pady=10)
 
@@ -103,17 +104,18 @@ class App(ctk.CTk):
             hover_color = button_info['hover_color']
 
             button = ctk.CTkButton(frame, text=text, command=function,
-                                             fg_color=fg_color, text_color=text_color, hover_color=hover_color)
+                                   fg_color=fg_color, text_color=text_color, hover_color=hover_color)
 
             button.grid(row=row, column=1, padx=20, pady=10)
 
     def crate_helpy_methods_frame(self):
         # TODO: create a main frame for both
         main_frame = ctk.CTkFrame(self, width=180)
-        main_frame.grid(row=0, column=2,padx=(20, 10), pady=(5, 0), sticky="nsew")
+        main_frame.grid(row=0, column=2, padx=(20, 10), pady=(5, 0))
 
-        scrollable_frame = ctk.CTkScrollableFrame(main_frame, label_text="Selecione as opções", label_font=('sans-serif',16))
-        scrollable_frame.grid()
+        scrollable_frame = ctk.CTkScrollableFrame(main_frame, label_text="Selecione as opções",
+                                                  label_font=('sans-serif', 16))
+        scrollable_frame.grid(sticky="nsew")
 
         options = ["ISS", "ICMS", "SEM_MOV", "LP"]
 
@@ -125,11 +127,27 @@ class App(ctk.CTk):
             if options[i] != options[-1]:
                 switch.select()
 
+        # Dicas...
+        tips_frame = ctk.CTkFrame(main_frame)
+        tips_frame.grid(pady=(10,20))
+
+        tips = [
+            # f'Vencimento DAS: {VENC_DAS}',
+            ['Atalhos', 'Comandos'],
+            ['Ctrl+F5', 'Reinicializa Aplicação'],
+            ['F1', 'Abrir Pasta Cliente'],
+            ['F12', 'GShopee Emission_Reports'],
+        ]
+
+        CTkTable(tips_frame,
+                 values=tips,
+                 header_color="#989798").grid()
+
     def display_clientes(self):
         listbox_frame = ctk.CTkFrame(self, width=200)
         listbox_frame.grid(row=0, column=3, padx=(10, 10), pady=(5, 10), sticky="nsew")
         label = ctk.CTkLabel(listbox_frame, text="Selecione clientes",
-                                       font=ctk.CTkFont(size=20, weight="bold"))
+                             font=ctk.CTkFont(size=20, weight="bold"))
         label.grid(row=0, column=0, rowspan=1, columnspan=2, pady=10)
 
         df = self.client_repository.get_interface_df()
