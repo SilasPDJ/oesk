@@ -7,7 +7,7 @@ class App(customtkinter.CTk):
         super().__init__()
 
         self.title("CustomTkinter complex_example.py")
-        self.geometry("1100x580")
+        self.geometry("1100x600")
 
         self.create_sidebar()
         self.create_main_widgets()
