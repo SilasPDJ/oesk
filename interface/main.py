@@ -21,6 +21,7 @@ class App(ctk.CTk):
         # TODO passar a competencia por variavel atualizavel
         self.compts_repository = ClientComptsRepository('08-2023')
         self.client_compts_df = self.compts_repository.get_interface_df()
+        self.clients_permited = 'razao_social'
 
         # configure window
         self.title("ctk complex_example.py")
@@ -38,6 +39,14 @@ class App(ctk.CTk):
     def client_compts_df(self, value):
         self._client_compts_df = value
 
+    @property
+    def clients_permited(self) -> tk.StringVar:
+        return self._clients_permited
+
+    @clients_permited.setter
+    def clients_permited(self, col):
+        _clients_permited = self.client_compts_df[col].to_list()
+        self._clients_permited = tk.StringVar(value=_clients_permited)
 
     def _set_button_data(self, function: callable, text: str, text_color=None, fg_color=None, hover_color=None) -> dict:
         button_info = {
@@ -155,16 +164,12 @@ class App(ctk.CTk):
                                                   label_font=ctk.CTkFont(size=16, weight="bold"))
         scrollable_frame.grid(sticky="nsew", pady=10)
 
-        # Inicializa a lista variável com os valores da coluna 'razao_social'
-        listvariable = self.client_compts_df['razao_social'].to_list()
-        listvariable = tk.StringVar(value=listvariable)
-
         def update_allow_list(df_col):
             # Função para atualizar a lista com base nos switches
             allowing_list = [v.cget("text") for v in switches if v.get()]
             self.client_compts_df = self.compts_repository.get_interface_df(allowing_list=allowing_list)
 
-            listvariable.set(self.client_compts_df[df_col].to_list())
+            self.clients_permited.set(self.client_compts_df[df_col].to_list())
 
         # Cria os switches (selecionando opções de clientes)
         switches = []
@@ -172,15 +177,18 @@ class App(ctk.CTk):
             switch = ctk.CTkSwitch(master=scrollable_frame, text=options[i],
                                    command=lambda: update_allow_list(df_col='razao_social'))
             switch.grid(row=i, column=0, padx=10, pady=(0, 20))
+            switch.select()
             switches.append(switch)
+        update_allow_list(df_col='razao_social')
 
         # Rótulo para seleção do cliente
         label = ctk.CTkLabel(main_frame, text="Selecione o cliente",
                              font=ctk.CTkFont(size=16, weight="bold"))
         label.grid()
 
-        # Cria a lista rolável com base na lista variável
-        listbox = CTkListbox(main_frame, command=lambda x: print(x), text_color="#000", listvariable=listvariable,
+        # Mostra os clientes permitidos
+        listbox = CTkListbox(main_frame, command=lambda x: print(x), text_color="#000",
+                             listvariable=self.clients_permited,
                              width=300, height=255)
         listbox.bind("<Down>", lambda event: self._on_keyup_keydown(listbox, 1))
         listbox.bind("<Up>", lambda event: self._on_keyup_keydown(listbox, -1))
@@ -190,7 +198,6 @@ class App(ctk.CTk):
         pass
 
     def crate_helpy_methods_frame(self):
-        # TODO: create a main frame for both
         main_frame = ctk.CTkFrame(self, width=180)
         # main_frame.grid(row=0, column=3, padx=(20, 10), pady=(5, 0), sticky="nsew")
 
