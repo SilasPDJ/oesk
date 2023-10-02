@@ -1,23 +1,30 @@
 import tkinter as tk
 import tkinter.messagebox
-import customtkinter
+from CTkListbox import CTkListbox
+
+import customtkinter as ctk
 from actions import call_g5, call_gias, call_giss, call_ginfess, call_func_v3
 from actions import call_simples_nacional, copy_data_to_clipboard, call_send_pgdas_email, abre_pasta
 
-customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
-customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+from repository import MainEmpresasRepository, ClientComptsRepository
+
+ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
+ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
-class App(customtkinter.CTk):
+class App(ctk.CTk):
     def __init__(self):
         super().__init__()
+        # TODO passar a competencia por variavel atualizavel
+        self.client_repository = ClientComptsRepository('08-2023')
 
         # configure window
-        self.title("CustomTkinter complex_example.py")
+        self.title("ctk complex_example.py")
         self.geometry(f"{1100}x{600}")
 
         self.create_sidebar__routine_calls()
         self.crate_helpy_methods_frame()
+        self.display_clientes()
 
     def _set_button_data(self, function: callable, text: str, text_color=None, fg_color=None, hover_color=None) -> dict:
         button_info = {
@@ -31,17 +38,17 @@ class App(customtkinter.CTk):
 
     def create_sidebar__routine_calls(self):
 
-        main_frame = customtkinter.CTkFrame(self, corner_radius=0)
+        main_frame = ctk.CTkFrame(self, corner_radius=0)
         main_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
 
-        label = customtkinter.CTkLabel(main_frame, text="Funções Principais",
-                                       font=customtkinter.CTkFont(size=20, weight="bold"))
+        label = ctk.CTkLabel(main_frame, text="Funções Principais",
+                                       font=ctk.CTkFont(size=20, weight="bold"))
         label.grid(row=0, column=1, rowspan=1, columnspan=4, pady=10)
 
         cols = 2
         frames = []
         for col in range(1, cols):
-            frame = customtkinter.CTkFrame(main_frame, corner_radius=0)
+            frame = ctk.CTkFrame(main_frame, corner_radius=0)
             frame.grid(row=1, column=col, rowspan=4, sticky="nsew")
             frames.append(frame)
 
@@ -83,7 +90,7 @@ class App(customtkinter.CTk):
             fg_color = button_info['fg_color']
             hover_color = button_info['hover_color']
 
-            button = customtkinter.CTkButton(frames[0], text=text, command=function,
+            button = ctk.CTkButton(frames[0], text=text, command=function,
                                              fg_color=fg_color, text_color=text_color, hover_color=hover_color)
 
             button.grid(row=col, column=0, padx=20, pady=10)
@@ -95,19 +102,19 @@ class App(customtkinter.CTk):
             fg_color = button_info['fg_color']
             hover_color = button_info['hover_color']
 
-            button = customtkinter.CTkButton(frames[0], text=text, command=function,
+            button = ctk.CTkButton(frames[0], text=text, command=function,
                                              fg_color=fg_color, text_color=text_color, hover_color=hover_color)
 
             button.grid(row=col, column=1, padx=20, pady=10)
 
     def crate_helpy_methods_frame(self):
-        scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="Selecione as opções", label_font=('sans-serif',16))
+        scrollable_frame = ctk.CTkScrollableFrame(self, label_text="Selecione as opções", label_font=('sans-serif',16))
         scrollable_frame.grid(row=0, column=2, padx=(10, 10), pady=(5, 10), sticky="nsew")
 
         options = ["ISS", "ICMS", "SEM_MOV", "LP"]
 
         for i in range(len(options)):
-            switch = customtkinter.CTkSwitch(master=scrollable_frame, text=options[i])
+            switch = ctk.CTkSwitch(master=scrollable_frame, text=options[i])
             switch.grid(row=i, column=0, padx=10, pady=(0, 20))
 
             # set default value
@@ -116,7 +123,7 @@ class App(customtkinter.CTk):
 
 
         # funcoes pt1
-        frame = customtkinter.CTkFrame(self, width=180, corner_radius=0)
+        frame = ctk.CTkFrame(self, width=180, corner_radius=0)
         frame.grid(row=0, column=3, rowspan=4, sticky="nsew")
         button_data = [
             self._set_button_data(abre_pasta, 'Abre/copia pasta [F1]'
@@ -130,11 +137,33 @@ class App(customtkinter.CTk):
             text_color = button_info['text_color']
             fg_color = button_info['fg_color']
             hover_color = button_info['hover_color']
-            button = customtkinter.CTkButton(frame, text=text, command=function,
+            button = ctk.CTkButton(frame, text=text, command=function,
                                              fg_color=fg_color, text_color=text_color, hover_color=hover_color)
 
             button.grid(row=i, column=0, padx=20, pady=10)
 
+    def display_clientes(self):
+        listbox_frame = ctk.CTkFrame(self, width=100)
+        label = ctk.CTkLabel(listbox_frame, text="Selecione clientes",
+                                       font=ctk.CTkFont(size=20, weight="bold"))
+        label.grid(row=0, column=0, rowspan=1, pady=10)
+
+        listbox_frame.grid(row=0, column=3, padx=(10, 10), pady=(5, 10), sticky="nsew")
+        df = self.client_repository.get_interface_df()
+
+        listvariable = df['razao_social'].to_list()
+        listvariable = tk.StringVar(value=listvariable)
+
+
+        listbox = CTkListbox(listbox_frame, command=lambda x: print(x), text_color="#000", listvariable=listvariable)
+        listbox.bind("<Down>", lambda event: self._on_keyup_keydown(listbox, 1))
+        listbox.bind("<Up>", lambda event: self._on_keyup_keydown(listbox, -1))
+        listbox.grid(row=1, column=0)
+
+    def _on_keyup_keydown(self, widget, direction):
+        current_index = widget.curselection()
+        next_index = (current_index + direction) % widget.size()
+        widget.activate(next_index)
 
 if __name__ == "__main__":
     app = App()
