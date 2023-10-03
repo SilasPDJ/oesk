@@ -6,17 +6,18 @@ import pandas as pd
 
 from utilities.default.sets import FileOperations
 from repository import MainEmpresasRepository, ClientComptsRepository
+from interface.settings import AppSettings
 
 class Actions:
-    def __init__(self, app_instance):
+    def __init__(self, app_settings: AppSettings):
         # composição...
-        self.app = app_instance
-        self.compts_repository = ClientComptsRepository(self.app.compt)
-        self.clients_permited = self.app.allowed_clients   # type: list
-        self.client_compts_df = self.app.client_compts_df  # type: pd.DataFrame
+        self.aps = app_settings
+        self.compts_repository = ClientComptsRepository(self.aps.compt)
+        self.clients_permited = self.aps.allowed_clients
+        self.client_compts_df = self.aps.client_compts_df
 
     def abre_pasta(self, event=None):
-        folder = FileOperations.files_pathit(self.app.current_client, self.app.compt)
+        folder = FileOperations.files_pathit(self.aps.current_client, self.aps.compt)
         if not os.path.exists(folder):
             os.makedirs(folder)
         subprocess.Popen(f'explorer "{folder}"')

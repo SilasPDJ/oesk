@@ -8,13 +8,15 @@ from CTkTable import *
 import customtkinter as ctk
 from actions import Actions
 
+from settings import AppSettings
+
 from repository import MainEmpresasRepository, ClientComptsRepository
 
 ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
-class App(ctk.CTk):
+class App(ctk.CTk, AppSettings):
     def __init__(self):
         super().__init__()
         self.compt = '08-2023'
@@ -24,7 +26,6 @@ class App(ctk.CTk):
         self.client_compts_df = self.compts_repository.get_interface_df()
         self.allowed_clients = 'razao_social'
         self.current_client = None
-
         self.acxs = Actions(self)
 
         self.display_clients()
@@ -35,30 +36,6 @@ class App(ctk.CTk):
         # configure window
         self.title("ctk complex_example.py")
         self.geometry(f"{1100}x{600}")
-    @property
-    def client_compts_df(self) -> pd.DataFrame:
-        return self._client_compts_df
-
-    @client_compts_df.setter
-    def client_compts_df(self, value):
-        self._client_compts_df = value
-
-    @property
-    def allowed_clients(self) -> tk.StringVar:
-        return self._allowed_clients
-
-    @allowed_clients.setter
-    def allowed_clients(self, col):
-        _clients_permited = self.client_compts_df[col].to_list()
-        self._allowed_clients = tk.StringVar(value=_clients_permited)
-
-    @property
-    def current_client(self):
-        return self._current_client
-
-    @current_client.setter
-    def current_client(self, value):
-        self._current_client = value
 
     def set_key_bindings(self):
         self.bind("<F4>", self.acxs.copy_data_to_clipboard)
@@ -215,7 +192,7 @@ class App(ctk.CTk):
 
     def display_clients(self):
         main_frame = ctk.CTkFrame(self, width=180)
-        main_frame.grid(row=0, column=3, padx=(20, 10), sticky="nsew")
+        main_frame.grid(row=0, column=3,columnspan=2, padx=(20, 10), sticky="nsew")
         # Rótulo para seleção do cliente
         label = ctk.CTkLabel(main_frame, text="Selecione o cliente",
                              font=ctk.CTkFont(size=16, weight="bold"))
