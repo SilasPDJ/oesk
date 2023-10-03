@@ -28,6 +28,8 @@ class App(ctk.CTk, AppSettings):
         self.current_client = None
         self.acxs = Actions(self)
 
+        self.var_selected_compt_field = tk.StringVar(value=self.copiable_fields[0])
+
         self.display_clients()
         self.create_funcoes_principais_routine_calls()
         self.display_categoria_clientes('razao_social')
@@ -35,7 +37,7 @@ class App(ctk.CTk, AppSettings):
 
         # configure window
         self.title("ctk complex_example.py")
-        self.geometry(f"{1100}x{600}")
+        self.geometry(f"{1200}x{600}")
 
     def set_key_bindings(self):
         self.bind("<F4>", self.acxs.copy_data_to_clipboard)
@@ -142,7 +144,7 @@ class App(ctk.CTk, AppSettings):
                  header_color="#989798").grid()
 
     def display_categoria_clientes(self, df_col):
-        main_frame = ctk.CTkFrame(self, width=200)
+        main_frame = ctk.CTkFrame(self)
         main_frame.grid(row=0, column=2, padx=(10, 10), pady=(5, 10), sticky="nsew")
 
         options = ["ISS", "ICMS", "SEM_MOV", "LP"]
@@ -159,6 +161,10 @@ class App(ctk.CTk, AppSettings):
             selected_options = [v.cget("text") for v in switches if v.get()]
             self.client_compts_df = self.compts_repository.get_interface_df(allowing_list=selected_options)
             self.allowed_clients.set(self.client_compts_df[df_col].to_list())
+
+            # Verifica se todos os switches estão desativados, se sim, define only_one_selection como True
+            if all(not v.get() for v in switches):
+                only_one_selection.set(True)
 
         only_one_selection = tk.BooleanVar(value=True)
         switches = []
@@ -184,6 +190,16 @@ class App(ctk.CTk, AppSettings):
                                         variable=only_one_selection)
         alow_one_only.grid()
 
+        fields_radio_frame = ctk.CTkScrollableFrame(main_frame, label_text="Selecione o campo",
+                                                    label_font=ctk.CTkFont(size=16, weight="bold"), width=250)
+        fields_radio_frame.grid(sticky="nsew", pady=10)
+
+        for i, text in enumerate(self.copiable_fields):
+            row = i
+            column = 0
+            field_radio = ctk.CTkRadioButton(fields_radio_frame, variable=self.var_selected_compt_field, text=text)
+            field_radio.grid(row=row, column=column, sticky="w")
+
     def _on_keyup_keydown(self, widget, direction):
         widget.curselection()
         current_index = widget.curselection()
@@ -192,7 +208,7 @@ class App(ctk.CTk, AppSettings):
 
     def display_clients(self):
         main_frame = ctk.CTkFrame(self, width=180)
-        main_frame.grid(row=0, column=3,columnspan=2, padx=(20, 10), sticky="nsew")
+        main_frame.grid(row=0, column=3, columnspan=2, sticky="nsew")
         # Rótulo para seleção do cliente
         label = ctk.CTkLabel(main_frame, text="Selecione o cliente",
                              font=ctk.CTkFont(size=16, weight="bold"))
@@ -201,7 +217,7 @@ class App(ctk.CTk, AppSettings):
         current_client_selection = CTkListbox(main_frame, command=lambda x: setattr(self, 'current_client', x),
                                               text_color="#000",
                                               listvariable=self.allowed_clients,
-                                              width=300, height=500)
+                                              width=470, height=450)
         current_client_selection.bind("<Down>", lambda event: self._on_keyup_keydown(current_client_selection, 1))
         current_client_selection.bind("<Up>", lambda event: self._on_keyup_keydown(current_client_selection, -1))
         current_client_selection.grid()

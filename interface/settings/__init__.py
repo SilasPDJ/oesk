@@ -3,6 +3,15 @@ import tkinter as tk
 
 
 class AppSettings:
+    """App Settings"""
+
+    "campos copiaveis"
+    copiable_fields = [
+        'razao_social', 'cnpj', 'cpf', 'codigo_simples', 'email',
+        'sem_retencao', 'com_retencao', 'valor_total', 'anexo',
+        'gissonline', 'giss_login', 'ginfess_cod', 'ginfess_link',
+        'possui_das_pendentes', 'status_ativo', 'main_empresa_id']
+
     @property
     def compt(self):
         return self._compt
