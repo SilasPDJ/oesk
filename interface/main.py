@@ -17,23 +17,24 @@ ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
+        self.compt = '08-2023'
 
         # TODO passar a competencia por variavel atualizavel
-        self.compts_repository = ClientComptsRepository('08-2023')
+        self.compts_repository = ClientComptsRepository(self.compt)
         self.client_compts_df = self.compts_repository.get_interface_df()
         self.allowed_clients = 'razao_social'
         self.current_client = None
 
         self.acxs = Actions(self)
 
+        self.display_clients()
+        self.create_funcoes_principais_routine_calls()
+        self.display_categoria_clientes('razao_social')
+        self.set_key_bindings()
+
         # configure window
         self.title("ctk complex_example.py")
         self.geometry(f"{1100}x{600}")
-
-        self.create_funcoes_principais_routine_calls()
-        self.display_clients()
-        self.display_categoria_clientes('razao_social')
-
     @property
     def client_compts_df(self) -> pd.DataFrame:
         return self._client_compts_df
@@ -61,6 +62,7 @@ class App(ctk.CTk):
 
     def set_key_bindings(self):
         self.bind("<F4>", self.acxs.copy_data_to_clipboard)
+        self.bind("<F1>", self.acxs.abre_pasta)
 
     def _set_button_data(self, function: callable, text: str, text_color=None, fg_color=None, hover_color=None) -> dict:
         button_info = {
