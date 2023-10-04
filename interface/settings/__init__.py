@@ -3,6 +3,8 @@ import tkinter as tk
 
 
 class AppSettings:
+    current_client_index = 0
+
     """App Settings"""
 
 
@@ -47,9 +49,9 @@ class AppSettings:
         self._allowed_clients = tk.StringVar(value=_clients_permited)
 
     @property
-    def current_client(self):
+    def current_client_index(self):
         return self._current_client
 
-    @current_client.setter
-    def current_client(self, value):
+    @current_client_index.setter
+    def current_client_index(self, value):
         self._current_client = value
