@@ -23,16 +23,23 @@ class Actions:
         current_client_index = self.aps.current_client_index
         return df.iloc[current_client_index, :]
 
-    def abre_pasta(self, pasta_client_label):
+    def _obeter_pasta_cliente(self, pasta_client_label: str):
         selected_client = self.get_selected_client_df()
-
         pasta_client = selected_client[pasta_client_label]
 
         folder = FileOperations.files_pathit(pasta_client, self.aps.compt)
         if not os.path.exists(folder):
             os.makedirs(folder)
+        return folder
+
+    def f1_abre_pasta(self, pasta_client_label):
+        folder = self._obeter_pasta_cliente(pasta_client_label)
         subprocess.Popen(f'explorer "{folder}"')
+
+    def f2_copy_path(self, pasta_client_label):
+        folder = self._obeter_pasta_cliente(pasta_client_label)
         clipboard.copy(folder)
+        # selected_client = self.get_selected_client_df()
 
     def copy_data_to_clipboard(self, field: str):
         # TODO: fix quando seleciona outro field no interface/main.py

@@ -28,7 +28,7 @@ class App(ctk.CTk, AppSettings):
 
         self.acxs = Actions(self)
 
-        self.var_selected_compt_field = tk.StringVar(value=self.copiable_fields[0])
+        self.var_selected_compt_field = ctk.StringVar(value='cnpj')
 
         self.display_clients()
         self.create_funcoes_principais_routine_calls()
@@ -41,7 +41,8 @@ class App(ctk.CTk, AppSettings):
 
     def set_key_bindings(self):
         self.bind("<F4>", lambda x: self.acxs.copy_data_to_clipboard(self.var_selected_compt_field.get()))
-        self.bind("<F1>", lambda x: self.acxs.abre_pasta('razao_social'))
+        self.bind("<F1>", lambda x: self.acxs.f1_abre_pasta('razao_social'))
+        self.bind("<F2>", lambda x: self.acxs.f2_copy_path('razao_social'))
 
     def _set_button_data(self, function: callable, text: str, text_color=None, fg_color=None, hover_color=None) -> dict:
         button_info = {
@@ -193,7 +194,7 @@ class App(ctk.CTk, AppSettings):
         for i, text in enumerate(self.copiable_fields):
             row = i
             column = 0
-            field_radio = ctk.CTkRadioButton(fields_radio_frame, variable=self.var_selected_compt_field, text=text)
+            field_radio = ctk.CTkRadioButton(fields_radio_frame, variable=self.var_selected_compt_field,value=text, text=text)
             field_radio.grid(row=row, column=column, sticky="w")
 
     def _on_keyup_keydown(self, widget, direction):
