@@ -153,7 +153,7 @@ class App(ctk.CTk, AppSettings):
                                                   label_font=ctk.CTkFont(size=16, weight="bold"))
         scrollable_frame.grid(sticky="nsew", pady=10)
 
-        def update_allow_list():
+        def _update_allow_list():
             """
             Atualiza a lista permitida com base nas opções selecionadas.
             Função para atualizar a lista com base nos switches
@@ -161,10 +161,6 @@ class App(ctk.CTk, AppSettings):
             selected_options = [v.cget("text") for v in switches if v.get()]
             self.client_compts_df = self.compts_repository.get_interface_df(allowing_list=selected_options)
             self.allowed_clients.set(self.client_compts_df[df_col].to_list())
-
-            # Verifica se todos os switches estão desativados, se sim, define only_one_selection como True
-            if all(not v.get() for v in switches):
-                only_one_selection.set(True)
 
         only_one_selection = tk.BooleanVar(value=True)
         switches = []
@@ -178,14 +174,14 @@ class App(ctk.CTk, AppSettings):
                 for s in switches:
                     if s != current_switch:
                         s.deselect()
+            _update_allow_list()
 
         for i, option in enumerate(options):
             switch = ctk.CTkSwitch(master=scrollable_frame, text=option)
-            switch.configure(command=lambda s=switch: (update_allow_list(), change_switch_options_selection(s)))
+            switch.configure(command=lambda s=switch: change_switch_options_selection(s))
             switch.grid(row=i, column=0, padx=10, pady=(0, 20))
             switches.append(switch)
 
-        update_allow_list()
         alow_one_only = ctk.CTkCheckBox(scrollable_frame, text="Permitir somente um por vez",
                                         variable=only_one_selection)
         alow_one_only.grid()
