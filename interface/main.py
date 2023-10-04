@@ -25,7 +25,7 @@ class App(ctk.CTk, AppSettings):
         self.compts_repository = ClientComptsRepository(self.compt)
         self.client_compts_df = self.compts_repository.get_interface_df()
         self.allowed_clients = 'razao_social'
-        self.current_client = None
+
         self.acxs = Actions(self)
 
         self.var_selected_compt_field = tk.StringVar(value=self.copiable_fields[0])
@@ -40,8 +40,8 @@ class App(ctk.CTk, AppSettings):
         self.geometry(f"{1200}x{600}")
 
     def set_key_bindings(self):
-        self.bind("<F4>", self.acxs.copy_data_to_clipboard)
-        self.bind("<F1>", self.acxs.abre_pasta)
+        self.bind("<F4>", lambda x: self.acxs.copy_data_to_clipboard(self.var_selected_compt_field.get()))
+        self.bind("<F1>", lambda x: self.acxs.abre_pasta('razao_social'))
 
     def _set_button_data(self, function: callable, text: str, text_color=None, fg_color=None, hover_color=None) -> dict:
         button_info = {
@@ -210,10 +210,12 @@ class App(ctk.CTk, AppSettings):
                              font=ctk.CTkFont(size=16, weight="bold"))
         label.grid()
         # Mostra os clientes permitidos
-        current_client_selection = CTkListbox(main_frame, command=lambda x: setattr(self, 'current_client', x),
+        current_client_selection = CTkListbox(main_frame,
                                               text_color="#000",
                                               listvariable=self.allowed_clients,
                                               width=470, height=450)
+        current_client_selection.configure(
+            command=lambda x: setattr(self, 'current_client_index', current_client_selection.curselection()))
         current_client_selection.bind("<Down>", lambda event: self._on_keyup_keydown(current_client_selection, 1))
         current_client_selection.bind("<Up>", lambda event: self._on_keyup_keydown(current_client_selection, -1))
         current_client_selection.grid()
