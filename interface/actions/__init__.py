@@ -13,22 +13,27 @@ class Actions:
         # composição...
         self.aps = app_settings
         self.compts_repository = ClientComptsRepository(self.aps.compt)
-        self.clients_permited = self.aps.allowed_clients
-        self.client_compts_df = self.aps.client_compts_df
+
+        # Abaixo não funciona pq oobjeto ta sendo atualizado dentro da classe
+        # client_compts_df = self.aps.client_compts_df
+
 
     def abre_pasta(self, event=None):
-        folder = FileOperations.files_pathit(self.aps.current_client, self.aps.compt)
+        current_client = self.aps.current_client
+        folder = FileOperations.files_pathit(current_client, self.aps.compt)
         if not os.path.exists(folder):
             os.makedirs(folder)
         subprocess.Popen(f'explorer "{folder}"')
         clipboard.copy(folder)
 
-    def copy_data_to_clipboard(self, event=None):
-        campo = event.widget.get() if event else ""
-        if campo == '':
-            campo = "cnpj"
-        found_object = self.EMPRESAS_ORM_OPERATIONS.filter_by_razao_social(
-            self.selected_client.get())
+    def copy_data_to_clipboard(self, field: str):
+        cliente = self.aps.current_client
+
+        # ids = self.aps.allowed_ids
+        my_dict = self.aps.map_ids_with_col_to_dict(field)
+        ids_to_filter = list(my_dict.keys())
+
+        found_objects = self.aps.client_compts_df.query('id_1 in @ids_to_filter')
         returned = getattr(found_object, campo)
         clipboard.copy(returned)
         return returned
