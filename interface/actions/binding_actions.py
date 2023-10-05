@@ -47,7 +47,6 @@ class BindingActions:
         # selected_client = self.get_selected_client_df()
 
     def copy_data_to_clipboard(self, field: str):
-        # TODO: fix quando seleciona outro field no interface/main.py
         selected_client = self.get_selected_client_df()
 
         searching_by_field_result = selected_client[field]
