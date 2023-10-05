@@ -19,9 +19,9 @@ class BindingActions:
         # Abaixo não funciona pq oobjeto ta sendo atualizado dentro da classe
         # client_compts_df = self.aps.client_compts_df
 
-    def create_new_isntance(self, exec_file: os.PathLike):
+    def create_new_isntance(self):
         # os.execl(sys.executable, sys.executable, *sys.argv)
-        subprocess.Popen([sys.executable, exec_file], shell=False)
+        subprocess.Popen([sys.executable, sys.argv[0]], shell=False)
 
     def get_selected_client_df(self) -> pd.DataFrame:
         df = self.aps.client_compts_df
