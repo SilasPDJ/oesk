@@ -1,8 +1,8 @@
 import pandas as pd
 
-from utilities.db import DbAccessManager
-from models import OrmTables
-from utilities.compt_utils import get_compt, compt_to_date_obj, calc_date_compt_offset, ate_atual_compt, get_all_valores
+from backend.utilities.db import DbAccessManager
+from backend.models import OrmTables
+from backend.utilities.compt_utils import get_compt, compt_to_date_obj, calc_date_compt_offset, ate_atual_compt, get_all_valores
 import sqlalchemy as sql
 from typing import Union, List, Tuple
 

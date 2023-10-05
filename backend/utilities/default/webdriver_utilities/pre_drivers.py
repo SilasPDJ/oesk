@@ -3,7 +3,7 @@ from user_agent import generate_user_agent as random
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from utilities.default.sets.pathmanager import Dirs
+from backend.utilities.default.sets.pathmanager import Dirs
 # continuar a desenvolver a def real_path, p/ driver
 from selenium.webdriver.chrome.service import Service
 
