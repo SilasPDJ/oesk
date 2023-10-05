@@ -1,7 +1,6 @@
+from os import path
 import tkinter as tk
-import tkinter.messagebox
 
-import pandas as pd
 from CTkListbox import *
 from CTkTable import *
 
@@ -43,6 +42,8 @@ class App(ctk.CTk, AppSettings):
         self.bind("<F4>", lambda x: self.acxs.copy_data_to_clipboard(self.var_selected_compt_field.get()))
         self.bind("<F1>", lambda x: self.acxs.f1_abre_pasta('razao_social'))
         self.bind("<F2>", lambda x: self.acxs.f2_copy_path('razao_social'))
+        self.bind_all("<Control-F5>", lambda x: self.acxs.create_new_isntance(exec_file=path.realpath(__file__)))
+        self.bind_all("<Control-Key-w>", lambda x: self.quit())
 
     def _set_button_data(self, function: callable, text: str, text_color=None, fg_color=None, hover_color=None) -> dict:
         button_info = {
@@ -134,7 +135,7 @@ class App(ctk.CTk, AppSettings):
         tips = [
             # f'Vencimento DAS: {VENC_DAS}',
             ['Atalhos', 'Comandos'],
-            ['Ctrl + F5', 'Reinicializa Aplicação'],
+            ['Ctrl + F5', 'Cria Nova Instância'],
             ['F1', 'Abrir Pasta Cliente'],
             ['F2', 'Copia Pasta Cliente'],
             ['F4', 'Copia Campo Cliente'],
@@ -194,7 +195,8 @@ class App(ctk.CTk, AppSettings):
         for i, text in enumerate(self.copiable_fields):
             row = i
             column = 0
-            field_radio = ctk.CTkRadioButton(fields_radio_frame, variable=self.var_selected_compt_field,value=text, text=text)
+            field_radio = ctk.CTkRadioButton(fields_radio_frame, variable=self.var_selected_compt_field, value=text,
+                                             text=text)
             field_radio.grid(row=row, column=column, sticky="w")
 
     def _on_keyup_keydown(self, widget, direction):
