@@ -5,7 +5,7 @@ from CTkListbox import *
 from CTkTable import *
 
 import customtkinter as ctk
-from actions import Actions
+from actions import RoutinesCallings, BindingActions
 
 from settings import AppSettings
 
@@ -25,7 +25,8 @@ class App(ctk.CTk, AppSettings):
         self.client_compts_df = self.compts_repository.get_interface_df()
         self.allowed_clients = 'razao_social'
 
-        self.acxs = Actions(self)
+        self.ba = BindingActions(self)
+        self.rc = RoutinesCallings(self)
 
         self.var_selected_compt_field = ctk.StringVar(value='cnpj')
 
@@ -39,10 +40,10 @@ class App(ctk.CTk, AppSettings):
         self.geometry(f"{1200}x{600}")
 
     def set_key_bindings(self):
-        self.bind("<F4>", lambda x: self.acxs.copy_data_to_clipboard(self.var_selected_compt_field.get()))
-        self.bind("<F1>", lambda x: self.acxs.f1_abre_pasta('razao_social'))
-        self.bind("<F2>", lambda x: self.acxs.f2_copy_path('razao_social'))
-        self.bind_all("<Control-F5>", lambda x: self.acxs.create_new_isntance(exec_file=path.realpath(__file__)))
+        self.bind("<F4>", lambda x: self.ba.copy_data_to_clipboard(self.var_selected_compt_field.get()))
+        self.bind("<F1>", lambda x: self.ba.f1_abre_pasta('razao_social'))
+        self.bind("<F2>", lambda x: self.ba.f2_copy_path('razao_social'))
+        self.bind_all("<Control-F5>", lambda x: self.ba.create_new_isntance(exec_file=path.realpath(__file__)))
         self.bind_all("<Control-Key-w>", lambda x: self.quit())
 
     def _set_button_data(self, function: callable, text: str, text_color=None, fg_color=None, hover_color=None) -> dict:
@@ -56,7 +57,6 @@ class App(ctk.CTk, AppSettings):
         return button_info
 
     def create_funcoes_principais_routine_calls(self):
-
         main_frame = ctk.CTkFrame(self, corner_radius=0)
         main_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
 
@@ -72,32 +72,32 @@ class App(ctk.CTk, AppSettings):
         frame.grid(row=1, column=0, rowspan=4, sticky="nsew")
 
         button_data_0 = [
-            self._set_button_data(self.acxs.call_ginfess, 'Fazer Ginfess'
+            self._set_button_data(self.rc.call_ginfess, 'Fazer Ginfess'
                                   ),
 
-            self._set_button_data(self.acxs.call_g5, 'Fazer G5',
+            self._set_button_data(self.rc.call_g5, 'Fazer G5',
                                   '#fff', '#F0AA03', '#FFD700'),
 
-            self._set_button_data(self.acxs.call_giss, 'Fazer Giss'
+            self._set_button_data(self.rc.call_giss, 'Fazer Giss'
                                   ),
 
             self._set_button_data(lambda: print("DESATIVADO POR ENQT"), 'Rotina Dívidas - DSTV',
                                   '#fff', 'darkgray', 'gray'),
 
-            self._set_button_data(lambda: self.acxs.call_func_v3('dividasmail'), 'Enviar Dívidas',
+            self._set_button_data(lambda: self.rc.call_func_v3('dividasmail'), 'Enviar Dívidas',
                                   '#fff', 'red', '#FF5733')
         ]
 
         button_data_1 = [
-            self._set_button_data(self.acxs.call_simples_nacional, 'PGDAS pdf FULL',
+            self._set_button_data(self.rc.call_simples_nacional, 'PGDAS pdf FULL',
                                   ),
 
-            self._set_button_data(lambda: self.acxs.call_func_v3('jr'), 'Fazer JR',
+            self._set_button_data(lambda: self.rc.call_func_v3('jr'), 'Fazer JR',
                                   '#fff', '#556353', '#4CAF50'),
 
-            self._set_button_data(self.acxs.call_send_pgdas_email, 'Enviar PGDAS',
+            self._set_button_data(self.rc.call_send_pgdas_email, 'Enviar PGDAS',
                                   '#fff', 'red', '#FF5733'),
-            self._set_button_data(self.acxs.call_gias, 'Fazer GIAS',
+            self._set_button_data(self.rc.call_gias, 'Fazer GIAS',
                                   ),
 
         ]
