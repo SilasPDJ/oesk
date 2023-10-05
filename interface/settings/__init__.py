@@ -1,12 +1,16 @@
 import pandas as pd
 import tkinter as tk
+import os
+import sys
+
+# backend = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', "backend"))
+# sys.path.insert(1, backend)
 
 
 class AppSettings:
     current_client_index = 0
 
     """App Settings"""
-
 
     "campos copiaveis"
     copiable_fields = [
