@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from utilities.default.sets.initial_set_files_location import InitialSetFilesLocation
+from .initial_set_files_location import InitialSetFilesLocation
 from .pathmanager import Dirs
 from .now import Now
 import os
