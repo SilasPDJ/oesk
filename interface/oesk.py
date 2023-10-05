@@ -43,7 +43,7 @@ class App(ctk.CTk, AppSettings):
         self.bind("<F4>", lambda x: self.ba.copy_data_to_clipboard(self.var_selected_compt_field.get()))
         self.bind("<F1>", lambda x: self.ba.f1_abre_pasta('razao_social'))
         self.bind("<F2>", lambda x: self.ba.f2_copy_path('razao_social'))
-        self.bind_all("<Control-F5>", lambda x: self.ba.create_new_isntance(exec_file=path.realpath(__file__)))
+        self.bind_all("<Control-F5>", lambda x: self.ba.create_new_isntance())
         self.bind_all("<Control-Key-w>", lambda x: self.quit())
 
     def _set_button_data(self, function: callable, text: str, text_color=None, fg_color=None, hover_color=None) -> dict:
