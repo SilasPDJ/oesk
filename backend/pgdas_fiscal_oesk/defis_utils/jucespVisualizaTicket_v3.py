@@ -3,7 +3,7 @@
 from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, ginfess_driver
 
 from default.sets import get_compt
-from pgdas_fiscal_oesk import Consultar
+from pgdas_fiscal_oesk.consultar import Consultar
 
 from default.webdriver_utilities import WDShorcuts
 from default.sets import InitialSetting

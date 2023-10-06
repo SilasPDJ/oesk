@@ -1,7 +1,7 @@
 # dale
 import openpyxl
 from utilities.default import *
-# from contimatic import *
+# from pgdas_fiscal_oesk.contimatic import *
 from time import sleep
 import pandas as pd
 import os

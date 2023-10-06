@@ -2,7 +2,7 @@
 from random import randint
 from typing_extensions import overload
 from utilities.default import *
-from simples_nacional_utilities import SimplesNacionalUtilities
+from pgdas_fiscal_oesk.simples_nacional_utilities import SimplesNacionalUtilities
 
 # from . import *
 # qualquer coisa me devolve
@@ -379,7 +379,7 @@ class PgdasDeclaracaoRetificaVarias(PgdasDeclaracao):
             else:
                 print('is already declared')
 
-    @override
+    # @override
     def compt_already_declared(self, compt, pode_retificar=False):
         driver = self.driver
         try:

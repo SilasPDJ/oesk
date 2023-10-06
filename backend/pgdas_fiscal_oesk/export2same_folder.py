@@ -1,7 +1,7 @@
 # dale
 from re import search
 import openpyxl
-from contimatic import Contimatic
+from pgdas_fiscal_oesk.contimatic import Contimatic
 import os
 from shutil import copy2
 

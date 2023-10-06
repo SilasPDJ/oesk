@@ -130,9 +130,9 @@ class ClientComptsRepository(CustomMethods):
 
         return sorted_df
 
-    def get_interface_df(self, allowing_list=None) -> pd.DataFrame:
+    def get_interface_df(self, allowing_impostos_list=None) -> pd.DataFrame:
         df = self._get_ordered_by_imposto_a_calcular(sorting_list=['ISS', 'ICMS', 'SEM_MOV', 'LP'],
-                                                     allowing_list=allowing_list)
+                                                     allowing_list=allowing_impostos_list)
         return df
 
     def get_g5_df(self) -> Tuple[list, pd.DataFrame]:

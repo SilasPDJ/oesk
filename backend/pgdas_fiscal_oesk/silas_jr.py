@@ -2,7 +2,7 @@ from utilities.default import *
 from pyperclip import paste
 # from default.webdriver_utilities import *
 from win10toast import ToastNotifier
-from contimatic import *
+from pgdas_fiscal_oesk.contimatic import *
 
 """
 from LE_NF_CANCELADAS_cor import main as nf_canceled
