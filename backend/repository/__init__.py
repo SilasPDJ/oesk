@@ -28,7 +28,9 @@ class CustomMethods:
         ### mapping single database records... or list of
         """
         with self.Session() as session:
-            return session.query(self.orm).filter_by(**kwargs).one()
+            query = session.query(self.orm).filter_by(**kwargs)
+            data = query.one_or_none()
+            return data
 
     # methods for updates in a db table
     def update_from_dataframe(self, df: pd.DataFrame):
@@ -58,6 +60,11 @@ class CustomMethods:
             # session.merge(self.orm(**dictionary))
             session.commit()
 
+    def update_from_object(self, orm):
+        with self.Session() as session:
+            session.merge(orm)
+            session.commit()
+
 
 class MainEmpresasRepository(CustomMethods):
     def __init__(self):
@@ -65,6 +72,13 @@ class MainEmpresasRepository(CustomMethods):
         self.Session = self.dba.Session
         self.orm = OrmTables.MainEmpresas
         super().__init__(self.orm, self.Session)
+
+    # override
+    def get_as_orm(self, row) -> OrmTables.MainEmpresas:
+        kwargs = {
+            'id': row.id,
+        }
+        return super().get_as_orm(**kwargs)
 
 
 class ClientComptsRepository(CustomMethods):
@@ -77,7 +91,7 @@ class ClientComptsRepository(CustomMethods):
         self.main_empresas = OrmTables.MainEmpresas
 
     # override
-    def get_as_orm(self, row):
+    def get_as_orm(self, row) -> OrmTables.ClientsCompts:
         kwargs = {
             'id': row.id,
             'main_empresa_id': row.main_empresa_id
@@ -152,6 +166,9 @@ class ClientComptsRepository(CustomMethods):
         return df
 
     # Updates...
+    def update_from_object(self, orm: OrmTables.MainEmpresas):
+        """Overriden"""
+        super().update_from_object(orm)
 
 
 if __name__ == '__main__':

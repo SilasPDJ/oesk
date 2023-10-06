@@ -89,7 +89,7 @@ class App(ctk.CTk, AppSettings):
         ]
 
         button_data_1 = [
-            self._set_button_data(self.rc.call_simples_nacional, 'PGDAS pdf FULL',
+            self._set_button_data(self.rc.call_pgdas_declaracao, 'PGDAS pdf FULL',
                                   ),
 
             self._set_button_data(lambda: self.rc.call_func_v3('jr'), 'Fazer JR',
