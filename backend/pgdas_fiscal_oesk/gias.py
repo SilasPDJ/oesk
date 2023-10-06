@@ -1,8 +1,7 @@
 # dale
 from utilities.default import *
 from pgdas_fiscal_oesk.contimatic import *
-
-# from pgdas_fiscal_oesk.contimatic import *
+from backend.utilities.compt_utils import ate_atual_compt, get_compt, compt_to_date_obj, calc_date_compt_offset, get_all_valores
 from time import sleep
 import os
 
@@ -37,8 +36,8 @@ class GIA(WDShorcuts):
         # self.GIA()
 
         # if certificado...
-        if len(self.files_get_anexos_v4(self.client_path, 'sfz')) < 1:
-            for loop_compt in self.ate_atual_compt(first_compt, compt):
+        if len(self.file_operations.files_get_anexos_v4(self.client_path, 'sfz')) < 1:
+            for loop_compt in ate_atual_compt(first_compt, compt):
                 janelas_gias = pygui.getWindowsWithTitle('GIA')
                 for win in janelas_gias:
                     if win.title == 'GIA':
@@ -76,8 +75,8 @@ class GIA(WDShorcuts):
                 pygui.hotkey('enter')
                 self.save_novagia()
 
-        if not self.certifs_exist('ReciboGIA', 1):
-            for loop_compt in self.ate_atual_compt(first_compt, compt):
+        if not self.file_operations.certifs_exist('ReciboGIA', 1):
+            for loop_compt in ate_atual_compt(first_compt, compt):
                 self.driver = driver = pgdas_driver(self.client_path)
                 super().__init__(self.driver)
                 driver.get(
@@ -126,7 +125,7 @@ class GIA(WDShorcuts):
                 self.driver.save_screenshot(
                     os.path.join(self.client_path, png_name))
                 # convert_img2pdf is only joining both or NOT joining both...
-                self.convert_img2pdf(
+                self.file_operations.convert_img2pdf(
                     png_name,
                     f'ReciboGIA_{loop_compt}.pdf', self.client_path)
                 driver.close()
@@ -137,8 +136,8 @@ class GIA(WDShorcuts):
     def save_novagia(self):
         from shutil import copy
         pathinit = os.path.join(
-            self.get_documents_folder_location(), 'SEFAZ/GIA/TNORMAL')
-        pathinit = self.sort_files_by_most_recent(pathinit)[0]
+            self.file_operations.get_documents_folder_location(), 'SEFAZ/GIA/TNORMAL')
+        pathinit = self.file_operations.sort_files_by_most_recent(pathinit)[0]
         # copy(r"C:\Users\User\Documents\SEFAZ\GIA\TNormal\{}".format(os.listdir(r"C:\Users\User\Documents\SEFAZ\GIA\TNormal")[0]), r"C:\Users\user\OneDrive\_FISCAL-2021\2021\01-2021\GIA_Tharles Marli")
         copy(pathinit, self.client_path)
 

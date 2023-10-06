@@ -1,5 +1,7 @@
 from utilities.default import *
 from pgdas_fiscal_oesk.contimatic import *
+from pgdas_fiscal_oesk.relacao_nfs import NfCanceled
+
 
 """
 from LE_NF_CANCELADAS_cor import main as nf_canceled
@@ -24,8 +26,8 @@ class G5(Contimatic):
         __client = __r_social
         self.compt_used = compt
         self.__client = __client
-        self.client_path = self.files_pathit(__client)
-        self.contimatic_folder = self.files_pathit('contimaticG5')
+        self.client_path = self.files_pathit(__client, self.compt_used)
+        self.contimatic_folder = self.files_pathit('contimaticG5', self.compt_used)
         super().__init__(self.client_path)
         if imposto_a_calcular == 'ISS':
             print(__client)
