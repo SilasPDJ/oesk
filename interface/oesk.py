@@ -161,7 +161,7 @@ class App(ctk.CTk, AppSettings):
             Função para atualizar a lista com base nos switches
             """
             selected_options = [v.cget("text") for v in switches if v.get()]
-            self.client_compts_df = self.compts_repository.get_interface_df(allowing_list=selected_options)
+            self.client_compts_df = self.compts_repository.get_interface_df(allowing_impostos_list=selected_options)
             self.allowed_clients.set(self.client_compts_df[df_col].to_list())
 
         only_one_selection = tk.BooleanVar(value=True)

@@ -1,7 +1,8 @@
 # dale
 from utilities.default import *
-from contimatic import *
-# from contimatic import *
+from pgdas_fiscal_oesk.contimatic import *
+
+# from pgdas_fiscal_oesk.contimatic import *
 from time import sleep
 import os
 

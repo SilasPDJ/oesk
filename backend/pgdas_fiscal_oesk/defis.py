@@ -3,14 +3,13 @@ from win10toast import ToastNotifier
 # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 from utilities.default import *
 
-from pgdas_fiscal_oesk import Consultar
+from pgdas_fiscal_oesk.consultar import Consultar
 from pgdas_fiscal_oesk.defis_utils.legato import Legato
 # from pgdas_fiscal_oesk.defis_utils.legato import transformers as tfms
-from simples_nacional_utilities import SimplesNacionalUtilities
+from pgdas_fiscal_oesk.simples_nacional_utilities import SimplesNacionalUtilities
 from utilities.compt_utils import get_compt
 
 COMPT = get_compt(-1)
-CONS = Consultar(COMPT)
 
 
 class Defis(Legato, SimplesNacionalUtilities):
@@ -20,6 +19,7 @@ class Defis(Legato, SimplesNacionalUtilities):
         # remember past_only arg from self.get_atual_competencia
         """
         # O vencimento DAS(seja pra qual for a compt) está certo, haja vista que se trata do mes atual
+        CONS = Consultar(COMPT)
         sh_name = 'DEFIS'
 
         self.compt = f"DEFIS_{self.y()}"

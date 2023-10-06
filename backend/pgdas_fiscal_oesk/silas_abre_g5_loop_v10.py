@@ -1,5 +1,5 @@
 from utilities.default import *
-from contimatic import *
+from pgdas_fiscal_oesk.contimatic import *
 
 """
 from LE_NF_CANCELADAS_cor import main as nf_canceled

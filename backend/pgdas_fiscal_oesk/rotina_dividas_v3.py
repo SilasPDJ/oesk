@@ -1,4 +1,4 @@
-from pgdas_fiscal_oesk import Consultar
+from pgdas_fiscal_oesk.consultar import Consultar
 import sys
 from time import sleep
 from utilities.default.interact import all_keys
