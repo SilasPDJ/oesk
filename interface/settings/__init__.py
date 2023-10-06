@@ -14,7 +14,7 @@ class AppSettings:
         'gissonline', 'giss_login', 'ginfess_cod', 'ginfess_link',
         'possui_das_pendentes', 'status_ativo', 'main_empresa_id']
 
-    def map_ids_with_col_to_dict(self, keys_field, values_field) -> dict:
+    def map_ids_within_col_to_dict(self, keys_field, values_field) -> dict:
         """
         :param values_field:
         :return:

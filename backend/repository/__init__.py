@@ -3,6 +3,7 @@ import pandas as pd
 from backend.utilities.db import DbAccessManager
 from backend.models import OrmTables
 from backend.utilities.compt_utils import get_compt, compt_to_date_obj, calc_date_compt_offset, ate_atual_compt, get_all_valores
+from backend.utilities.helpers import modify_dataframe_at, sort_dataframe
 import sqlalchemy as sql
 from typing import Union, List, Tuple
 
@@ -21,26 +22,15 @@ class CustomMethods:
     def _orm_columns(self) -> list:
         return [column.name for column in self.orm.__table__.columns]
 
-    @staticmethod
-    def sort_dataframe(main_df: pd.DataFrame, order_list: list, sorting_key: str) -> pd.DataFrame:
-        """Sorts a DataFrame based on a specified order list and a sorting key."""
+    def get_as_orm(self, **kwargs):
+        """
+        Sobrescreva para settar os kwargs defaults... (conforme em ComptsRepository)
+        ### mapping single database records... or list of
+        """
+        with self.Session() as session:
+            return session.query(self.orm).filter_by(**kwargs).one()
 
-        def custom_sort(value):
-            if value in order_list:
-                return order_list.index(value), value
-            else:
-                # Custom alphabetical sorting
-                return len(order_list), value
-
-        # Apply the custom sorting function to the sorting_key column
-        main_df['sorting_key'] = main_df[sorting_key].apply(custom_sort)
-
-        # Sort the DataFrame based on the sorting_key
-        sorted_df = main_df.sort_values(by='sorting_key').drop(columns='sorting_key')
-
-        return sorted_df
-
-    # update methods
+    # methods for updates in a db table
     def update_from_dataframe(self, df: pd.DataFrame):
         """Updates a database's table based on a dataframe, (allows multiple rows)"""
         with self.Session() as session:
@@ -51,6 +41,12 @@ class CustomMethods:
                 session.merge(self.orm(**data_to_orm))
                 # session.merge(self.orm(**row._asdict()))
             session.commit()
+
+    def update_from_pandas_object(self, pd_obj):
+        with self.Session() as session:
+            data_to_orm = {column: getattr(pd_obj, column) for column in self._orm_columns}
+            session.merge(self.orm(**data_to_orm))
+        session.commit()
 
     def update_from_dictionary(self, dictionary: dict):
         """update a database's table based on a dictionary, (once per time)"""
@@ -80,6 +76,14 @@ class ClientComptsRepository(CustomMethods):
         super().__init__(self.orm, self.Session)
         self.main_empresas = OrmTables.MainEmpresas
 
+    # override
+    def get_as_orm(self, row):
+        kwargs = {
+            'id': row.id,
+            'main_empresa_id': row.main_empresa_id
+        }
+        return super().get_as_orm(**kwargs)
+
     # Queries
     def _query_all_data_in_compt(self, is_authorized=False, must_have_status_ativo=True, to_df=True) -> Union[
         pd.DataFrame, List[sql.orm.Query]]:
@@ -104,7 +108,7 @@ class ClientComptsRepository(CustomMethods):
 
     def _get_ordered_by_imposto_a_calcular(self, sorting_list: list = None, allowing_list: list = None,
                                            allow_lucro_presumido=False,
-                                           allow_only_authorized=True) -> pd.DataFrame:
+                                           allow_only_authorized=False) -> pd.DataFrame:
         """
         Retrieve and sort a DataFrame of financial data by 'imposto_a_calcular' column based on a custom order list.
 
@@ -120,7 +124,7 @@ class ClientComptsRepository(CustomMethods):
 '        """
         default_order = ["SEM_MOV", "ISS", "ICMS"]
         main_df = self._query_all_data_in_compt(is_authorized=allow_only_authorized)
-        sorted_df = self.sort_dataframe(main_df, sorting_list or default_order, 'imposto_a_calcular')
+        sorted_df = sort_dataframe(main_df, sorting_list or default_order, 'imposto_a_calcular')
 
         if not allow_lucro_presumido and allowing_list is not None and 'LP' not in allowing_list:
             sorted_df = sorted_df.loc[sorted_df['imposto_a_calcular'] != 'LP']
@@ -139,11 +143,13 @@ class ClientComptsRepository(CustomMethods):
         df = self._get_ordered_by_imposto_a_calcular(sorting_list=['ISS'])
         df = self._get_ordered_by_imposto_a_calcular(allowing_list=['ISS'])
 
-        attributes_required = ['razao_social', 'cnpj', 'cpf',
-                               'codigo_simples', 'valor_total', 'imposto_a_calcular', 'nf_saidas', 'nf_entradas']
-        df_required = df[attributes_required]
         # TODO: separar G5 por ISS e ICMS
         print(df)
+
+    def get_df_to_email(self) -> pd.DataFrame:
+        df = self._get_ordered_by_imposto_a_calcular(allow_only_authorized=True)
+        df = df.loc[df['envio'].isin(False)]
+        return df
 
     # Updates...
 
