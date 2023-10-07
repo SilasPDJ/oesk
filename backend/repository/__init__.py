@@ -2,10 +2,12 @@ import pandas as pd
 
 from backend.utilities.db import DbAccessManager
 from backend.models import OrmTables
-from backend.utilities.compt_utils import get_compt, compt_to_date_obj, calc_date_compt_offset, ate_atual_compt, get_all_valores
+from backend.utilities.compt_utils import get_compt, compt_to_date_obj, calc_date_compt_offset, ate_atual_compt, \
+    get_all_valores
 from backend.utilities.helpers import modify_dataframe_at, sort_dataframe
 import sqlalchemy as sql
 from typing import Union, List, Tuple
+from backend.repository.utils import RepositoryUtils
 
 # OrmTables.MainEmpresas
 # OrmTables.ClientsCompts
@@ -13,60 +15,7 @@ from typing import Union, List, Tuple
 main_empresas, clients_compts = OrmTables.get_classes().values()
 
 
-class CustomMethods:
-    def __init__(self, orm, session):
-        self.orm = orm
-        self.Session = session
-
-    @property
-    def _orm_columns(self) -> list:
-        return [column.name for column in self.orm.__table__.columns]
-
-    def get_as_orm(self, **kwargs):
-        """
-        Sobrescreva para settar os kwargs defaults... (conforme em ComptsRepository)
-        ### mapping single database records... or list of
-        """
-        with self.Session() as session:
-            query = session.query(self.orm).filter_by(**kwargs)
-            data = query.one_or_none()
-            return data
-
-    # methods for updates in a db table
-    def update_from_dataframe(self, df: pd.DataFrame):
-        """Updates a database's table based on a dataframe, (allows multiple rows)"""
-        with self.Session() as session:
-            for row in df.itertuples(index=False):
-                # preventing data from joins
-                data_to_orm = {column: getattr(row, column) for column in self._orm_columns}
-
-                session.merge(self.orm(**data_to_orm))
-                # session.merge(self.orm(**row._asdict()))
-            session.commit()
-
-    def update_from_pandas_object(self, pd_obj):
-        with self.Session() as session:
-            data_to_orm = {column: getattr(pd_obj, column) for column in self._orm_columns}
-            session.merge(self.orm(**data_to_orm))
-        session.commit()
-
-    def update_from_dictionary(self, dictionary: dict):
-        """update a database's table based on a dictionary, (once per time)"""
-        with self.Session() as session:
-            # preventing data from joins
-            dict_to_orm = {key: dictionary[key] for key in self._orm_columns if key in dictionary}
-
-            session.merge(self.orm(**dict_to_orm))
-            # session.merge(self.orm(**dictionary))
-            session.commit()
-
-    def update_from_object(self, orm):
-        with self.Session() as session:
-            session.merge(orm)
-            session.commit()
-
-
-class MainEmpresasRepository(CustomMethods):
+class MainEmpresasRepository(RepositoryUtils):
     def __init__(self):
         self.dba = DbAccessManager()
         self.Session = self.dba.Session
@@ -81,7 +30,7 @@ class MainEmpresasRepository(CustomMethods):
         return super().get_as_orm(**kwargs)
 
 
-class ClientComptsRepository(CustomMethods):
+class ClientComptsRepository(RepositoryUtils):
     def __init__(self, compt: str):
         self.main_compt = compt_to_date_obj(compt)
         self.dba = DbAccessManager()
@@ -89,6 +38,7 @@ class ClientComptsRepository(CustomMethods):
         self.orm = OrmTables.ClientsCompts
         super().__init__(self.orm, self.Session)
         self.main_empresas = OrmTables.MainEmpresas
+        self._add_new_compt()
 
     # override
     def get_as_orm(self, row) -> OrmTables.ClientsCompts:
@@ -169,6 +119,96 @@ class ClientComptsRepository(CustomMethods):
     def update_from_object(self, orm: OrmTables.MainEmpresas):
         """Overriden"""
         super().update_from_object(orm)
+
+    # add new compt
+    def _add_new_compt(self) -> None:
+        # TODO melhorar este método
+        from sqlalchemy import and_, desc
+        from datetime import timedelta
+
+        with self.Session() as session:
+            # get the most recent row in the table
+            most_recent_row = session.query(self.orm).order_by(
+                desc(self.orm.compt)).first()
+            # get the row(s) you want to duplicate
+            rows_to_duplicate = session.query(self.orm).filter(
+                self.orm.compt == most_recent_row.compt,
+                # assuming pode_declarar is a boolean
+            )
+
+        with self.Session() as session:
+            # check if the row already exists
+            row_exists = session.query(self.orm).filter(
+                self.orm.compt == self.main_compt).first()
+            if not row_exists:
+                print("Init new compt: ", self.main_compt, '-------')
+                # create new rows with incremented date
+
+                for row in rows_to_duplicate:
+                    _envio = True if str(
+                        row.imposto_a_calcular) == 'LP' else False
+                    _declarado = True if str(
+                        row.imposto_a_calcular) == 'LP' else False
+
+                    def status_imports_g5(
+                            campo): return campo if campo.upper() != 'OK' else ''
+
+                    new_row = self.orm(
+                        main_empresa_id=row.main_empresa_id,
+                        declarado=_declarado,
+                        nf_saidas=status_imports_g5(row.nf_saidas),
+                        nf_entradas=status_imports_g5(row.nf_entradas),
+                        sem_retencao=0.00,
+                        com_retencao=0.00,
+                        valor_total=0.00,
+                        anexo=row.anexo,
+                        imposto_a_calcular=row.imposto_a_calcular,
+                        possui_das_pendentes=False,
+                        compt=self.main_compt
+                        ,
+                        envio=_envio,
+                        pode_declarar=False  # set to False
+                    )
+                    session.add(new_row)
+                session.commit()
+
+    def __add_new_client(self, empresa_id, imposto_a_calcular):
+        # Vou utilizar anexo sugerido...
+        if imposto_a_calcular == 'ICMS':
+            anexo_sugerido = 'I'
+        elif imposto_a_calcular == 'ISS':
+            anexo_sugerido = 'III'
+        else:
+            anexo_sugerido = ''
+
+        with self.Session() as session:
+            exists = session.query(self.orm).filter_by(
+                compt=self.main_compt, main_empresa_id=empresa_id).first()
+
+            if not exists:
+                _envio = True if str(
+                    imposto_a_calcular) == 'LP' else False
+                _declarado = True if str(
+                    imposto_a_calcular) == 'LP' else False
+                new_row = self.orm(
+                    main_empresa_id=empresa_id,
+                    declarado=_declarado,
+                    nf_saidas='',
+                    nf_entradas='',
+                    sem_retencao=0.00,
+                    com_retencao=0.00,
+                    valor_total=0.00,
+                    anexo=anexo_sugerido,
+                    imposto_a_calcular=imposto_a_calcular,
+                    possui_das_pendentes=False,
+                    compt=self.main_compt,
+                    envio=_envio,
+                    pode_declarar=False  # set to False
+                )
+                session.add(new_row)
+                session.commit()
+                return True
+            return False
 
 
 if __name__ == '__main__':
