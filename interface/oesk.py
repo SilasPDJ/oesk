@@ -8,23 +8,24 @@ import customtkinter as ctk
 from interface.settings import AppSettings
 from interface.actions import RoutinesCallings, BindingActions
 
-
 from backend.repository import MainEmpresasRepository, ClientComptsRepository
 
 ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
+from backend.utilities.compt_utils import get_compt, ate_atual_compt
+
 
 class App(ctk.CTk, AppSettings):
     def __init__(self):
         super().__init__()
-        self.compt = '08-2023'
+        self.compt = get_compt(-1)
 
         # TODO passar a competencia por variavel atualizavel
         self.compts_repository = ClientComptsRepository(self.compt)
         self.client_compts_df = self.compts_repository.get_interface_df()
         self.allowed_clients = 'razao_social'
-
+        self.venc_das = f"20-{self.compt}"
         self.ba = BindingActions(self)
         self.rc = RoutinesCallings(self)
 
@@ -64,12 +65,8 @@ class App(ctk.CTk, AppSettings):
                                font=ctk.CTkFont(size=16, weight="bold"))
         label_1.grid(row=0, column=0, rowspan=1, columnspan=4, pady=10)
 
-        label_2 = ctk.CTkLabel(main_frame, text="Funções Principais",
-                               font=ctk.CTkFont(size=16, weight="bold"))
-        label_2.grid(row=0, column=0, rowspan=1, columnspan=4, pady=10)
-
-        frame = ctk.CTkFrame(main_frame, corner_radius=0)
-        frame.grid(row=1, column=0, rowspan=4, sticky="nsew")
+        funcoes_frame = ctk.CTkFrame(main_frame, corner_radius=0)
+        funcoes_frame.grid(row=1, column=0, rowspan=4, sticky="nsew")
 
         button_data_0 = [
             self._set_button_data(self.rc.call_ginfess, 'Fazer Ginfess'
@@ -109,7 +106,7 @@ class App(ctk.CTk, AppSettings):
             fg_color = button_info['fg_color']
             hover_color = button_info['hover_color']
 
-            button = ctk.CTkButton(frame, text=text, command=function,
+            button = ctk.CTkButton(funcoes_frame, text=text, command=function,
                                    fg_color=fg_color, text_color=text_color, hover_color=hover_color)
 
             button.grid(row=row, column=0, padx=20, pady=10)
@@ -121,10 +118,22 @@ class App(ctk.CTk, AppSettings):
             fg_color = button_info['fg_color']
             hover_color = button_info['hover_color']
 
-            button = ctk.CTkButton(frame, text=text, command=function,
+            button = ctk.CTkButton(funcoes_frame, text=text, command=function,
                                    fg_color=fg_color, text_color=text_color, hover_color=hover_color)
 
             button.grid(row=row, column=1, padx=20, pady=10)
+
+        # Selecionar Vencimento do DAS
+        label_venc_das = ctk.CTkLabel(main_frame, text="Selecione a data de vencimento do DAS",
+                                      font=ctk.CTkFont(size=16, weight="bold"))
+        label_venc_das.grid()
+        compt_frame = ctk.CTkFrame(main_frame)
+        compt_frame.grid()
+        venc_das = ctk.CTkEntry(compt_frame, textvariable=self.venc_das)
+        venc_das.grid()
+
+        ctk.CTkButton(compt_frame, text="Atualizar")
+
         self._create_dicas(main_frame)
 
     def _create_dicas(self, main_frame: ctk.CTkFrame):

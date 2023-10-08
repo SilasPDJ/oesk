@@ -49,17 +49,18 @@ class ClientComptsRepository(RepositoryUtils):
         return super().get_as_orm(**kwargs)
 
     # Queries
-    def _query_all_data_in_compt(self, is_authorized=False, must_have_status_ativo=True, to_df=True) -> Union[
+    def _query_all_data_in_compt(self, is_authorized=False, must_have_status_ativo=True, to_df=True, another_compt=None) -> Union[
         pd.DataFrame, List[sql.orm.Query]]:
         """Get a DataFrame or a list of ORM queries by joining all registered fields.
 
         :param is_authorized: Filter by 'pode_declarar' in the ORM.
         :param must_have_status_ativo: Filter by 'status_ativo'. Defaults to True.
         :param to_df: If True, return a DataFrame; if False, return a list of ORM queries.
+        :param another_compt: if you need to query another specific compt
         :return: Either a DataFrame or a list of ORM queries.
         """
         with self.Session() as session:
-            query = session.query(self.orm, self.main_empresas).filter_by(compt=self.main_compt)
+            query = session.query(self.orm, self.main_empresas).filter_by(compt=another_compt or self.main_compt)
             if is_authorized:
                 query = query.filter_by(pode_declarar=True)
             query = query.join(self.main_empresas, self.orm.main_empresa_id == self.main_empresas.id)
@@ -122,20 +123,6 @@ class ClientComptsRepository(RepositoryUtils):
 
     # add new compt
     def _add_new_compt(self) -> None:
-        # TODO melhorar este método
-        from sqlalchemy import and_, desc
-        from datetime import timedelta
-
-        with self.Session() as session:
-            # get the most recent row in the table
-            most_recent_row = session.query(self.orm).order_by(
-                desc(self.orm.compt)).first()
-            # get the row(s) you want to duplicate
-            rows_to_duplicate = session.query(self.orm).filter(
-                self.orm.compt == most_recent_row.compt,
-                # assuming pode_declarar is a boolean
-            )
-
         with self.Session() as session:
             # check if the row already exists
             row_exists = session.query(self.orm).filter(
@@ -144,20 +131,21 @@ class ClientComptsRepository(RepositoryUtils):
                 print("Init new compt: ", self.main_compt, '-------')
                 # create new rows with incremented date
 
-                for row in rows_to_duplicate:
+                for row in self._query_all_data_in_compt(to_df=False, another_compt=row_exists.compt):
                     _envio = True if str(
                         row.imposto_a_calcular) == 'LP' else False
-                    _declarado = True if str(
-                        row.imposto_a_calcular) == 'LP' else False
-
-                    def status_imports_g5(
-                            campo): return campo if campo.upper() != 'OK' else ''
+                    # TODO make it below work
+                    # _declarado = True if str(
+                    #     row.imposto_a_calcular) == 'LP' and '//' not in row.ginfess_cod else False
+                    _declarado = False
+                    def get_status_imports_g5(
+                            campo: str): return campo if campo.upper() != 'OK' else ''
 
                     new_row = self.orm(
                         main_empresa_id=row.main_empresa_id,
                         declarado=_declarado,
-                        nf_saidas=status_imports_g5(row.nf_saidas),
-                        nf_entradas=status_imports_g5(row.nf_entradas),
+                        nf_saidas=get_status_imports_g5(row.nf_saidas),
+                        nf_entradas=get_status_imports_g5(row.nf_entradas),
                         sem_retencao=0.00,
                         com_retencao=0.00,
                         valor_total=0.00,

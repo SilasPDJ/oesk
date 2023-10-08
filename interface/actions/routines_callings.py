@@ -32,9 +32,9 @@ class RoutinesCallings:
         return valores
 
     def call_gias(self):
-        df = self.compts_repository.get_interface_df(allowing_impostos_list='LP')
+        df = self.compts_repository.get_interface_df(allowing_impostos_list=['LP'])
         # df = self.aps.client_compts_df
-
+        print(self.aps.get_venc_das())
         attributes_required = ['razao_social',
                                'ha_procuracao_ecac', "ginfess_cod"]
         required_df = df.loc[:, attributes_required]
@@ -50,7 +50,7 @@ class RoutinesCallings:
                 orm_row.declarado = True
                 orm_row.envio = True
 
-            self.compts_repository.update_from_object(orm_row)
+                self.compts_repository.update_from_object(orm_row)
 
     def call_giss(self):
         df = self.aps.client_compts_df
@@ -72,7 +72,7 @@ class RoutinesCallings:
             args = row_required.to_list()
             DownloadGinfessGui(*args, compt=self.compt)
 
-            orm_row = self.compts_repository.get_as_orm(row)
+            # orm_row = self.compts_repository.get_as_orm(row)
 
     def call_g5(self):
         df = self.aps.client_compts_df
@@ -85,6 +85,8 @@ class RoutinesCallings:
             G5(*args, compt=self.compt)
 
             orm_row = self.compts_repository.get_as_orm(row)
+            orm_row.nf_saidas = 'OK'
+            self.compts_repository.update_from_object(orm_row)
 
     def call_pgdas_declaracao(self):
         df = self.aps.client_compts_df
@@ -110,9 +112,14 @@ class RoutinesCallings:
                                'declarado', 'valor_total', 'imposto_a_calcular', 'envio']
         # required_df = df.loc[:, attributes_required]  # type: pd.DataFrame
         for e, row in df.iterrows():
-            df_required = row.loc[:, attributes_required]
+            row_required = row[attributes_required]
+            orm_row = self.compts_repository.get_as_orm(row)
+            if orm_row.envio != 'OK' and orm_row.declarado == 'S':
+                PgDasmailSender(*row_required, compt=self.compt, venc_das=self.aps.get_venc_das(), email=row['email'])
+                orm_row.envio = 'OK'
+                self.compts_repository.update_from_object(orm_row)
 
-            PgDasmailSender()
+
 
     def call_func_v3(self):
         df = self.aps.client_compts_df

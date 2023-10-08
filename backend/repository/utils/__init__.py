@@ -1,3 +1,4 @@
+import pandas as pd
 
 class RepositoryUtils:
     def __init__(self, orm, session):

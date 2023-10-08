@@ -14,7 +14,7 @@ class AppSettings:
         'gissonline', 'giss_login', 'ginfess_cod', 'ginfess_link',
         'possui_das_pendentes', 'status_ativo', 'main_empresa_id']
 
-    def map_ids_within_col_to_dict(self, keys_field, values_field) -> dict:
+    def map_ids_within_col_to_dict(self, keys_field: list, values_field: list) -> dict:
         """
         :param values_field:
         :return:
@@ -30,9 +30,20 @@ class AppSettings:
     def compt(self, value):
         self._compt = value
 
+    @ property
+    def venc_das(self):
+        return self._venc_das
+
+
+    @venc_das.setter
+    def venc_das(self, venc_das):
+        self._venc_das = tk.StringVar(value=venc_das)
+
     @property
     def client_compts_df(self) -> pd.DataFrame:
         return self._client_compts_df
+    def get_venc_das(self):
+        return self.venc_das.get()
 
     @client_compts_df.setter
     def client_compts_df(self, value):
