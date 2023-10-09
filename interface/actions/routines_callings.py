@@ -10,6 +10,7 @@ from interface.settings import AppSettings
 from backend.utilities.helpers import modify_dataframe_at, sort_dataframe
 
 from backend.pgdas_fiscal_oesk import *
+from utilities.compt_utils import get_compt
 
 
 # Se quiser lidar com os repositories direto dentro da classse de rotina
@@ -36,13 +37,20 @@ class RoutinesCallings:
         # df = self.aps.client_compts_df
         print(self.aps.get_venc_das())
         attributes_required = ['razao_social',
-                               'ha_procuracao_ecac', "ginfess_cod"]
-        required_df = df.loc[:, attributes_required]
+                               # 'ha_procuracao_ecac', "ginfess_cod"]
+                               'ha_procuracao_ecac']
 
         for e, row in df.iterrows():
             row_required = row[attributes_required]
-            args = row_required.to_list()
-            GIA(*args, compt=self.compt)
+            try:
+                login, senha = row['ginfess_cod'].split("//")  # Split 'ginfess_cod' once
+            except ValueError:
+                print(f"\033[1;31m {row['razao_social']} não faz GIA. \033[m")
+                continue
+            args = row_required.to_list() + [login, senha]
+
+            GIA(*args, compt=self.compt, first_compt=self.compt)
+            # set with get_compt util in first_compt when you need more than one
 
             # update declaracao
             orm_row = self.compts_repository.get_as_orm(row)
@@ -60,7 +68,7 @@ class RoutinesCallings:
         for e, row in df.iterrows():
             row_required = row[attributes_required]
             args = row_required.to_list()
-            GissGui(*args, compt=self.compt)
+            GissGui(args, compt=self.compt, first_compt=get_compt(-2))
 
     def call_ginfess(self):
         df = self.aps.client_compts_df
@@ -69,6 +77,8 @@ class RoutinesCallings:
 
         for e, row in df.iterrows():
             row_required = row[attributes_required]
+            if row_required['ginfess_link'] == '':
+                continue
             args = row_required.to_list()
             DownloadGinfessGui(*args, compt=self.compt)
 
