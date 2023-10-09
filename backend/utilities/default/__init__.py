@@ -6,7 +6,7 @@ from .sets.pathmanager import HasJson
 # dates
 from .sets import trata_money_excel
 # drivers
-from .webdriver_utilities import pgdas_driver, pgdas_driver_ua, ginfess_driver, default_qrcode_driver, jucesp_simple_driver, proffile_noqr_driver
+from .webdriver_utilities import pgdas_driver, pgdas_driver_ua, ginfess_driver, default_qrcode_driver, jucesp_simple_driver
 # selenium shortcuts
 from .webdriver_utilities import WDShorcuts
 # selenium

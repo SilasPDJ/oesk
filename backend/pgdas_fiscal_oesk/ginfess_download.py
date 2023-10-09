@@ -1,5 +1,6 @@
 # dale
 import openpyxl
+from utilities.compt_utils import compt_to_date_obj
 from utilities.default import *
 # from pgdas_fiscal_oesk.contimatic import *
 from time import sleep
@@ -561,7 +562,7 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
 
         self.ginfess_valores = valor_n_retido, valor_retido, valor_total
         assert valor_n_retido + valor_retido == valor_total
-
+        # TODO: implenmentar ginfess_valores no BD...
     def excel_from_html_above(self, excel_file, html):
         import numpy as np
         from bs4 import BeautifulSoup
