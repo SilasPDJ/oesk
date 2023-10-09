@@ -377,6 +377,7 @@ class G5(Contimatic):
             pygui.write(arqpath)
 
         ARQSPATH = self.__get_xml_nf_csv()
+        sleep(2)
         for contarq in range(len(ARQSPATH)):
             foritab(1, 'alt', 'right')
             foritab(2, 'down')
@@ -474,7 +475,6 @@ class G5(Contimatic):
         return final_files
 
     def start_walk_menu(self):  # overriden, not necessary
-        # this decorator is not obligatory, but it's a good practice
         x, y = 30, 30
         pygui.click(x, y)
 
