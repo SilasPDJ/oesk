@@ -75,7 +75,7 @@ class GIA(WDShorcuts):
                 pygui.hotkey('enter')
                 self.save_novagia()
 
-        if not self.file_operations.certifs_exist('ReciboGIA', 1):
+        if not self.file_operations.certifs_exist(self.client_path, 'ReciboGIA', 1):
             for loop_compt in ate_atual_compt(first_compt, compt):
                 self.driver = driver = pgdas_driver(self.client_path)
                 super().__init__(self.driver)

@@ -129,11 +129,13 @@ def pgdas_driver_ua(path=''):
     ua = random()
     chrome_options.add_argument(f'user-agent={ua}')
 
+    USER_DATA_DIR = r"O:\OneDrive\Documentos\oesk"
+
     # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--verbose')
-    # profile chrome_options.add_argument("user-data-dir=C:\\Users\\AtechM_03\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 2")
+    chrome_options.add_argument(f"user-data-dir={USER_DATA_DIR}")
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_experimental_option("prefs", {
         "download.default_directory": path,
@@ -202,56 +204,6 @@ def ginfess_driver(path=''):
     # sleep(5)
     return driver
 
-
-def proffile_noqr_driver(path='', profile_path=''):
-    """
-    # Fazendo DEFIS
-    # Driver que armazena perfil e recebi caminho para download
-
-    :param path: default path atual (downloads)
-    :param profile_path: caminho para o perfil
-    :return: o driver.
-    """
-
-    __padrao = profile_path
-
-    path = path.replace('/', '\\')
-    # o try já tá dentro de replace
-
-    chrome_options = Options()
-    chrome_options.add_argument(
-        "--disable-blink-features=AutomationControlled")
-
-    # chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-notifications")
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--verbose')
-    chrome_options.add_argument(f"user-data-dir={__padrao}")
-    # carrega o perfil padrão com o qr_code
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_experimental_option("prefs", {
-        "download.default_directory": path,
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing_for_trusted_sources_enabled": False,
-        "safebrowsing.enabled": True,
-        "plugins.always_open_pdf_externally": True,
-        'profile.default_content_setting_values.automatic_downloads': 1,
-
-
-    })
-
-    chromedriver = link
-    # real_path_for_chromedriver()
-    # vindo do ginfess_driver [magic]
-
-    driver = webdriver.Chrome(
-        service=SERVICE, options=chrome_options)
-
-    # self.tags_wait('body', 'input', 'div')
-
-    # sleep(5)
-    return driver
 
 
 def jucesp_simple_driver():

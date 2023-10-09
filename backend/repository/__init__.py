@@ -155,7 +155,7 @@ class ClientComptsRepository(RepositoryUtils):
                         compt=self.main_compt
                         ,
                         envio=_envio,
-                        pode_declarar=False  # set to False
+                        pode_declarar=False if row.imposto_a_calcular != "SEM_MOV" else True
                     )
                     session.add(new_row)
                 session.commit()

@@ -7,7 +7,6 @@ from utilities.compt_utils import *
 # from . import *
 # qualquer coisa me devolve
 
-
 weblink = 'https://portal.gissonline.com.br/login/index.html'
 
 link = "ChromeDriver/chromedriver.exe"
@@ -19,8 +18,7 @@ class GissGui(FileOperations, WDShorcuts):
     def __init__(self, dados, compt, first_compt, headless=True):
         from functools import partial
         self.__COMPT = compt
-        with open('pgdas_fiscal_oesk/data_clients_files/giss_passwords.txt') as f:
-            __senhas = f.read().split(',')
+        __senhas = os.getenv('GISS_PASSWORDS').split(',')
         # [print(s) for s in __senhas]
         __r_social, _giss_cnpj, _logar = dados[:3]
         self.compt_atual = compt
@@ -36,7 +34,7 @@ class GissGui(FileOperations, WDShorcuts):
             # self.driver.set_window_position(2000, 0)
             super().__init__(self.driver)
             [print(a)
-                for a in ate_atual_compt(first_compt)]
+             for a in ate_atual_compt(first_compt)]
             print(__r_social)
             # self.driver = ginfess_driver()
 
