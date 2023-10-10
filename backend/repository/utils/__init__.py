@@ -1,4 +1,5 @@
 import pandas as pd
+# TODO descobrir pq todos menos o from_object nao estão funcionando
 
 class RepositoryUtils:
     def __init__(self, orm, session):
