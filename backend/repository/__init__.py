@@ -117,9 +117,9 @@ class ClientComptsRepository(RepositoryUtils):
         return df
 
     # Updates...
-    def update_from_object(self, orm: OrmTables.MainEmpresas):
+    def update_from_object(self, orm_object: OrmTables.MainEmpresas):
         """Overriden"""
-        super().update_from_object(orm)
+        super().update_from_object(orm_object)
 
     # add new compt
     def _add_new_compt(self) -> None:

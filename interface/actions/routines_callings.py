@@ -1,5 +1,7 @@
 import os
 import sys
+from typing import List
+
 import clipboard
 import subprocess
 
@@ -16,6 +18,7 @@ from utilities.compt_utils import get_compt
 # Se quiser lidar com os repositories direto dentro da classse de rotina
 # vai ter que instanciar eles dentro dos arquivos em pgdas_fiscal_oesk
 
+# TODO: fix if not orm_row.declarado
 
 class RoutinesCallings:
     def __init__(self, app_settings: AppSettings):
@@ -26,11 +29,11 @@ class RoutinesCallings:
         # Abaixo não funciona pq oobjeto ta sendo atualizado dentro da classe
         # client_compts_df = self.aps.client_compts_df
 
-    def _generate_all_valores(self, row: pd.Series) -> dict:
+    def _generate_all_valores(self, row: pd.Series) -> List[dict]:
         """This will be updated to get all in table"""
         anexo_valores_keys = ['sem_retencao', 'com_retencao', 'anexo']
         valores = {key: row[key] for key in anexo_valores_keys}
-        return valores
+        return [valores]
 
     def call_gias(self):
         df = self.compts_repository.get_interface_df(allowing_impostos_list=['LP'])
@@ -102,14 +105,19 @@ class RoutinesCallings:
         df = self.aps.client_compts_df
         attributes_required = ['razao_social', 'cnpj', 'cpf',
                                'codigo_simples', 'valor_total', 'ha_procuracao_ecac']
+        merged_df_cod_acesso = df.loc[df['ha_procuracao_ecac'] == 'não', :]
+        merged_df_proc_ecac = df.loc[df['ha_procuracao_ecac'] == 'sim', :]
+        merged_df = pd.concat([merged_df_cod_acesso,merged_df_proc_ecac], ignore_index=True)
 
-        for e, row in df.iterrows():
-            row_required = row[attributes_required]
-            args = row_required.to_list()
+        for e, row in merged_df.iterrows():
+            if not row['pode_declarar']:
+                continue
+            else:
+                row_required = row[attributes_required]
+                args = row_required.to_list()
 
-            PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row))
-            orm_row = self.compts_repository.get_as_orm(row)
-            if not orm_row.declarado:
+                orm_row = self.compts_repository.get_as_orm(row)
+                PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row))
                 orm_row.declarado = True
                 self.compts_repository.update_from_object(orm_row)
 
