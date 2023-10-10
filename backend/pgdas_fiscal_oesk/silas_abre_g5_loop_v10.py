@@ -33,7 +33,7 @@ class G5(Contimatic):
             print(__client)
             # Se tem 3valores[excel], tem XML. Se não tem, não tem
             # (pois o xml e excel vem do ginfess_download)....
-            self._extract_folder(True)
+            self._extract_folder_if_zip(True)
 
             if self.registronta():
                 self.abre_ativa_programa('G5 ')  # vscode's cause
@@ -87,16 +87,19 @@ class G5(Contimatic):
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 self.foxit_save__iss(__cnpj)
 
-        elif imposto_a_calcular == 'ICMS':
+        elif imposto_a_calcular == 'ICMS' and __client != 'Suzana Palacio dos Santos':
+            if self.__get_zips_path() or []:
 
-            print(__client, nf_out)
-            _already_exist = self.walget_searpath(
-                "APUR_ICMS", self.client_path, 2)
+                print(__client, nf_out)
+                _already_exist = self.walget_searpath(
+                    "APUR_ICMS", self.client_path, 2)
 
-            _already_exist += self.walget_searpath(
-                "LIVRO_ENTRADA", self.client_path, 2)
-            _already_exist += self.walget_searpath(
-                "LIVRO_SAIDA", self.client_path, 2)
+                _already_exist += self.walget_searpath(
+                    "LIVRO_ENTRADA", self.client_path, 2)
+                _already_exist += self.walget_searpath(
+                    "LIVRO_SAIDA", self.client_path, 2)
+            else:
+                _already_exist = True #  it could not exist (zerou), but it's just a logic to pass
             if not _already_exist:
                 self.abre_ativa_programa('G5 ')
                 self.activating_client(self.formatar_cnpj(__cnpj))
@@ -195,10 +198,10 @@ class G5(Contimatic):
         self.abre_ativa_programa('G5')
         # go2robo options
 
-    def _extract_folder(self, extract_to_current_dir: bool = False) -> bool:
+    def _extract_folder_if_zip(self, extract_to_current_dir: bool = False) -> bool:
         import zipfile
 
-        zips_path = self.files_get_anexos_v4(self.client_path, 'zip')
+        zips_path = self.__get_zips_path()
         if len(zips_path) == 1:
 
             with zipfile.ZipFile(zips_path[0], 'r') as zip_ref:
@@ -218,6 +221,18 @@ class G5(Contimatic):
             print(f'\033[1;Sem zip para {self.client_path}\033[m')
         return False
 
+    def __get_zips_path(self) -> list:
+        """
+        Retrieve file paths with compressed extensions from 'client_path'.
+
+        :returns: A list of file paths with compressed extensions.
+        """
+        compressed_file_extensions = ["zip", "zipx", "rar", "7z", "tar.gz", "tgz", "tar.bz2", "gz", "bz2", "lzma", "z"]
+
+        zips_path = []
+        for cfe in compressed_file_extensions:
+            zips_path += self.files_get_anexos_v4(self.client_path, cfe)
+        return zips_path
     def importa_nf_icms_saidas(self):
 
         def go2_g5_import_params():
@@ -226,7 +241,7 @@ class G5(Contimatic):
             foritab(6, 'down')
             foritab(1, 'right', 'down', 'enter',)
 
-        if self._extract_folder():
+        if self._extract_folder_if_zip():
             self._xml_send2cloud_icms()
             for path2import in [self.caminho_autorizadas_destino, self.caminho_canceladas_destino]:
                 if path2import == '':
@@ -268,6 +283,7 @@ class G5(Contimatic):
         pygui.click(pygui.getActiveWindow().topright,
                     clicks=0)
         # COMO ATIVAR ROBÔ AUTOMÁTICO?
+        # TODO: arrumar o click...
         pygui.move(-105, 50)
         pygui.FAILSAFE = True
         pygui.click()

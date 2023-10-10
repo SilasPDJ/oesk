@@ -83,9 +83,15 @@ class RoutinesCallings:
             if row_required['ginfess_link'] == '':
                 continue
             args = row_required.to_list()
-            DownloadGinfessGui(*args, compt=self.compt)
+            dgg = DownloadGinfessGui(*args, compt=self.compt)
+            orm_row = self.compts_repository.get_as_orm(row)
+            del row
+            if dgg.ginfess_valores:
+                for key_indx, key in enumerate(["sem_retencao", "com_retencao", "valor_total"]):
+                    setattr(orm_row, key, dgg.ginfess_valores[key_indx])
 
-            # orm_row = self.compts_repository.get_as_orm(row)
+            orm_row.pode_declarar = True
+            self.compts_repository.update_from_object(orm_row)
 
     def call_g5(self):
         df = self.aps.client_compts_df
@@ -107,8 +113,8 @@ class RoutinesCallings:
                                'codigo_simples', 'valor_total', 'ha_procuracao_ecac']
         merged_df_cod_acesso = df.loc[df['ha_procuracao_ecac'] == 'não', :]
         merged_df_proc_ecac = df.loc[df['ha_procuracao_ecac'] == 'sim', :]
-        merged_df = pd.concat([merged_df_cod_acesso,merged_df_proc_ecac], ignore_index=True)
-
+        merged_df = pd.concat([merged_df_cod_acesso,], ignore_index=True)
+        # TODO: rollback nessa linha para concatenar ambos
         for e, row in merged_df.iterrows():
             if not row['pode_declarar']:
                 continue
