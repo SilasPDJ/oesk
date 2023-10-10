@@ -1,5 +1,7 @@
 from random import randint
 from utilities.default import *
+from anticaptchaofficial.hcaptchaproxyless import *
+
 
 # from . import *
 # qualquer coisa me devolve
@@ -12,6 +14,8 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
 
         WDShorcuts.__init__(self, driver)
         self.driver = driver
+        # self.url_loga_simples = f'https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/Autentica.aspx?id={randint(1, 99)}'
+        self.url_loga_simples = f'https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/Autentica.aspx?id=60'
         self.__set_driver()
         self._uclient_path = client_path
 
@@ -101,7 +105,7 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
             anocalendario = Select(driver.find_element(By.ID, 'anocalendario'))
 
             if ultrarior:
-                anocalendario.select_by_value(f'{self.y()+1}')
+                anocalendario.select_by_value(f'{self.y() + 1}')
             else:
                 anocalendario.select_by_value(f'{self.y()}')
             self.find_submit_form()
@@ -134,13 +138,10 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
 
     def loga_simples(self, CNPJ, CPF, CodSim, CLIENTE):
         driver = self.driver
-        driver.get(
-            'https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/Autentica.aspx?id=60')
 
-        driver.get(
-            'https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/Autentica.aspx?id=60')
+        driver.get(self.url_loga_simples)
         while str(driver.current_url.strip()).endswith('id=60'):
-            CAPT = self.__loga_simples_capt()
+            self.__loga_simples_capt()
             self.tags_wait('body')
             self.tags_wait('html')
             self.tags_wait('input')
@@ -162,17 +163,13 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
             cod.clear()
             cod.send_keys(CodSim)
 
-            cod_caract = driver.find_element(By.ID,
-                                             'txtTexto_captcha_serpro_gov_br')
-            btn_som = driver.find_element(By.ID,
-                                          'btnTocarSom_captcha_serpro_gov_br')
-            # sleep(2.5)
-            # btn_som.click()
-            # sleep(.5)
-            # cod_caract.click()
-            cod_caract.send_keys(CAPT)
-            # print(f'PRESSIONE ENTER P/ PROSSEGUIR, {CLIENTE}')
-            # press_keys_b4('enter')
+            # cod_caract = driver.find_element(By.ID,
+            #                                  'txtTexto_captcha_serpro_gov_br')
+            # cod_caract.send_keys(CAPT)
+            #
+            # print(f'PRESSIONE F9 P/ PROSSEGUIR, {CLIENTE}')
+            print(f'{CLIENTE}')
+            # press_keys_b4('f9')
             while True:
                 try:
                     submit = driver.find_element(By.XPATH,
@@ -185,7 +182,32 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
                     sleep(5)
             sleep(5)
 
-    def __loga_simples_capt(self) -> str:
+    def __loga_simples_capt(self):
+        url = self.url_loga_simples
+        driver = self.driver
+
+        site_key = driver.find_element(By.ID, 'hcaptcha').get_attribute('data-sitekey')
+
+        solver = hCaptchaProxyless()
+        solver.set_verbose(1)
+        solver.set_key(os.getenv("ANTI_HCA_KEY"))
+        solver.set_website_url(url)
+        solver.set_website_key(site_key)
+        solved_resposta = solver.solve_and_return_solution()
+
+        if solved_resposta != 0:
+            print(solved_resposta)
+            # preencher o campo # TODO meu problema está aqui provavelmente...'
+            textarea_element = driver.find_element(By.NAME, "h-captcha-response")
+            driver.execute_script("arguments[0].innerHTML = arguments[1];", textarea_element, solved_resposta)
+
+            secret_input = driver.find_element(By.ID, "ctl00_ContentPlaceHolder_hcaptchaResponse")
+            driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input, solved_resposta)
+
+        if solver.err_string != '':
+            print(solver.err_string)
+
+    def __loga_simples_capt_old(self) -> str:
         import subprocess
         import os
         capt = "capt.png"
@@ -228,7 +250,9 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
         from threading import Thread
 
         randsleep = partial(uniform, 1.01, 2.99)
+
         def randsleep2(n1, n2): return uniform(n1, n2)
+
         from selenium.webdriver import Chrome
 
         driver = self.driver
@@ -237,7 +261,8 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
         driver.set_window_position(*pos[randint(0, 1)])
         # driver.set_window_size(randint(900, 1350), randint(550, 1000))
 
-        driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
+        driver.get(
+            "https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
         # 17bd6f43454
         # initial = WebDriverWait(driver, 30).until(
         #     expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Seu certificado digital')))

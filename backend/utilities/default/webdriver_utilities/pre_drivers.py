@@ -8,15 +8,13 @@ from backend.utilities.default.sets.pathmanager import Dirs
 from selenium.webdriver.chrome.service import Service
 
 SERVICE = Service()
-link = "Chromedriver/chromedriver.exe"
 this_file_path = os.path.realpath(__file__)
 path = os.path.dirname(this_file_path)
-link = os.path.join(path, link)
+
 
 # procura link chamado pela variável __file__
 
-
-def default_qrcode_driver(path=''):
+def default_qrcode_driver(path='') -> webdriver.Remote:
     """
     :param path: default path atual (downloads)
     :return: o driver para fechar no loop
@@ -81,7 +79,7 @@ def default_qrcode_driver(path=''):
     return driver
 
 
-def pgdas_driver(path=''):
+def pgdas_driver(path='') -> webdriver.Remote:
     """
     :param path: default path atual
     :return: o driver para fechar no loop
@@ -107,7 +105,6 @@ def pgdas_driver(path=''):
 
     })
 
-    chromedriver = link
     # real_path_for_chromedriver()
     # vindo do ginfess_driver [magic]
     driver = webdriver.Chrome(
@@ -115,7 +112,7 @@ def pgdas_driver(path=''):
     return driver
 
 
-def pgdas_driver_ua(path=''):
+def pgdas_driver_ua(path='') -> webdriver.Remote:
     """
     :param path: default path atual
     :return: o driver para fechar no loop
@@ -148,7 +145,6 @@ def pgdas_driver_ua(path=''):
     })
     # chrome_options.add_argument(f'user-agent={user_agent}')
 
-    chromedriver = link
     # real_path_for_chromedriver()
     # vindo do ginfess_driver [magic]
     driver = webdriver.Chrome(
@@ -156,7 +152,7 @@ def pgdas_driver_ua(path=''):
     return driver
 
 
-def ginfess_driver(path=''):
+def ginfess_driver(path='') -> webdriver.Remote:
     """
     :param path: default path atual
     :return: o driver para fechar no loop
@@ -193,7 +189,6 @@ def ginfess_driver(path=''):
     chrome_options.add_argument("--safebrowsing-disable-download-protection")
     chrome_options.add_argument("safebrowsing-disable-extension-blacklist")
     # #################### Difference from above --> safe_browsing enabled
-    chromedriver = link
 
     # real_path_for_chromedriver()
 
@@ -238,7 +233,6 @@ def jucesp_simple_driver():
         'profile.default_content_setting_values.automatic_downloads': 1,
     })
 
-    chromedriver = link
     # real_path_for_chromedriver()
     # vindo do ginfess_driver [magic]
 
@@ -249,3 +243,8 @@ def jucesp_simple_driver():
 
     # sleep(5)
     return driver
+
+
+if __name__ == "__main__":
+    pass
+

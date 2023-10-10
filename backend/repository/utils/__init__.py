@@ -47,8 +47,8 @@ class RepositoryUtils:
             # session.merge(self.orm(**dictionary))
             session.commit()
 
-    def update_from_object(self, orm):
+    def update_from_object(self, orm_object):
         with self.Session() as session:
-            session.merge(orm)
+            session.merge(orm_object)
             session.commit()
 
