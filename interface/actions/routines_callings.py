@@ -130,6 +130,14 @@ class RoutinesCallings:
             # What about to update???
             print()
 
+    def call_jr(self):
+        df = self.compts_repository.get_junior_df()
+        attributes_required = [ 'razao_social', 'cnpj']
+        for e, row in df.iterrows():
+            row_required = row[attributes_required]
+            args = row_required.to_list()
+            JR(*args, compt=self.compt)
+
     def call_send_pgdas_email(self):
         df = self.compts_repository.get_df_to_email()
         attributes_required = ['razao_social', 'cnpj', 'cpf',

@@ -111,6 +111,10 @@ class ClientComptsRepository(RepositoryUtils):
         # TODO: separar G5 por ISS e ICMS
         print(df)
 
+    def get_junior_df(self) -> pd.DataFrame:
+        df = self._get_ordered_by_imposto_a_calcular(allowing_list=['ICMS'])
+        return df
+
     def get_df_to_email(self) -> pd.DataFrame:
         df = self._get_ordered_by_imposto_a_calcular(allow_only_authorized=True)
         df = df.loc[df['envio'].isin(False)]
