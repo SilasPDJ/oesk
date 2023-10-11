@@ -551,17 +551,17 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
         # valor_total = newdf.iloc[:-1, 0].sum()
         # Verifica se é igual ao proposto pelo csv...
         valor_total = newdf.iloc[-1, 0]
+        if valor_total != 0:
+            # Checa se ISS Retido é único, ou seja se ISS == 'N'
+            if newdf.iloc[:-1, 1].nunique() == 1:
+                valor_n_retido = valor_total
+                valor_retido = 0.00
+            else:
+                raise ValueError(
+                    "Necessária Implementação de valor retido na prefeitura de sp")
 
-        # Checa se ISS Retido é único, ou seja se ISS == 'N'
-        if newdf.iloc[:-1, 1].nunique() == 1:
-            valor_n_retido = valor_total
-            valor_retido = 0.00
-        else:
-            raise ValueError(
-                "Necessária Implementação de valor retido na prefeitura de sp")
-
-        self.ginfess_valores = valor_n_retido, valor_retido, valor_total
-        assert valor_n_retido + valor_retido == valor_total
+            self.ginfess_valores = valor_n_retido, valor_retido, valor_total
+            assert valor_n_retido + valor_retido == valor_total
         # TODO: implenmentar ginfess_valores no BD...
     def excel_from_html_above(self, excel_file, html):
         import numpy as np

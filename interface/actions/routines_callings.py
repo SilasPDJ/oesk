@@ -80,12 +80,12 @@ class RoutinesCallings:
 
         for e, row in df.iterrows():
             row_required = row[attributes_required]
-            if row_required['ginfess_link'] == '':
+            if row_required['ginfess_link'] == '' or row_required['ginfess_link'].lower() == 'não há':
+                print(f'\nGinfess pula {row["razao_social"]}')
                 continue
             args = row_required.to_list()
             dgg = DownloadGinfessGui(*args, compt=self.compt)
             orm_row = self.compts_repository.get_as_orm(row)
-            del row
             if dgg.ginfess_valores:
                 for key_indx, key in enumerate(["sem_retencao", "com_retencao", "valor_total"]):
                     setattr(orm_row, key, dgg.ginfess_valores[key_indx])
