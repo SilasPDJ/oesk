@@ -1,5 +1,5 @@
 import pandas as pd
-from win10toast import ToastNotifier
+from win11toast import toast
 # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 from utilities.default import *
 
@@ -215,7 +215,7 @@ class Defis(Legato, SimplesNacionalUtilities):
                     # break
 
                 # Chega até os campos padrão
-                ToastNotifier().show_toast("DIGITE F8 p/ prosseguir")
+                toast("DIGITE F8 p/ prosseguir")
                 print('\033[1;31m DIGITE F8 p/ prosseguir \033[m')
                 which_one = press_key_b4('f8')
                 # now_process.kill()

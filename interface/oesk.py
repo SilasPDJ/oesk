@@ -89,7 +89,7 @@ class App(ctk.CTk, AppSettings):
             self._set_button_data(self.rc.call_pgdas_declaracao, 'PGDAS pdf FULL',
                                   ),
 
-            self._set_button_data(lambda: self.rc.call_func_v3('jr'), 'Fazer JR',
+            self._set_button_data(self.rc.call_jr, 'Fazer JR',
                                   '#fff', '#556353', '#4CAF50'),
 
             self._set_button_data(self.rc.call_send_pgdas_email, 'Enviar PGDAS',

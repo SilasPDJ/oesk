@@ -13,12 +13,12 @@ from backend.utilities.helpers import modify_dataframe_at, sort_dataframe
 
 from backend.pgdas_fiscal_oesk import *
 from utilities.compt_utils import get_compt
+from utilities.default import default_qrcode_driver
 
 
 # Se quiser lidar com os repositories direto dentro da classse de rotina
 # vai ter que instanciar eles dentro dos arquivos em pgdas_fiscal_oesk
 
-# TODO: fix if not orm_row.declarado
 
 class RoutinesCallings:
     def __init__(self, app_settings: AppSettings):
@@ -108,13 +108,15 @@ class RoutinesCallings:
             self.compts_repository.update_from_object(orm_row)
 
     def call_pgdas_declaracao(self):
-        df = self.aps.client_compts_df
+        # df = self.aps.client_compts_df
+        df = self.compts_repository.get_interface_df()
         attributes_required = ['razao_social', 'cnpj', 'cpf',
                                'codigo_simples', 'valor_total', 'ha_procuracao_ecac']
         merged_df_cod_acesso = df.loc[df['ha_procuracao_ecac'] == 'não', :]
         merged_df_proc_ecac = df.loc[df['ha_procuracao_ecac'] == 'sim', :]
-        merged_df = pd.concat([merged_df_cod_acesso,], ignore_index=True)
-        # TODO: rollback nessa linha para concatenar ambos
+        merged_df = pd.concat([merged_df_cod_acesso, merged_df_proc_ecac], ignore_index=True)
+
+        ecac_driver = default_qrcode_driver('C:\\Temp')
         for e, row in merged_df.iterrows():
             if not row['pode_declarar']:
                 continue
@@ -123,7 +125,12 @@ class RoutinesCallings:
                 args = row_required.to_list()
 
                 orm_row = self.compts_repository.get_as_orm(row)
-                PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row))
+                if row['ha_procuracao_ecac'] == 'sim':
+                    PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row),
+                                    driver=ecac_driver)
+                else:
+                    PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row))
+
                 orm_row.declarado = True
                 self.compts_repository.update_from_object(orm_row)
 
@@ -134,6 +141,8 @@ class RoutinesCallings:
         df = self.compts_repository.get_junior_df()
         attributes_required = [ 'razao_social', 'cnpj']
         for e, row in df.iterrows():
+            if row['valor_total'] != 0:
+                continue
             row_required = row[attributes_required]
             args = row_required.to_list()
             JR(*args, compt=self.compt)
