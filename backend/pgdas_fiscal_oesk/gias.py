@@ -152,7 +152,6 @@ class GIA(WDShorcuts):
 
         if solved_resposta != 0:
             print(solved_resposta)
-            # preencher o campo # TODO meu problema está aqui provavelmente...'
             driver.switch_to.frame(driver.find_element(By.CSS_SELECTOR, 'body > div > div:nth-child(4) > iframe'))
             secret_input = driver.find_element(By.ID, "recaptcha-token")
             driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input, solved_resposta)
