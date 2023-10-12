@@ -25,7 +25,7 @@ class App(ctk.CTk, AppSettings):
         self.compts_repository = ClientComptsRepository(self.compt)
         self.client_compts_df = self.compts_repository.get_interface_df()
         self.allowed_clients = 'razao_social'
-        self.venc_das = f"20-{self.compt}"
+        self.venc_das = f"20-{get_compt(0)}"
         self.ba = BindingActions(self)
         self.rc = RoutinesCallings(self)
 

@@ -1,7 +1,8 @@
 from utilities.default import *
 from win32com import client
 from utilities.default.sets.init_email import EmailExecutor
-
+import json
+import pandas as pd
 
 class PgDasmailSender(EmailExecutor, FileOperations):
 
