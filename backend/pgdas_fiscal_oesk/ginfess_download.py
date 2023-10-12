@@ -6,7 +6,7 @@ from utilities.default import *
 from time import sleep
 import pandas as pd
 import os
-from win10toast import ToastNotifier
+from win11toast import toast
 
 
 class DownloadGinfessGui(FileOperations, WDShorcuts):
@@ -325,7 +325,7 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
                 self.send_keys_anywhere(Keys.TAB)
 
                 if self.__driver__name == "pgdas_driver":
-                    ToastNotifier().show_toast("Pressione F9 para continuar", duration=10)
+                    toast("Pressione F9 para continuar", duration="medium")
 
                     press_keys_b4('f9')
                     driver.save_screenshot(self.certif_feito(
@@ -634,7 +634,7 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
                     print('CERTIFICADO EXISTENTE, NÃO PROSSEGUE')
                     return False
 
-        print('\033[1;35mPROSSEGUE\033[m')
+        print('\033[1;35mPROSSEGUE\033[m', self.client_path)
         return True
 
     def captcha_hacking(self):
