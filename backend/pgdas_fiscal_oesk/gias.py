@@ -2,15 +2,16 @@
 from utilities.default import *
 from pgdas_fiscal_oesk.contimatic import *
 from backend.utilities.compt_utils import ate_atual_compt, get_compt, compt_to_date_obj, calc_date_compt_offset, get_all_valores
+from anticaptchaofficial.recaptchav2proxyless import *
 from time import sleep
 import os
 
 link = "ChromeDriver/chromedriver.exe"
 possible = ['GIA']
 
-
 class GIA(WDShorcuts):
     file_operations = FileOperations()
+
 
     def __init__(self, *args, compt, first_compt=None):
         __r_social, __ecac, login, senha = args
@@ -90,12 +91,16 @@ class GIA(WDShorcuts):
                                           "//input[@type='password']")
                 ssn.clear()
                 ssn.send_keys(senha)
+                # TODO: implementar tentar fazer login while...
+                # self.send_keys_anywhere(Keys.TAB)
+                # self.send_keys_anywhere(Keys.ENTER)
+                self._win_capt()
+                button = driver.find_element(By.ID, "ConteudoPagina_btnAcessar")
+                driver.execute_script("arguments[0].removeAttribute('disabled');", button)
+                button.click()
+                print('pressione f9 p/ continuar após captcha')
+                press_key_b4('f9')
 
-                self.send_keys_anywhere(Keys.TAB)
-                self.send_keys_anywhere(Keys.ENTER)
-                print('pressione f7 p/ continuar após captcha')
-                press_key_b4('f8')
-                # self.find_submit_form()
                 # enter entrar
                 sleep(3)
                 self.webdriverwait_el_by(
@@ -132,6 +137,32 @@ class GIA(WDShorcuts):
                 sleep(5)
                 # pygui.hotkey('enter')
                 # ############################################ parei daqui
+
+    def _win_capt(self):
+        # recaptcha-token
+        driver = self.driver
+        site_key = os.getenv('GIA_SITE_KEY')
+
+        solver = recaptchaV2Proxyless()
+        solver.set_verbose(1)
+        solver.set_key(os.getenv("ANTI_HCA_KEY"))
+        solver.set_website_url(self.driver.current_url)
+        solver.set_website_key(site_key)
+        solved_resposta = solver.solve_and_return_solution()
+
+        if solved_resposta != 0:
+            print(solved_resposta)
+            # preencher o campo # TODO meu problema está aqui provavelmente...'
+            driver.switch_to.frame(driver.find_element(By.CSS_SELECTOR, 'body > div > div:nth-child(4) > iframe'))
+            secret_input = driver.find_element(By.ID, "recaptcha-token")
+            driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input, solved_resposta)
+            driver.switch_to.default_content()
+
+            textarea_element = driver.find_element(By.ID, "g-recaptcha-response")
+            driver.execute_script("arguments[0].innerHTML = arguments[1];", textarea_element, solved_resposta)
+
+        if solver.err_string != '':
+            print(solver.err_string)
 
     def save_novagia(self):
         from shutil import copy
