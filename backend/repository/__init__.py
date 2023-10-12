@@ -72,7 +72,6 @@ class ClientComptsRepository(RepositoryUtils):
                 return query.all()
 
     def _get_ordered_by_imposto_a_calcular(self, sorting_list: list = None, allowing_list: list = None,
-                                           allow_lucro_presumido=False,
                                            allow_only_authorized=False) -> pd.DataFrame:
         """
         Retrieve and sort a DataFrame of financial data by 'imposto_a_calcular' column based on a custom order list.
@@ -80,8 +79,7 @@ class ClientComptsRepository(RepositoryUtils):
         :param sorting_list: A list specifying the desired sorting order for 'imposto_a_calcular' values.
                            if None, calls default_order
         :param allowing_list: A list containing the 'imposto_a_calcular' that should be in data
-        :param allow_lucro_presumido: If False, filter out rows with 'imposto_a_calcular' value 'LP'
-                                      (Lucro Presumido). Default is False.
+
         :param allow_only_authorized: If True, filter the DataFrame to include only authorized data.
                                       Default is True.
         :return: A sorted DataFrame containing financial data with 'imposto_a_calcular' column values
@@ -91,9 +89,7 @@ class ClientComptsRepository(RepositoryUtils):
         main_df = self._query_all_data_in_compt(is_authorized=allow_only_authorized)
         sorted_df = sort_dataframe(main_df, sorting_list or default_order, 'imposto_a_calcular')
 
-        if not allow_lucro_presumido:
-            sorted_df = sorted_df.loc[sorted_df['imposto_a_calcular'] != 'LP']
-        if allowing_list is not None and 'LP' not in allowing_list:
+        if allowing_list is None or 'LP' not in allowing_list:
             sorted_df = sorted_df.loc[sorted_df['imposto_a_calcular'] != 'LP']
 
         if allowing_list:
@@ -119,7 +115,7 @@ class ClientComptsRepository(RepositoryUtils):
 
     def get_df_to_email(self) -> pd.DataFrame:
         df = self._get_ordered_by_imposto_a_calcular(allow_only_authorized=True)
-        df = df.loc[df['envio'].isin(False)]
+        df = df.loc[~df['envio']]
         return df
 
     # Updates...
