@@ -1,13 +1,13 @@
 import pandas as pd
+from typing import Union, List, Tuple
 
 from backend.utilities.db import DbAccessManager
 from backend.models import OrmTables
 from backend.utilities.compt_utils import get_compt, compt_to_date_obj, calc_date_compt_offset, ate_atual_compt, \
-    get_all_valores
+    get_all_valores, get_next_venc_das
+from backend.repository.utils import RepositoryUtils
 from backend.utilities.helpers import modify_dataframe_at, sort_dataframe
 import sqlalchemy as sql
-from typing import Union, List, Tuple
-from backend.repository.utils import RepositoryUtils
 
 # OrmTables.MainEmpresas
 # OrmTables.ClientsCompts
@@ -49,7 +49,8 @@ class ClientComptsRepository(RepositoryUtils):
         return super().get_as_orm(**kwargs)
 
     # Queries
-    def _query_all_data_in_compt(self, is_authorized=False, must_have_status_ativo=True, to_df=True, another_compt=None) -> Union[
+    def _query_all_data_in_compt(self, is_authorized=False, must_have_status_ativo=True, to_df=True,
+                                 another_compt=None) -> Union[
         pd.DataFrame, List[sql.orm.Query]]:
         """Get a DataFrame or a list of ORM queries by joining all registered fields.
 
@@ -140,6 +141,7 @@ class ClientComptsRepository(RepositoryUtils):
                     # _declarado = True if str(
                     #     row.imposto_a_calcular) == 'LP' and '//' not in row.ginfess_cod else False
                     _declarado = False
+
                     def get_status_imports_g5(
                             campo: str): return campo if campo.upper() != 'OK' else ''
 
@@ -153,16 +155,15 @@ class ClientComptsRepository(RepositoryUtils):
                         valor_total=0.00,
                         anexo=row.anexo,
                         imposto_a_calcular=row.imposto_a_calcular,
-                        possui_das_pendentes=False,
-                        compt=self.main_compt
-                        ,
+                        compt=self.main_compt,
                         envio=_envio,
-                        pode_declarar=False if row.imposto_a_calcular != "SEM_MOV" else True
+                        pode_declarar=False if row.imposto_a_calcular != "SEM_MOV" else True,
+                        venc_das=get_next_venc_das(row['venc_das']) if row['venc_das'] else row['venc_das'],
                     )
                     session.add(new_row)
                 session.commit()
 
-    def __add_new_client(self, empresa_id, imposto_a_calcular):
+    def __add_new_client_to_table(self, empresa_id, imposto_a_calcular):
         # Vou utilizar anexo sugerido...
         if imposto_a_calcular == 'ICMS':
             anexo_sugerido = 'I'
@@ -190,10 +191,10 @@ class ClientComptsRepository(RepositoryUtils):
                     valor_total=0.00,
                     anexo=anexo_sugerido,
                     imposto_a_calcular=imposto_a_calcular,
-                    possui_das_pendentes=False,
                     compt=self.main_compt,
                     envio=_envio,
-                    pode_declarar=False  # set to False
+                    pode_declarar=False,  # set to False
+                    venc_das=None,
                 )
                 session.add(new_row)
                 session.commit()

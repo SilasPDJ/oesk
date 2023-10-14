@@ -94,8 +94,7 @@ class Now:
         dia_hj = dt.now()
         return mydt.day > dia_hj.day, dia_hj
 
-    @staticmethod
-    def get_last_business_day_of_month(mes=None, ano=None):
+    def get_last_business_day_of_month(self, mes=None, ano=None):
         dia_hj = dt.now()
         if mes is None:
             mes = dia_hj.month
@@ -106,12 +105,16 @@ class Now:
         last_now = date(ano, mes, 1) + relativedelta(months=1)
         last_now -= timedelta(days=1)
 
-        wkday = dt.weekday(last_now)
+        return self.get_previous_business_day(last_now)
+
+    @staticmethod
+    def get_previous_business_day(day: date) -> date:
+        wkday = dt.weekday(day)
         while wkday >= 5:
-            last_now -= timedelta(days=1)
-            wkday = dt.weekday(last_now)
+            day -= timedelta(days=1)
+            wkday = dt.weekday(day)
             print(wkday)
-        return last_now
+        return day
 
     @staticmethod
     def str_to_date(date_str: str, format_str: str) -> date:

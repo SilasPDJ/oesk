@@ -1,5 +1,7 @@
 from datetime import date
 from datetime import timedelta, datetime
+from typing import Union
+
 from dateutil.relativedelta import relativedelta
 
 from backend.utilities.default.sets import Now
@@ -138,3 +140,10 @@ def ate_atual_compt(compt_atual, first_compt=None):
             # list_compts.append(compt_appended)
             yield compt_appended
     # O objetivo dessa função é retornar yildar um range de compt, partindo do first_compt
+
+
+def get_next_venc_das(arg: Union[date, datetime], months=1) -> Union[date, datetime]:
+    now = Now()
+    _venc_das = arg + relativedelta(months=months)
+    new_venc_das = now.get_previous_business_day(_venc_das)
+    return new_venc_das

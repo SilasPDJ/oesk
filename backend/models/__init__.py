@@ -5,7 +5,6 @@ from sqlalchemy.orm import Mapper, class_mapper
 
 Base = declarative_base()
 
-
 class OrmTables:
     class MainEmpresas(Base):
         __tablename__ = 'main_empresas'
@@ -46,9 +45,9 @@ class OrmTables:
         anexo = Column(String(3))
         envio = Column(Boolean())
         imposto_a_calcular = Column(String(7))
-        possui_das_pendentes = Column(Boolean())
         compt = Column(Date())
         pode_declarar = Column(Boolean())
+        venc_das = Column(Date())
 
         def __repr__(self):
             return f"{self.id} - {self.main_empresa_id:03d} - {self.main_empresas.razao_social}"
