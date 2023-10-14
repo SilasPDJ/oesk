@@ -156,7 +156,8 @@ class RoutinesCallings:
             row_required = row[attributes_required]
             orm_row = self.compts_repository.get_as_orm(row)
             if not orm_row.envio and orm_row.declarado:
-                PgDasmailSender(*row_required, compt=self.compt, venc_das=self.aps.get_venc_das(), email=row['email'])
+                PgDasmailSender(*row_required, compt=self.compt, venc_das=row['venc_das'] or self.aps.get_venc_das(),
+                                email=row['email'])
                 orm_row.envio = True
                 self.compts_repository.update_from_object(orm_row)
 
