@@ -13,7 +13,7 @@ class AppSettings:
         'razao_social', 'cnpj', 'valor_total', 'codigo_simples', 'email',
         'sem_retencao', 'com_retencao', 'cpf', 'anexo',
         'gissonline', 'giss_login', 'ginfess_cod', 'ginfess_link',
-        'possui_das_pendentes', 'status_ativo', 'main_empresa_id']
+        'venc_das', 'status_ativo', 'main_empresa_id']
     load_dotenv()
 
     def map_ids_within_col_to_dict(self, keys_field: list, values_field: list) -> dict:
