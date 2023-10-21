@@ -201,9 +201,11 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
             textarea_element = driver.find_element(By.NAME, "h-captcha-response")
             driver.execute_script("arguments[0].innerHTML = arguments[1];", textarea_element, solved_resposta)
 
+            hcaptcha = driver.find_element(By.ID, "hcaptcha")
+            driver.execute_script("arguments[0].removeAttribute('data-callback');", hcaptcha)
+
             secret_input = driver.find_element(By.ID, "ctl00_ContentPlaceHolder_hcaptchaResponse")
             driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input, solved_resposta)
-
         if solver.err_string != '':
             print(solver.err_string)
 

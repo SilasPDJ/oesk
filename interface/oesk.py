@@ -37,7 +37,7 @@ class App(ctk.CTk, AppSettings):
         self.set_key_bindings()
 
         # configure window
-        self.title("ctk complex_example.py")
+        self.title("oesk")
         self.geometry(f"{1200}x{600}")
 
     def set_key_bindings(self):

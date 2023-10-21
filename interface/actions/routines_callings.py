@@ -13,7 +13,7 @@ from backend.utilities.helpers import modify_dataframe_at, sort_dataframe
 
 from backend.pgdas_fiscal_oesk import *
 from utilities.compt_utils import get_compt
-from utilities.default import default_qrcode_driver
+from utilities.default import default_qrcode_driver, pgdas_driver
 
 
 # Se quiser lidar com os repositories direto dentro da classse de rotina
@@ -116,7 +116,9 @@ class RoutinesCallings:
         merged_df_proc_ecac = df.loc[df['ha_procuracao_ecac'] == 'sim', :]
         merged_df = pd.concat([merged_df_cod_acesso, merged_df_proc_ecac], ignore_index=True)
 
-        ecac_driver = default_qrcode_driver('C:\\Temp')
+        # ecac_driver = default_qrcode_driver('C:\\Temp')
+        ecac_driver = pgdas_driver()
+        # TODO: pressionar f9 somente 1x p/ prosseugir
         for e, row in merged_df.iterrows():
             if not row['pode_declarar']:
                 continue
@@ -139,7 +141,7 @@ class RoutinesCallings:
 
     def call_jr(self):
         df = self.compts_repository.get_junior_df()
-        attributes_required = [ 'razao_social', 'cnpj']
+        attributes_required = ['razao_social', 'cnpj']
         for e, row in df.iterrows():
             if row['valor_total'] != 0:
                 continue
@@ -160,8 +162,6 @@ class RoutinesCallings:
                                 email=row['email'])
                 orm_row.envio = True
                 self.compts_repository.update_from_object(orm_row)
-
-
 
     def call_func_v3(self):
         df = self.aps.client_compts_df
