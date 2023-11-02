@@ -29,6 +29,11 @@ class MainEmpresasRepository(RepositoryUtils):
         }
         return super().get_as_orm(**kwargs)
 
+    def query_only_allowed(self) -> List[sql.orm.Query]:
+        with self.Session() as session:
+            query = session.query(self.orm).filter_by(status_ativo=True)
+            return query.all()
+
 
 class ClientComptsRepository(RepositoryUtils):
     def __init__(self, compt: str):
@@ -49,9 +54,9 @@ class ClientComptsRepository(RepositoryUtils):
         return super().get_as_orm(**kwargs)
 
     # Queries
+
     def _query_all_data_in_compt(self, is_authorized=False, must_have_status_ativo=True, to_df=True,
-                                 another_compt=None) -> Union[
-        pd.DataFrame, List[sql.orm.Query]]:
+                                 ) -> Union[pd.DataFrame, List[sql.orm.Query]]:
         """Get a DataFrame or a list of ORM queries by joining all registered fields.
 
         :param is_authorized: Filter by 'pode_declarar' in the ORM.
@@ -60,13 +65,33 @@ class ClientComptsRepository(RepositoryUtils):
         :param another_compt: if you need to query another specific compt
         :return: Either a DataFrame or a list of ORM queries.
         """
+
         with self.Session() as session:
-            query = session.query(self.orm, self.main_empresas).filter_by(compt=another_compt or self.main_compt)
+            query = session.query(self.orm, self.main_empresas).filter_by(compt=self.main_compt)
             if is_authorized:
                 query = query.filter_by(pode_declarar=True)
             query = query.join(self.main_empresas, self.orm.main_empresa_id == self.main_empresas.id)
             if must_have_status_ativo:
                 query = query.filter_by(status_ativo=True)
+            if to_df:
+                return self.dba.query_to_dataframe(query)
+            else:
+                return query.all()
+
+    def start_new_compt_query(self, another_compt: str, to_df=False) -> Union[pd.DataFrame, List[sql.orm.Query]]:
+        """
+        :param another_compt: based on this compt it will rethrive the data to set a new compt
+        :return:
+        """
+
+        with self.Session() as session:
+            query = session.query(self.orm).filter_by(compt=compt_to_date_obj(another_compt))
+            main_empresas_allowed = session.query(self.main_empresas).filter_by(status_ativo=True)
+
+            # empresa.status_ativo deve ser True
+            main_empresas_allowed__ids = [row.id for row in main_empresas_allowed]
+            query = query.filter(self.orm.main_empresa_id.in_(main_empresas_allowed__ids))
+
             if to_df:
                 return self.dba.query_to_dataframe(query)
             else:
@@ -134,16 +159,18 @@ class ClientComptsRepository(RepositoryUtils):
                 print("Init new compt: ", self.main_compt, '-------')
                 # create new rows with incremented date
 
-                for row in self._query_all_data_in_compt(to_df=False, another_compt=row_exists.compt):
+                for row in self.start_new_compt_query(another_compt=get_compt(-2)):
                     _envio = True if str(
                         row.imposto_a_calcular) == 'LP' else False
-                    # TODO make it below work
+
+
                     # _declarado = True if str(
                     #     row.imposto_a_calcular) == 'LP' and '//' not in row.ginfess_cod else False
                     _declarado = False
 
                     def get_status_imports_g5(
-                            campo: str): return campo if campo.upper() != 'OK' else ''
+                            campo: str):
+                        return campo if campo.upper() != 'OK' else ''
 
                     new_row = self.orm(
                         main_empresa_id=row.main_empresa_id,
@@ -158,7 +185,7 @@ class ClientComptsRepository(RepositoryUtils):
                         compt=self.main_compt,
                         envio=_envio,
                         pode_declarar=False if row.imposto_a_calcular != "SEM_MOV" else True,
-                        venc_das=get_next_venc_das(row['venc_das']) if row['venc_das'] else row['venc_das'],
+                        venc_das=get_next_venc_das(row.venc_das) if row.venc_das else row.venc_das,
                     )
                     session.add(new_row)
                 session.commit()
