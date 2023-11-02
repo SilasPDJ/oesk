@@ -14,6 +14,7 @@ ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 from backend.utilities.compt_utils import get_compt, ate_atual_compt
+from interface.autocomplete_listbox import AutoCompleteListbox
 
 
 class App(ctk.CTk, AppSettings):
@@ -24,7 +25,10 @@ class App(ctk.CTk, AppSettings):
         # TODO passar a competencia por variavel atualizavel
         self.compts_repository = ClientComptsRepository(self.compt)
         self.client_compts_df = self.compts_repository.get_interface_df()
+
+        self._main_df_col = 'razao_social'
         self.allowed_clients = 'razao_social'
+
         self.venc_das = f"20-{get_compt(0)}"
         self.ba = BindingActions(self)
         self.rc = RoutinesCallings(self)
@@ -226,11 +230,15 @@ class App(ctk.CTk, AppSettings):
                                               text_color="#000",
                                               listvariable=self.allowed_clients,
                                               width=470, height=450)
+
         current_client_selection.configure(
             command=lambda x: setattr(self, 'current_client_index', current_client_selection.curselection()))
         current_client_selection.bind("<Down>", lambda event: self._on_keyup_keydown(current_client_selection, 1))
         current_client_selection.bind("<Up>", lambda event: self._on_keyup_keydown(current_client_selection, -1))
         current_client_selection.grid()
+        AutoCompleteListbox(main_frame,
+                            current_client_selection,
+                            self.client_compts_df[self._main_df_col].to_list())
 
 
 if __name__ == "__main__":
