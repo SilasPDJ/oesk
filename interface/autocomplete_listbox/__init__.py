@@ -17,6 +17,7 @@ class AutoCompleteListbox:
 
         self.entry = ctk.CTkEntry(frame)
         self.entry.bind("<KeyRelease>", self.filter_listbox)
+        self.entry.bind("<KeyRelease-Return>", lambda event: self.listbox_client_selection.activate(0))
         if grid_elements:
             self.entry.grid()
 
