@@ -212,12 +212,6 @@ class App(ctk.CTk, AppSettings):
                                              text=text)
             field_radio.grid(row=row, column=column, sticky="w")
 
-    def _on_keyup_keydown(self, widget, direction):
-        widget.curselection()
-        current_index = widget.curselection()
-        next_index = (current_index + direction) % widget.size()
-        widget.activate(next_index)
-
     def display_clients(self):
         main_frame = ctk.CTkFrame(self, width=180)
         main_frame.grid(row=0, column=3, columnspan=2, sticky="nsew")
@@ -233,12 +227,13 @@ class App(ctk.CTk, AppSettings):
 
         current_client_selection.configure(
             command=lambda x: setattr(self, 'current_client_index', current_client_selection.curselection()))
-        current_client_selection.bind("<Down>", lambda event: self._on_keyup_keydown(current_client_selection, 1))
-        current_client_selection.bind("<Up>", lambda event: self._on_keyup_keydown(current_client_selection, -1))
         current_client_selection.grid()
-        AutoCompleteListbox(main_frame,
-                            current_client_selection,
-                            self.client_compts_df[self._main_df_col].to_list())
+
+        select_client_listbox = AutoCompleteListbox(main_frame,
+                                                    current_client_selection,
+                                                    self.client_compts_df[self._main_df_col].to_list())
+        current_client_selection.bind("<KeyRelease>",
+                                      lambda x: select_client_listbox.entry.focus())
 
 
 if __name__ == "__main__":
