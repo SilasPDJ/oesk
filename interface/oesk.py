@@ -237,7 +237,7 @@ class App(ctk.CTk, AppSettings):
         current_client_selection = CTkListbox(main_frame,
                                               text_color="#000",
                                               listvariable=self.allowed_clients,
-                                              width=470, height=450)
+                                              width=470, height=450, fg_color="#fbfbfb")
 
         current_client_selection.configure(
             command=lambda x: setattr(self, 'current_client_index', current_client_selection.curselection()))
@@ -247,10 +247,11 @@ class App(ctk.CTk, AppSettings):
                             current_client_selection,
                             self.client_compts_df[self._main_df_col].to_list())
 
-        # current_client_selection.bind("<KeyRelease>",
-        #                               lambda x: select_client_listbox.entry.focus())
-        current_client_selection.bind("<Down>", lambda event: self._on_keyup_keydown(current_client_selection, 1))
-        current_client_selection.bind("<Up>", lambda event: self._on_keyup_keydown(current_client_selection, -1))
+        current_client_selection.bind('<F6>',
+                                      lambda x: select_client_listbox.entry.focus())
+
+        # current_client_selection.bind("<Down>", lambda event: self._on_keyup_keydown(current_client_selection, 1))
+        # current_client_selection.bind("<Up>", lambda event: self._on_keyup_keydown(current_client_selection, -1))
 
 
 if __name__ == "__main__":
