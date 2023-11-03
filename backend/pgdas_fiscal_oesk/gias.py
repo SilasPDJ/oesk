@@ -98,11 +98,15 @@ class GIA(WDShorcuts):
                 button = driver.find_element(By.ID, "ConteudoPagina_btnAcessar")
                 driver.execute_script("arguments[0].removeAttribute('disabled');", button)
                 button.click()
-                print('pressione f9 p/ continuar após captcha')
-                press_key_b4('f9')
-
+                # print('pressione f9 p/ continuar após captcha')
+                # press_key_b4('f9')
+                try:
+                    sleep(4)
+                    self.click_elements_by_tt('Cadastrar mais tarde')
+                    sleep(4)
+                except Exception as e:
+                    pass
                 # enter entrar
-                sleep(3)
                 self.webdriverwait_el_by(
                     By.LINK_TEXT, 'Guia de Informação (Arts. 253-254 RICMS/00)').click()
                 self.webdriverwait_el_by(By.LINK_TEXT, 'Envio de GIA').click()
@@ -157,8 +161,12 @@ class GIA(WDShorcuts):
             driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input, solved_resposta)
             driver.switch_to.default_content()
 
-            textarea_element = driver.find_element(By.ID, "g-recaptcha-response")
-            driver.execute_script("arguments[0].innerHTML = arguments[1];", textarea_element, solved_resposta)
+            for el_idname in ["g-recaptcha-response", "g-recaptcha-response-1"]:
+                try:
+                    textarea_element = driver.find_element(By.ID, el_idname)
+                    driver.execute_script("arguments[0].innerHTML = arguments[1];", textarea_element, solved_resposta)
+                except Exception as e:
+                    print(el_idname, "não existe")
 
         if solver.err_string != '':
             print(solver.err_string)
