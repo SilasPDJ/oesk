@@ -29,6 +29,10 @@ class AutoCompleteListbox:
         self.entry.bind("<KeyRelease>", self.filter_listbox)
         self.entry.bind("<KeyRelease-Return>", lambda event: self.listbox_client_selection.activate(0))
 
+        # right button = desselect
+        self.listbox_client_selection.bind("<Button-3>", lambda x: self.listbox_client_selection.deactivate(
+            self.listbox_client_selection.curselection()))
+
         if can_create_grid:
             self.entry.grid(sticky='nsew')
 
