@@ -250,7 +250,8 @@ class App(ctk.CTk, AppSettings):
                                                     self.client_compts_df[self._main_df_col].to_list(),
                                                     self.filter_listbox)
 
-        current_client_selection.bind("<KeyRelease-Up>", lambda x: self._on_keyup_keydown(current_client_selection, -1))
+        current_client_selection.bind("<KeyRelease-Up>",
+                                      lambda x: self._on_keyup_keydown(current_client_selection, -1))
         current_client_selection.bind("<KeyRelease-Down>",
                                       lambda x: self._on_keyup_keydown(current_client_selection, 1))
         # current_client_selection.bind("<Down>", lambda event: self._on_keyup_keydown(current_client_selection, 1))
