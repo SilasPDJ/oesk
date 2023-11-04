@@ -93,7 +93,6 @@ class GIA(WDShorcuts):
                                               "//input[@type='password']")
                     ssn.clear()
                     ssn.send_keys(senha)
-                    # TODO: implementar tentar fazer login while...
                     # self.send_keys_anywhere(Keys.TAB)
                     # self.send_keys_anywhere(Keys.ENTER)
                     self._win_capt()
