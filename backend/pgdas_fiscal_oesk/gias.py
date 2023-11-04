@@ -82,30 +82,32 @@ class GIA(WDShorcuts):
                 super().__init__(self.driver)
                 driver.get(
                     'https://www3.fazenda.sp.gov.br/CAWEB/Account/Login.aspx')
-                llg = driver.find_element(By.ID,
-                                          'ConteudoPagina_txtUsuario')
-                llg.clear()
-                llg.send_keys(login)
+                login_url = driver.current_url
+                while driver.current_url == login_url:
+                    llg = driver.find_element(By.ID,
+                                              'ConteudoPagina_txtUsuario')
+                    llg.clear()
+                    llg.send_keys(login)
 
-                ssn = driver.find_element(By.XPATH,
-                                          "//input[@type='password']")
-                ssn.clear()
-                ssn.send_keys(senha)
-                # TODO: implementar tentar fazer login while...
-                # self.send_keys_anywhere(Keys.TAB)
-                # self.send_keys_anywhere(Keys.ENTER)
-                self._win_capt()
-                button = driver.find_element(By.ID, "ConteudoPagina_btnAcessar")
-                driver.execute_script("arguments[0].removeAttribute('disabled');", button)
-                button.click()
-                # print('pressione f9 p/ continuar após captcha')
-                # press_key_b4('f9')
-                try:
-                    sleep(4)
-                    self.click_elements_by_tt('Cadastrar mais tarde')
-                    sleep(4)
-                except Exception as e:
-                    pass
+                    ssn = driver.find_element(By.XPATH,
+                                              "//input[@type='password']")
+                    ssn.clear()
+                    ssn.send_keys(senha)
+                    # TODO: implementar tentar fazer login while...
+                    # self.send_keys_anywhere(Keys.TAB)
+                    # self.send_keys_anywhere(Keys.ENTER)
+                    self._win_capt()
+                    button = driver.find_element(By.ID, "ConteudoPagina_btnAcessar")
+                    driver.execute_script("arguments[0].removeAttribute('disabled');", button)
+                    button.click()
+                    # print('pressione f9 p/ continuar após captcha')
+                    # press_key_b4('f9')
+                    try:
+                        sleep(4)
+                        self.click_elements_by_tt('Cadastrar mais tarde')
+                        sleep(4)
+                    except Exception as e:
+                        pass
                 # enter entrar
                 self.webdriverwait_el_by(
                     By.LINK_TEXT, 'Guia de Informação (Arts. 253-254 RICMS/00)').click()

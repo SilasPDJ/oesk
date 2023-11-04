@@ -44,6 +44,8 @@ class App(ctk.CTk, AppSettings):
         self.title("oesk")
         self.geometry(f"{1200}x{600}")
 
+        self.searching_entry_is_focused = False
+
     def set_key_bindings(self):
         self.bind("<F4>", lambda x: self.ba.copy_data_to_clipboard(self.var_selected_compt_field.get()))
         self.bind("<F1>", lambda x: self.ba.f1_abre_pasta('razao_social'))
@@ -247,9 +249,8 @@ class App(ctk.CTk, AppSettings):
                             current_client_selection,
                             self.client_compts_df[self._main_df_col].to_list())
 
-        current_client_selection.bind('<F6>',
-                                      lambda x: select_client_listbox.entry.focus())
-
+        current_client_selection.bind("<KeyRelease-Up>", lambda x: self._on_keyup_keydown(current_client_selection, -1))
+        current_client_selection.bind("<KeyRelease-Down>", lambda x: self._on_keyup_keydown(current_client_selection, 1))
         # current_client_selection.bind("<Down>", lambda event: self._on_keyup_keydown(current_client_selection, 1))
         # current_client_selection.bind("<Up>", lambda event: self._on_keyup_keydown(current_client_selection, -1))
 
