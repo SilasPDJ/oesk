@@ -246,13 +246,31 @@ class App(ctk.CTk, AppSettings):
         current_client_selection.grid()
 
         select_client_listbox = AutoCompleteListbox(main_frame,
-                            current_client_selection,
-                            self.client_compts_df[self._main_df_col].to_list())
+                                                    current_client_selection,
+                                                    self.client_compts_df[self._main_df_col].to_list(),
+                                                    self.filter_listbox)
 
         current_client_selection.bind("<KeyRelease-Up>", lambda x: self._on_keyup_keydown(current_client_selection, -1))
         current_client_selection.bind("<KeyRelease-Down>", lambda x: self._on_keyup_keydown(current_client_selection, 1))
         # current_client_selection.bind("<Down>", lambda event: self._on_keyup_keydown(current_client_selection, 1))
         # current_client_selection.bind("<Up>", lambda event: self._on_keyup_keydown(current_client_selection, -1))
+
+    def filter_listbox(self, event):
+        entry = event.widget
+        filter_text = entry.get().lower()
+        if not (event.char.isalpha() or event.char.isspace()) and event.keysym not in ("BackSpace", "Delete"):
+            return
+
+        client_compts_df = self.client_compts_df
+        new_df = client_compts_df.filter()
+        # TODO: filtrar pela seleção do filter do entry... levar em consideração o
+        #  filter_listbox do autocomplete
+        self.client_compts_df = new_df
+
+
+        self.allowed_clients.set(self.client_compts_df[self._main_df_col].to_list())
+
+
 
 
 if __name__ == "__main__":
