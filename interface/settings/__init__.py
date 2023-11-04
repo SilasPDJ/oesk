@@ -32,10 +32,9 @@ class AppSettings:
     def compt(self, value):
         self._compt = value
 
-    @ property
+    @property
     def venc_das(self):
         return self._venc_das
-
 
     @venc_das.setter
     def venc_das(self, venc_das):
@@ -44,6 +43,7 @@ class AppSettings:
     @property
     def client_compts_df(self) -> pd.DataFrame:
         return self._client_compts_df
+
     def get_venc_das(self):
         return self.venc_das.get()
 
@@ -67,3 +67,8 @@ class AppSettings:
     @current_client_index.setter
     def current_client_index(self, value):
         self._current_client = value
+
+    @property
+    def allowed_dict_ids(self) -> dict:
+        _ids_permited = self.client_compts_df['id'].to_list()
+        return {k: v for k, v in zip(_ids_permited, self.allowed_clients.get())}
