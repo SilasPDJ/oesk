@@ -251,7 +251,8 @@ class App(ctk.CTk, AppSettings):
                                                     self.filter_listbox)
 
         current_client_selection.bind("<KeyRelease-Up>", lambda x: self._on_keyup_keydown(current_client_selection, -1))
-        current_client_selection.bind("<KeyRelease-Down>", lambda x: self._on_keyup_keydown(current_client_selection, 1))
+        current_client_selection.bind("<KeyRelease-Down>",
+                                      lambda x: self._on_keyup_keydown(current_client_selection, 1))
         # current_client_selection.bind("<Down>", lambda event: self._on_keyup_keydown(current_client_selection, 1))
         # current_client_selection.bind("<Up>", lambda event: self._on_keyup_keydown(current_client_selection, -1))
 
@@ -267,10 +268,7 @@ class App(ctk.CTk, AppSettings):
         #  filter_listbox do autocomplete
         self.client_compts_df = new_df
 
-
         self.allowed_clients.set(self.client_compts_df[self._main_df_col].to_list())
-
-
 
 
 if __name__ == "__main__":
