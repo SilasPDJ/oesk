@@ -33,16 +33,15 @@ class AutoCompleteListbox:
             self.entry.grid(sticky='nsew')
 
     def filter_listbox(self, event):
-        if 37 <= event.keycode <= 40:
-           return
-
+        if not (event.char.isalpha() or event.char.isspace()) and event.keysym not in ("BackSpace", "Delete"):
+            return
         filter_text = self.entry.get().lower()
         try:
             self.listbox_client_selection.delete(0, tk.END)  # Limpar a lista
         except IndexError:
             pass
         else:
-            if not filter_text:  # Se o filtro estiver vazio, restaure a lista original
+            if len(filter_text) == 0:  # Se o filtro estiver vazio, restaure a lista original
                 for item in self.original_items:
                     self.listbox_client_selection.insert(tk.END, item)
             else:
@@ -50,4 +49,3 @@ class AutoCompleteListbox:
                     _item = looping_item.lower()
                     if any(word in _item for word in filter_text.split()):
                         self.listbox_client_selection.insert(tk.END, looping_item)
-        # self.listbox_client_selection.activate(0)
