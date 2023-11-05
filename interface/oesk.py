@@ -214,6 +214,7 @@ class App(ctk.CTk, AppSettings):
             field_radio.grid(row=row, column=column, sticky="w")
 
     def _on_keyup_keydown(self, widget, direction):
+        # TODO: fix quando filtra na entry não tá funcionado o arrow key
         current_index = widget.curselection()
         if current_index:
             next_index = current_index + direction
@@ -224,7 +225,7 @@ class App(ctk.CTk, AppSettings):
                     widget.activate(0)
 
         else:
-            next_index = 1
+            next_index = 1 if direction == 1 else -1
             widget.activate(next_index)
 
     def display_clients(self):
@@ -264,6 +265,8 @@ class App(ctk.CTk, AppSettings):
         entry = event.widget
 
         filter_text = entry.get().lower()
+        if filter_text.strip() == "":
+            return
 
         df = self.client_compts_df.copy()
         filtered_df = df[df[self.main_df_col].str.contains(filter_text, case=False)]
