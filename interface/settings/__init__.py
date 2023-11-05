@@ -51,7 +51,6 @@ class AppSettings:
 
     @client_compts_df.setter
     def client_compts_df(self, value):
-        self.main_df_col = value
         self._client_compts_df = value
 
     @property
@@ -60,6 +59,7 @@ class AppSettings:
 
     @allowed_clients.setter
     def allowed_clients(self, col):
+        self.main_df_col = col
         _clients_permited = self.client_compts_df[col].to_list()
         self._allowed_clients = tk.StringVar(value=_clients_permited)
 
