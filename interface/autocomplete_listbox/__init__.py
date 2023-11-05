@@ -20,14 +20,15 @@ class AutoCompleteListbox:
         self.allowed_clients = allowed_clients
         self.original_items = self.allowed_clients  # cópia dos elementos originais
 
+        self._filter_listbox = filter_listbox
+
         for item in self.allowed_clients:
             self.listbox_client_selection.insert(tk.END, item)
 
         self.entry = ctk.CTkEntry(frame,
                                   placeholder_text=f"Pesquisar:",
                                   height=50, font=ctk.CTkFont(size=20, weight="bold"))
-        # self.entry.bind("<KeyRelease>", filter_listbox)
-        self.entry.bind("<KeyRelease>", self._____________filter_listbox)
+        self.entry.bind("<KeyRelease>", self.filter_listbox)
         self.entry.bind("<KeyRelease-Return>", lambda event: self.listbox_client_selection.activate(0))
 
         # right button = desselect
@@ -37,8 +38,8 @@ class AutoCompleteListbox:
         if can_create_grid:
             self.entry.grid(sticky='nsew')
 
-    def _____________filter_listbox(self, event):
-        # TODO: filtro atuando somente no frontend, fazer atuar no backend... e descomentar acima
+    def filter_listbox(self, event):
+        self._filter_listbox(event)
         if not (event.char.isalpha() or event.char.isspace()) and event.keysym not in ("BackSpace", "Delete"):
             return
         filter_text = self.entry.get().lower()

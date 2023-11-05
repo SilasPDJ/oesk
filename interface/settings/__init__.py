@@ -14,6 +14,8 @@ class AppSettings:
         'sem_retencao', 'com_retencao', 'cpf', 'anexo',
         'gissonline', 'giss_login', 'ginfess_cod', 'ginfess_link',
         'venc_das', 'status_ativo', 'main_empresa_id']
+    
+    main_df_col = None
     load_dotenv()
 
     def map_ids_within_col_to_dict(self, keys_field: list, values_field: list) -> dict:
@@ -49,6 +51,7 @@ class AppSettings:
 
     @client_compts_df.setter
     def client_compts_df(self, value):
+        self.main_df_col = value
         self._client_compts_df = value
 
     @property
