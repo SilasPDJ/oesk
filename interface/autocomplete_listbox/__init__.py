@@ -39,20 +39,20 @@ class AutoCompleteListbox:
             self.entry.grid(sticky='nsew')
 
     def filter_listbox(self, event):
+        # self.listbox_client_selection.update_listvar()
         self._filter_listbox(event)
-        if not (event.char.isalpha() or event.char.isspace()) and event.keysym not in ("BackSpace", "Delete"):
+
+        if not (event.char.isalpha() or event.char.isspace()) or event.keysym not in ("BackSpace", "Delete"):
             return
         filter_text = self.entry.get().lower()
         try:
             self.listbox_client_selection.delete(0, tk.END)  # Limpar a lista
         except IndexError:
             pass
-        else:
-            if len(filter_text) == 0:  # Se o filtro estiver vazio, restaure a lista original
-                for item in self.original_items:
-                    self.listbox_client_selection.insert(tk.END, item)
-            else:
-                for looping_item in self.original_items:
-                    _item = looping_item.lower()
-                    if any(word in _item for word in filter_text.split()):
-                        self.listbox_client_selection.insert(tk.END, looping_item)
+        finally:
+
+            for looping_item in self.original_items:
+                _item = looping_item.lower()
+                if len(filter_text) == 0 or any(word in _item for word in filter_text.split()):
+                    self.listbox_client_selection.insert(tk.END, looping_item)
+            self.listbox_client_selection.update_listvar()
