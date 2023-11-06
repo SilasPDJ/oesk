@@ -214,19 +214,20 @@ class App(ctk.CTk, AppSettings):
             field_radio.grid(row=row, column=column, sticky="w")
 
     def _on_keyup_keydown(self, widget, direction):
-        # TODO: fix quando filtra na entry não tá funcionado o arrow key
-        current_index = widget.curselection()
-        if current_index:
+        try:
+            current_index = eval(widget.listvariable.get()).index(widget.get())
+        except ValueError:
+            current_index = widget.curselection()
+        if isinstance(current_index, int):
             next_index = current_index + direction
             if 0 <= next_index <= widget.size():
                 try:
                     widget.activate(next_index)
                 except IndexError:
                     widget.activate(0)
-
         else:
-            next_index = 1 if direction == 1 else -1
-            widget.activate(next_index)
+            widget.activate(0)
+            # raise IndexError("erro, current_index não é int`")
 
     def display_clients(self):
         main_frame = ctk.CTkFrame(self, width=180)
@@ -258,10 +259,6 @@ class App(ctk.CTk, AppSettings):
         # current_client_selection.bind("<Up>", lambda event: self._on_keyup_keydown(current_client_selection, -1))
 
     def _update_df_before_filtering_listbox(self, event: tk.Event):
-        """
-        :param event:
-        :return:
-        """
         entry = event.widget
 
         filter_text = entry.get().lower()
@@ -269,7 +266,9 @@ class App(ctk.CTk, AppSettings):
             return
 
         df = self.client_compts_df.copy()
-        filtered_df = df[df[self.main_df_col].str.contains(filter_text, case=False)]
+        filtered_df = df[df[self.main_df_col].apply(
+            lambda x: any(word in x.lower() for word in filter_text.split())
+        )]
         # update allow list
         self.client_compts_df = filtered_df
         self.allowed_clients.set(self.client_compts_df[self.main_df_col].to_list())
