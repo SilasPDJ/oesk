@@ -42,7 +42,7 @@ class AutoCompleteListbox:
         # self.listbox_client_selection.update_listvar()
         self._filter_listbox(event)
 
-        if not (event.char.isalpha() or event.char.isspace()) or event.keysym not in ("BackSpace", "Delete"):
+        if not (event.char.isalpha() or event.char.isspace()) and event.keysym not in ("BackSpace", "Delete"):
             return
         filter_text = self.entry.get().lower()
         try:
@@ -54,5 +54,6 @@ class AutoCompleteListbox:
             for looping_item in self.original_items:
                 _item = looping_item.lower()
                 if len(filter_text) == 0 or any(word in _item for word in filter_text.split()):
+                    # print(looping_item)
                     self.listbox_client_selection.insert(tk.END, looping_item)
             self.listbox_client_selection.update_listvar()
