@@ -22,9 +22,11 @@ class App(ctk.CTk, AppSettings):
         super().__init__()
         self.compt = get_compt(-1)
 
-        # TODO passar a competencia por variavel atualizavel
         self.compts_repository = ClientComptsRepository(self.compt)
+        # Inicializa o DataFrame com dados do repositório para controle
         self.client_compts_df = self.compts_repository.get_interface_df()
+        # mantendo a persistencia através de uma cópia inalterável (constante)
+        self._clients_compts_df_constant = self.client_compts_df
 
         self.allowed_clients = 'razao_social'
 
@@ -264,8 +266,8 @@ class App(ctk.CTk, AppSettings):
         filter_text = entry.get().lower()
         if filter_text.strip() == "":
             return
-
-        df = self.client_compts_df.copy()
+        # Pois o `self.clients_compts_df` é variável por razões lógicas de funcionalidades da listbox
+        df = self._clients_compts_df_constant.copy()
         filtered_df = df[df[self.main_df_col].apply(
             lambda x: any(word in x.lower() for word in filter_text.split())
         )]
