@@ -2,7 +2,6 @@ import os.path
 
 from pgdas_fiscal_oesk.contimatic import *
 from pgdas_fiscal_oesk.relacao_nfs import NfCanceled
-from utilities.helpers.zipping_manager import _convert_rar_to_zip_if_necessary, extract_zip_folder
 
 """
 from LE_NF_CANCELADAS_cor import main as nf_canceled
