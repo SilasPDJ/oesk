@@ -21,6 +21,9 @@ from utilities.default import default_qrcode_driver, pgdas_driver
 
 
 class RoutinesCallings:
+    # Iniciais dos métodos:
+    # `run`: para projetos externos
+    # `call`: para rotinas de automação
     def __init__(self, app_settings: AppSettings):
         # composição... recebendo self
         self.aps = app_settings
@@ -83,15 +86,21 @@ class RoutinesCallings:
             if row_required['ginfess_link'] == '' or row_required['ginfess_link'].lower() == 'não há':
                 print(f'\nGinfess pula {row["razao_social"]}')
                 continue
-            args = row_required.to_list()
-            dgg = DownloadGinfessGui(*args, compt=self.compt)
-            orm_row = self.compts_repository.get_as_orm(row)
-            if dgg.ginfess_valores:
-                for key_indx, key in enumerate(["sem_retencao", "com_retencao", "valor_total"]):
-                    setattr(orm_row, key, dgg.ginfess_valores[key_indx])
+            try:
+                args = row_required.to_list()
+                dgg = DownloadGinfessGui(*args, compt=self.compt)
+            except Exception as e:
+                print("\033[1;33mNão foi possível conferir...\033[m", row_required.values)
+                print("Pulando por enquanto...")
+                continue
+            else:
+                orm_row = self.compts_repository.get_as_orm(row)
+                if dgg.ginfess_valores:
+                    for key_indx, key in enumerate(["sem_retencao", "com_retencao", "valor_total"]):
+                        setattr(orm_row, key, dgg.ginfess_valores[key_indx])
 
-            orm_row.pode_declarar = True
-            self.compts_repository.update_from_object(orm_row)
+                orm_row.pode_declarar = True
+                self.compts_repository.update_from_object(orm_row)
 
     def call_g5(self):
         df = self.aps.client_compts_df
@@ -162,6 +171,10 @@ class RoutinesCallings:
                                 email=row['email'])
                 orm_row.envio = True
                 self.compts_repository.update_from_object(orm_row)
+
+    def run_oesk_project_excel(self):
+
+        subprocess.Popen("O:\\HACKING\\MY_PROJECTS\\oesk\\backend\\utilities\\scripts\\run_react_project.bat")
 
     def call_func_v3(self):
         df = self.aps.client_compts_df
