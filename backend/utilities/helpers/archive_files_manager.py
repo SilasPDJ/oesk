@@ -42,6 +42,7 @@ def _convert_rar_to_zip(rar_path, zip_name="rar_to_zip.zip", rarfile_shall_be_re
 def extract_zip_folder(zip_path: Union[str, os.PathLike], destination: Union[str, os.PathLike] = '',
                        is_non_default_destination=False):
     """
+    If the file is `.rar`, it converts to zip.
     Extract the contents of a ZIP file to a specified destination.
 
     :param zip_path: The path to the ZIP file.
