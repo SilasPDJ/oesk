@@ -1,7 +1,8 @@
-from utilities.default import *
+import os.path
+
 from pgdas_fiscal_oesk.contimatic import *
 from pgdas_fiscal_oesk.relacao_nfs import NfCanceled
-
+from utilities.helpers.zipping_manager import _convert_rar_to_zip_if_necessary, extract_zip_folder
 
 """
 from LE_NF_CANCELADAS_cor import main as nf_canceled
@@ -199,18 +200,15 @@ class G5(Contimatic):
         # go2robo options
 
     def _extract_folder_if_zip(self, extract_to_current_dir: bool = False) -> bool:
-        import zipfile
 
         zips_path = self.__get_zips_path()
         if len(zips_path) == 1:
+            # return True
+            if extract_to_current_dir:
+                return extract_zip_folder(self.client_path)
+            else:
+                return extract_zip_folder(self.client_path, "NFS")
 
-            with zipfile.ZipFile(zips_path[0], 'r') as zip_ref:
-                if extract_to_current_dir:
-                    zip_ref.extractall(os.path.join(self.client_path, ""))
-                else:
-                    # extract the contents of the zip file to a folder
-                    zip_ref.extractall(os.path.join(self.client_path, "NFS"))
-                    return True
         elif len(zips_path) >= 1:
             print('\033[1;31mMais de um zip path\033[m')
 
