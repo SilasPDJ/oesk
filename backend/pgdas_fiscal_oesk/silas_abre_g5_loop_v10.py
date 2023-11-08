@@ -206,7 +206,7 @@ class G5(Contimatic):
 
             with zipfile.ZipFile(zips_path[0], 'r') as zip_ref:
                 if extract_to_current_dir:
-                    zip_ref.extractall()
+                    zip_ref.extractall(os.path.join(self.client_path, ""))
                 else:
                     # extract the contents of the zip file to a folder
                     zip_ref.extractall(os.path.join(self.client_path, "NFS"))
