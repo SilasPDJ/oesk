@@ -98,7 +98,11 @@ class Contimatic(FileOperations):
 
             except IndexError:
                 print('index error')
-                auto_sky_window = pygui.getWindowsWithTitle('Auto.Sky')[0]
+                try:
+                    auto_sky_window = pygui.getWindowsWithTitle('Auto.Sky')[0]
+                except IndexError:
+                    auto_sky_window = pygui.getWindowsWithTitle('(Remoto)')[0]
+
                 ativa_janela(auto_sky_window)
                 pygui.write(name)
                 pygui.hotkey('enter')
