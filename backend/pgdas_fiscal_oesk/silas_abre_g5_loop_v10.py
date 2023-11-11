@@ -21,6 +21,16 @@ pygui.PAUSE = 0.02
 
 class G5(Contimatic):
 
+    @property
+    def _path_icms_autorizadas(self):
+        return self.__path_icms_autorizadas
+
+    @_path_icms_autorizadas.setter
+    def _path_icms_autorizadas(self, value: str):
+        self.__path_icms_autorizadas = os.path.join(
+            self.client_path, value)
+
+
     def __init__(self, *args: str, compt):
         __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular, nf_out, nf_in = args
         __client = __r_social
@@ -29,6 +39,11 @@ class G5(Contimatic):
         self.client_path = self.files_pathit(__client, self.compt_used)
         self.contimatic_folder = self.files_pathit('contimaticG5', self.compt_used)
         super().__init__(self.client_path)
+
+        self._path_icms_autorizadas = 'NFS_AUTORIZADAS'
+        self._path_icms_canceladas = os.path.join(
+            self.client_path, 'NFS_CANCELADAS')
+
         if imposto_a_calcular == 'ISS':
             print(__client)
             # Se tem 3valores[excel], tem XML. Se não tem, não tem
@@ -87,7 +102,7 @@ class G5(Contimatic):
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 self.foxit_save__iss(__cnpj)
 
-        elif imposto_a_calcular == 'ICMS' and __client != 'Suzana Palacio dos Santos':
+        elif imposto_a_calcular == 'ICMS':
             if self.__get_zips_path() or []:
 
                 print(__client, nf_out)
@@ -99,15 +114,14 @@ class G5(Contimatic):
                 _already_exist += self.walget_searpath(
                     "LIVRO_SAIDA", self.client_path, 2)
             else:
-                _already_exist = True #  it could not exist (zerou), but it's just a logic to pass
+                _already_exist = True  # it could not exist (zerou), but it's just a logic to pass
             if not _already_exist:
                 self.abre_ativa_programa('G5 ')
                 self.activating_client(self.formatar_cnpj(__cnpj))
-                self._ativa_robo_once(pygui.getActiveWindow())
+                # self._ativa_robo_once(pygui.getActiveWindow())
                 self.abre_ativa_programa('G5 ')
                 # remove o if...
                 # entradas não zeraram
-                self.caminho_autorizadas_destino, self.caminho_canceladas_destino = self._settar_destino_icms()
                 self.importa_nf_icms_saidas()
 
                 # self.importa_nf_icms_entradas()
@@ -126,7 +140,7 @@ class G5(Contimatic):
                 all_keys('alt', 'f4')
                 print('fim')
 
-    @ staticmethod
+    @staticmethod
     def _ativa_robo_once(window: pygui.Window):
         pygui.FAILSAFE = False
         pygui.click(window.topright, clicks=0)
@@ -138,7 +152,7 @@ class G5(Contimatic):
         if _screensear.getpixel((15, 10)) == rgb:
             pygui.click()
 
-    @ staticmethod
+    @staticmethod
     def __gotowinscenter(*wins):
         for win in wins:
             if isinstance(win, str):
@@ -199,14 +213,14 @@ class G5(Contimatic):
         # go2robo options
 
     def _extract_folder_if_zip(self, extract_to_current_dir: bool = False) -> bool:
-
+        # self.client_path
         zips_path = self.__get_zips_path()
         if len(zips_path) == 1:
             # return True
             if extract_to_current_dir:
-                return extract_zip_folder(self.client_path)
+                return extract_zip_folder(zips_path[0])
             else:
-                return extract_zip_folder(self.client_path, "NFS")
+                return extract_zip_folder(zips_path[0], "NFS")
 
         elif len(zips_path) >= 1:
             print('\033[1;31mMais de um zip path\033[m')
@@ -230,18 +244,19 @@ class G5(Contimatic):
         for cfe in compressed_file_extensions:
             zips_path += self.files_get_anexos_v4(self.client_path, cfe)
         return zips_path
+
     def importa_nf_icms_saidas(self):
 
         def go2_g5_import_params():
             pygui.hotkey('alt')
             # eu smp ↑↑
             foritab(6, 'down')
-            foritab(1, 'right', 'down', 'enter',)
+            foritab(1, 'right', 'down', 'enter', )
 
         if self._extract_folder_if_zip():
             self._xml_send2cloud_icms()
-            for path2import in [self.caminho_autorizadas_destino, self.caminho_canceladas_destino]:
-                if path2import == '':
+            for path2import in [self._path_icms_autorizadas, self._path_icms_canceladas]:
+                if not os.path.exists(path2import):
                     continue
                 print(path2import, 'sou o path2import')
                 print('Only Once')
@@ -274,31 +289,22 @@ class G5(Contimatic):
         return segs
         pass
 
-    @ staticmethod
+    @staticmethod
     def _go2robo_options():
         pygui.FAILSAFE = False  # Robo_Options
         pygui.click(pygui.getActiveWindow().topright,
                     clicks=0)
-        # COMO ATIVAR ROBÔ AUTOMÁTICO?
-        # TODO: arrumar o click...
-        pygui.move(-105, 50)
+        pygui.move(-112, 65)
         pygui.FAILSAFE = True
         pygui.click()
 
-    def _settar_destino_icms(self) -> tuple[os.PathLike, os.PathLike]:
-        main_diretorio = self.client_path
-        path_autorizadas = os.path.join(
-            main_diretorio, 'NFS_AUTORIZADAS')
-        path_canceladas = os.path.join(
-            main_diretorio, 'NFS_CANCELADAS')
+    def _criar_destino_icms(self) -> tuple[os.PathLike, os.PathLike]:
 
         try:
-            os.makedirs(path_autorizadas)
-            os.makedirs(path_canceladas)
+            os.makedirs(self._path_icms_autorizadas)
+            os.makedirs(self._path_icms_canceladas)
         except FileExistsError:
             pass
-
-        return path_autorizadas, path_canceladas
 
     def _xml_send2cloud_icms(self):
         def _move_arquivos(moved_dir_path: os.PathLike, destiny: os.PathLike):
@@ -312,47 +318,52 @@ class G5(Contimatic):
         if all(os.path.isdir(os.path.join(DIRETORIO, item)) for item in os.listdir(DIRETORIO)):
             # Define se é mercado livre ou arqiuvo normal
             DIRETORIO = os.path.join(DIRETORIO, 'Emitidas_Mercado_Livre')
+            self._criar_destino_icms()
+            # mercado livre
+            list_path_autorizadas = []
+            list_path_canceladas = []
+            # settar destino ()
+
+            # Passa por devolução e venda e appenda à lista de autorizadas/canceladas
+            for tipo_nf in ['NF-e de devolução', 'NF-e de venda']:
+                _path = os.path.join(DIRETORIO, tipo_nf, 'XML')
+                _autorizadas = os.path.join(_path, 'Autorizadas')
+                _canceladas = os.path.join(_path, 'Canceladas')
+                if os.path.exists(_autorizadas):
+                    list_path_autorizadas.append(_autorizadas)
+                if os.path.exists(_canceladas):
+                    list_path_canceladas.append(_canceladas)
+
+            # Passa por CTe e appenda na lista de autorizadas
+            for tipo_nf in ['CT-e', 'Notas de retiro simbólica', 'Notas de transferência']:
+                _path = os.path.join(DIRETORIO, 'Outros documentos', tipo_nf)
+                if os.path.exists(_path):
+                    list_path_autorizadas.append(_path)
+
+            # se continuarem vazio é porque o template NÃO é do mercado livre
+            if not list_path_autorizadas:
+                list_path_autorizadas.append(DIRETORIO)
+
+            for aut_path in list_path_autorizadas:
+                _move_arquivos(
+                    aut_path, self._path_icms_autorizadas)
+
+            for aut_path in list_path_canceladas:
+                _move_arquivos(
+                    aut_path, self._path_icms_canceladas)
         else:
-            self.caminho_canceladas_destino = ''
-            # pois não é template mercado livre(????)
-
-        list_path_autorizadas = []
-        list_path_canceladas = []
-        # settar destino ()
-
-        # Passa por devolução e venda e appenda à lista de autorizadas/canceladas
-        for tipo_nf in ['NF-e de devolução', 'NF-e de venda']:
-            _path = os.path.join(DIRETORIO, tipo_nf, 'XML')
-            _autorizadas = os.path.join(_path, 'Autorizadas')
-            _canceladas = os.path.join(_path, 'Canceladas')
-            if os.path.exists(_autorizadas):
-                list_path_autorizadas.append(_autorizadas)
-            if os.path.exists(_canceladas):
-                list_path_canceladas.append(_canceladas)
-
-        # Passa por CTe e appenda na lista de autorizadas
-        for tipo_nf in ['CT-e', 'Notas de retiro simbólica', 'Notas de transferência']:
-            _path = os.path.join(DIRETORIO, 'Outros documentos', tipo_nf)
-            if os.path.exists(_path):
-                list_path_autorizadas.append(_path)
-
-        # se continuarem vazio é porque o template NÃO é do mercado livre
-        if not list_path_autorizadas:
-            list_path_autorizadas.append(DIRETORIO)
-
-        for aut_path in list_path_autorizadas:
-            _move_arquivos(
-                aut_path, self.caminho_autorizadas_destino)
-
-        for aut_path in list_path_canceladas:
-            _move_arquivos(
-                aut_path, self.caminho_canceladas_destino)
+            # difine o caminho para padrão DIFERENTE de mercado livre
+            self._path_icms_autorizadas = 'NFS'
+            # todo: descobrir pq não autoriza remoção..
+            # os.remove(self.caminho_autorizadas_destino)
+            # os.remove(self.caminho_canceladas_destino)
+            pass
 
     def _remove_icms_folders(self):
         # os.remove(self.caminho_autorizadas_destino)
         # os.remove(self.caminho_canceladas_destino)
-        os.remove(os.path.join(self.client_path, 'NFS'))
-
+        # os.remove(os.path.join(self.client_path, 'NFS'))
+        pass
     def importa_nfs_iss(self):
         def exe_bt_executar(import_items=True):
             def minimenu_gotmore_opts() -> bool:
@@ -490,6 +501,7 @@ class G5(Contimatic):
     def start_walk_menu(self):  # overriden, not necessary
         x, y = 30, 30
         pygui.click(x, y)
+
 
 if "__name__" == "__main__":
     pass
