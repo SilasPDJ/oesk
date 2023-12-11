@@ -7,7 +7,7 @@ from shutil import move
 
 class Dirs:
     @staticmethod
-    def pathit(*directories, sep="\\"):
+    def mkdir_pathit(*directories, sep="\\"):
         """ make dirs with directories args, example: pathit('path', 'to', 'dir')
             that will return and create "path/to/dir"
         :param directories: "without "/" please
