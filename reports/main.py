@@ -5,6 +5,8 @@ from repository import ClientComptsRepository
 from utilities.compt_utils import ate_atual_compt, get_compt, get_compt_as_date
 import pandas as pd
 from utilities.default.sets import FileOperations
+
+
 def get_filepath(filename) -> Union[bytes, str]:
     def get_ano():
         compt_date = get_compt_as_date()
@@ -13,7 +15,10 @@ def get_filepath(filename) -> Union[bytes, str]:
     folder = file_operations.files_pathit('RELATORIOS', '', ano=get_ano())
     return os.path.join(folder, filename)
 
-def gerar_report_outros_zerados(meses: int, incidence: int):
+
+def gerar_report_outros_zerados(meses: int, incidence: int, relatorio_filename_preffix: str = None):
+    if relatorio_filename_preffix is None:
+        relatorio_filename_preffix = f'{incidence:02d}x'
     dfs = []
     for compt in ate_atual_compt(get_compt(), get_compt(meses)):
         df = ClientComptsRepository(compt)
@@ -33,11 +38,11 @@ def gerar_report_outros_zerados(meses: int, incidence: int):
         ['compt', 'razao_social', 'cnpj', 'valor_total', 'imposto_a_calcular', 'status_ativo', 'email']]
 
     relatorio = relatorio.sort_values(by=['cnpj', 'compt'])
-    relatorio.to_excel(get_filepath('RELATORIO_ZERADOS_COM_INCIDENCIA.xlsx'), index=False)
+    relatorio.to_excel(get_filepath(relatorio_filename_preffix + '__ZERADOS_COM_INCIDENCIA.xlsx'), index=False)
     print(df)
 
 
 if __name__ == '__main__':
     file_operations = FileOperations()
 
-    gerar_report_outros_zerados(12, 4)
+    gerar_report_outros_zerados(12, 12)
