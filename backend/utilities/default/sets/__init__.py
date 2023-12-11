@@ -48,7 +48,7 @@ class FileOperations(Dirs, Now):
     def files_pathit(cls, pasta_client, insyear, ano=None):
         from dateutil import relativedelta as du_rl
 
-        """[summary]
+        """Pathit: creating and setting the dir location
 
         Args:
             pasta_client (str): client folder name
@@ -74,7 +74,8 @@ class FileOperations(Dirs, Now):
         __path = cls.files_location.getset_folderspath()
         path_final = [__path,
                       ano, insyear, pasta_client]
-        salva_path = Dirs.pathit(*path_final)
+        path_final = [part for part in path_final if part != '']
+        salva_path = Dirs.mkdir_pathit(*path_final)
         return salva_path
 
     @staticmethod

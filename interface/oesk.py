@@ -103,6 +103,8 @@ class App(ctk.CTk, AppSettings):
                                   '#fff', 'red', '#FF5733'),
             self._set_button_data(self.rc.call_gias, 'Fazer GIAS',
                                   ),
+            self._set_button_data(self.rc.run_oesk_project_excel, 'Run REACT Website',
+                                  ),
 
         ]
 

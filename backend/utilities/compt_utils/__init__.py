@@ -44,7 +44,7 @@ def get_compt(m_cont=-1, y_cont=0, past_only=True, format_str='-') -> str:
         y_cont (int, optional): refers to year before/after now. Defaults to 0.
         past_only (bool, optional): only returns the past, because of competencia.
         Defaults to True.
-        format (str, optional): if len(format) > 2 it retuns what is set on the string.
+        format_str (str, optional): if len(format) > 2 it retuns what is set on the string.
         Defaults to 2 characters + '%m-%Y'
     Returns:
         str: A string representing the month and year in the specified format.
@@ -54,6 +54,10 @@ def get_compt(m_cont=-1, y_cont=0, past_only=True, format_str='-') -> str:
         return now_date.strftime(f'%m{format_str}%Y')
     else:
         return now_date.strftime(format_str)
+
+
+def get_compt_as_date(**kwargs: get_compt) -> date:
+    return compt_to_date_obj(get_compt(**kwargs))
 
 
 def get_all_valores(sem_ret, com_ret, anexo, valor_tot) -> list:
@@ -134,8 +138,7 @@ def ate_atual_compt(compt_atual, first_compt=None):
         # list_compts = []
         while first_compt <= last_compt:
             compt = first_compt
-            first_compt = first_compt + \
-                          relativedelta.relativedelta(months=1)
+            first_compt = first_compt + relativedelta(months=1)
             compt_appended = f'{compt.month:02d}-{compt.year}'
             # list_compts.append(compt_appended)
             yield compt_appended
