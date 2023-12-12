@@ -1,7 +1,8 @@
 # dale
 from utilities.default import *
 from pgdas_fiscal_oesk.contimatic import *
-from backend.utilities.compt_utils import ate_atual_compt, get_compt, compt_to_date_obj, calc_date_compt_offset, get_all_valores
+from backend.utilities.compt_utils import ate_atual_compt, get_compt, compt_to_date_obj, calc_date_compt_offset, \
+    get_all_valores
 from anticaptchaofficial.recaptchav2proxyless import *
 from time import sleep
 import os
@@ -9,9 +10,9 @@ import os
 link = "ChromeDriver/chromedriver.exe"
 possible = ['GIA']
 
+
 class GIA(WDShorcuts):
     file_operations = FileOperations()
-
 
     def __init__(self, *args, compt, first_compt=None):
         __r_social, __ecac, login, senha = args
@@ -84,28 +85,33 @@ class GIA(WDShorcuts):
                     'https://www3.fazenda.sp.gov.br/CAWEB/Account/Login.aspx')
                 login_url = driver.current_url
                 while driver.current_url == login_url:
-                    llg = driver.find_element(By.ID,
-                                              'ConteudoPagina_txtUsuario')
-                    llg.clear()
-                    llg.send_keys(login)
-
-                    ssn = driver.find_element(By.XPATH,
-                                              "//input[@type='password']")
-                    ssn.clear()
-                    ssn.send_keys(senha)
-                    # self.send_keys_anywhere(Keys.TAB)
-                    # self.send_keys_anywhere(Keys.ENTER)
-                    self._win_capt()
-                    button = driver.find_element(By.ID, "ConteudoPagina_btnAcessar")
-                    driver.execute_script("arguments[0].removeAttribute('disabled');", button)
-                    button.click()
-                    # print('pressione f9 p/ continuar após captcha')
-                    # press_key_b4('f9')
                     try:
-                        sleep(4)
-                        self.click_elements_by_tt('Cadastrar mais tarde')
-                        sleep(4)
+                        llg = driver.find_element(By.ID,
+                                                  'ConteudoPagina_txtUsuario')
+                        llg.clear()
+                        llg.send_keys(login)
+
+                        ssn = driver.find_element(By.XPATH,
+                                                  "//input[@type='password']")
+                        ssn.clear()
+                        ssn.send_keys(senha)
+                        # self.send_keys_anywhere(Keys.TAB)
+                        # self.send_keys_anywhere(Keys.ENTER)
+                        self._win_capt()
+                        button = driver.find_element(By.ID, "ConteudoPagina_btnAcessar")
+                        driver.execute_script("arguments[0].removeAttribute('disabled');", button)
+                        button.click()
+                        # print('pressione f9 p/ continuar após captcha')
+                        # press_key_b4('f9')
                     except Exception as e:
+                        driver.refresh()
+                while True:
+                    try:
+                        self.click_elements_by_tt('Cadastrar mais tarde')
+                        sleep(7)
+                        break
+                    except Exception as e:
+                        print("Tentando clicar em cadastrar mais tarde")
                         pass
                 # enter entrar
                 self.webdriverwait_el_by(
@@ -157,20 +163,25 @@ class GIA(WDShorcuts):
 
         if solved_resposta != 0:
             print(solved_resposta)
-            driver.switch_to.frame(driver.find_element(By.CSS_SELECTOR, 'body > div > div:nth-child(4) > iframe'))
-            secret_input = driver.find_element(By.ID, "recaptcha-token")
-            driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input, solved_resposta)
-            driver.switch_to.default_content()
 
-            for el_idname in ["g-recaptcha-response", "g-recaptcha-response-1"]:
+            for frame_str in ["#divRecaptcha > div > div > iframe", 'body > div > div:nth-child(4) > iframe']:
                 try:
-                    textarea_element = driver.find_element(By.ID, el_idname)
-                    driver.execute_script("arguments[0].innerHTML = arguments[1];", textarea_element, solved_resposta)
-                except Exception as e:
-                    print(el_idname, "não existe")
+                    driver.switch_to.frame(driver.find_element(By.CSS_SELECTOR, frame_str))
+                    secret_input = driver.find_element(By.ID, "recaptcha-token")
+                    driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input, solved_resposta)
+                    driver.switch_to.default_content()
 
-        if solver.err_string != '':
-            print(solver.err_string)
+                    for el_idname in ["g-recaptcha-response", "g-recaptcha-response-1"]:
+                        try:
+                            textarea_element = driver.find_element(By.ID, el_idname)
+                            driver.execute_script("arguments[0].innerHTML = arguments[1];", textarea_element, solved_resposta)
+                        except Exception as e:
+                            print(el_idname, "não existe")
+                except Exception as e:
+                    pass
+
+            if solver.err_string != '':
+                print(solver.err_string)
 
     def save_novagia(self):
         from shutil import copy
