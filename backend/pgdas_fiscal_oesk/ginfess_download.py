@@ -13,7 +13,7 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
 
     # only static methods from JsonDateWithDataImprove
 
-    def __init__(self, *dados, compt,  show_driver=False):
+    def __init__(self, *dados, compt, show_driver=False):
         # TODO: settar ginfess_valores nos nos outros municipios
         # em especial São Paulo
         # driver
@@ -29,7 +29,8 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
             # removi o ja_imported
             print(
                 f'\033[1;31m o cliente {__r_social} não possui notas\n...(muito bom) O certificado anula o _ja_imported...\033[m')
-        elif self.check_done(self.client_path, '.png', startswith=__r_social) and self.check_done(self.client_path, '.csv', 'NFSe'):
+        elif self.check_done(self.client_path, '.png', startswith=__r_social) and self.check_done(self.client_path,
+                                                                                                  '.csv', 'NFSe'):
             # Checka o certificado ginfess, somente
             if show_driver:
                 driver = pgdas_driver
@@ -99,7 +100,9 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
                 # ginfess login//senha
                 self.tags_wait('html')
                 self.tags_wait('body')
-                while True:
+
+
+                def login_tremembe_2():
                     driver.implicitly_wait(5)
 
                     ccm = driver.find_element(By.ID, 'ccm')
@@ -111,17 +114,10 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
                         el.clear()
                     ccm.send_keys(zero_um[0])
                     senha.send_keys(zero_um[1])
-                    trem_cod = self.captcha_hacking()
-                    sleep(5)
-                    # confirma precisa mudar
-                    # confirma.send_keys(trem_cod)
+                    print("Pressione F9 para continuar")
+                    press_key_b4('f9')
 
-                    # driver.find_element(By.ID, 'btnOk').click()
-                    if 'login.php' in driver.current_url:
-                        driver.refresh()
-                        driver.implicitly_wait(6)
-                    else:
-                        break
+                login_tremembe_2()
 
                 print('break')
                 driver.implicitly_wait(10)
@@ -563,6 +559,7 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
             self.ginfess_valores = valor_n_retido, valor_retido, valor_total
             assert valor_n_retido + valor_retido == valor_total
         # TODO: implenmentar ginfess_valores no BD...
+
     def excel_from_html_above(self, excel_file, html):
         import numpy as np
         from bs4 import BeautifulSoup
@@ -594,7 +591,7 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
         is_nf_valid = df['NF cancelada'] == False
         # () evaluates both
         valor_nao_retido = df.loc[(df['Imposto']
-                                  == 0) & is_nf_valid, 'Valor'].sum()
+                                   == 0) & is_nf_valid, 'Valor'].sum()
         valor_retido = df.loc[(df['Imposto']
                                > 0) & is_nf_valid, 'Valor'].sum()
         valor_total = df.loc[is_nf_valid, 'Valor'].sum()

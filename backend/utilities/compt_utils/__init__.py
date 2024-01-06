@@ -1,6 +1,6 @@
 from datetime import date
 from datetime import timedelta, datetime
-from typing import Union
+from typing import Union, List
 
 from dateutil.relativedelta import relativedelta
 
@@ -143,6 +143,14 @@ def ate_atual_compt(compt_atual, first_compt=None):
             # list_compts.append(compt_appended)
             yield compt_appended
     # O objetivo dessa função é retornar yildar um range de compt, partindo do first_compt
+
+
+def get_dates_sequence(amount_compts=12, _format='%Y-%m-%d') -> Union[List[str], List[date]]:
+    dates = list(ate_atual_compt(get_compt(), get_compt(amount_compts)))
+    dates = [compt_to_date_obj(d) for d in dates]
+    if _format is not None:
+        dates = [f"{d.strftime(_format)}" for d in dates]
+    return dates
 
 
 def get_next_venc_das(arg: Union[date, datetime], months=1) -> Union[date, datetime]:
