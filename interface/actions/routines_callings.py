@@ -78,6 +78,8 @@ class RoutinesCallings:
 
     def call_ginfess(self):
         df = self.aps.client_compts_df
+        df['ginfess_link'] = df['ginfess_link'].fillna('').astype(str)
+
         attributes_required = ['razao_social',
                                'cnpj', 'ginfess_cod', 'ginfess_link']
 

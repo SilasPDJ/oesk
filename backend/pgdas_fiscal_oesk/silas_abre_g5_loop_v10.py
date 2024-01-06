@@ -103,7 +103,7 @@ class G5(Contimatic):
                 self.foxit_save__iss(__cnpj)
 
         elif imposto_a_calcular == 'ICMS':
-            if self.__get_zips_path() or []:
+            if self.__get_zips_path() or [] or os.path.exists(os.path.join(self.client_path, 'NFS')):
 
                 print(__client, nf_out)
                 _already_exist = self.walget_searpath(

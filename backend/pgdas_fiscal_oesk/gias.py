@@ -105,14 +105,18 @@ class GIA(WDShorcuts):
                         # press_key_b4('f9')
                     except Exception as e:
                         driver.refresh()
+                cont = 0
                 while True:
                     try:
-                        self.click_elements_by_tt('Cadastrar mais tarde')
+                        print(f"tentaiva {i+1}")
                         sleep(7)
+                        self.click_elements_by_tt('Cadastrar mais tarde')
                         break
                     except Exception as e:
                         print("Tentando clicar em cadastrar mais tarde")
-                        pass
+                        cont += 1
+                        if cont == 10:
+                            raise e
                 # enter entrar
                 self.webdriverwait_el_by(
                     By.LINK_TEXT, 'Guia de Informação (Arts. 253-254 RICMS/00)').click()

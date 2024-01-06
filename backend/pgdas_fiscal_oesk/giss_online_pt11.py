@@ -149,6 +149,7 @@ class GissGui(FileOperations, WDShorcuts):
         # print("~~Gerando giss cpt~~", src)
         print("~~Gerando giss cpt~~")
         # print(autenticate)
+        self.webdriverwait_el_by(By.NAME, "accept").click()
         for v in autentic_list:
             sleep(.5)
             autenticate[v].click()
