@@ -47,9 +47,9 @@ class GissGui(FileOperations, WDShorcuts):
             #     'https://www10.gissonline.com.br/interna/default.cfm')
 
             if is_construcao_civil:
-                pass
+                self.fechar_constr_civil()
             else:
-                self.fechar_prestador_e_tomador()
+                self.fechar_tomador()
 
         print('GISS encerrado!')
 
@@ -59,19 +59,63 @@ class GissGui(FileOperations, WDShorcuts):
 
         if self.driver.find_element(By.ID, "7").get_attribute('onclick'):
             self.driver.switch_to.default_content()
-            input("construcao is True")
             return True
         self.driver.switch_to.default_content()
         return False
 
-    def fechar_prestador_e_tomador(self):
+
+    def fechar_constr_civil(self):
+        self._fechar_prestador()
+
+        self.driver.switch_to.default_content()
+
+        # Clica em Construção Civil
+        self.driver.switch_to.frame(0)
+        self.driver.find_element(By.ID, "7").click()
+        self.driver.switch_to.default_content()
+
+        # PT2 1
+        self.driver.switch_to.frame(2)
+        self.driver.find_element(By.CSS_SELECTOR, "table:nth-child(2) tr:nth-child(1) font").click()
+        self.driver.find_element(By.LINK_TEXT, "Encerrar Competência").click()
+        self.driver.find_element(By.CSS_SELECTOR, "td:nth-child(3) span").click()
+        assert self.driver.switch_to.alert.text == "Tem certeza de que deseja Encerrar a Competência 09 de 2023 ?"
+        self.driver.switch_to.alert.accept()
+        self.driver.switch_to.default_content()
+
+        # Clica em Construção Civil
+        self.driver.switch_to.frame(0)
+        self.driver.find_element(By.ID, "7").click()
+        self.driver.switch_to.default_content()
+
+        # PT2 2
+        self.driver.switch_to.frame(2)
+        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(2) > td > span > font").click()
+        self.driver.find_element(By.CSS_SELECTOR,
+                                 "tbody:nth-child(1) > tr:nth-child(3) tr:nth-child(2) > td:nth-child(4)").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".txt_up").click()
+        self.driver.switch_to.default_content()
+
+        # Clica em Construção Civil
+        self.driver.switch_to.frame(0)
+        self.driver.find_element(By.ID, "7").click()
+        self.driver.switch_to.default_content()
+
+        # PT2 3
+        self.driver.switch_to.frame(2)
+        self.driver.find_element(By.CSS_SELECTOR, "table:nth-child(4) span > font").click()
+        self.driver.find_element(By.LINK_TEXT, "Encerrar Escrituração").click()
+        self.driver.find_element(By.CSS_SELECTOR, "font > b").click()
+
+    def _fechar_prestador(self):
         self.driver.switch_to.default_content()
 
         self.driver.switch_to.frame(0)
         self.driver.find_element(By.ID, "5").click()
         self.driver.switch_to.default_content()
 
-        self._inserir_mes_e_competencia()
+        self.__inserir_mes_e_competencia()
 
         self.driver.switch_to.frame(2)
         # Encerrar Prestador
@@ -83,9 +127,13 @@ class GissGui(FileOperations, WDShorcuts):
         except (TimeoutException, NoSuchElementException):
             self.driver.find_element(By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
             self.driver.find_element(By.CSS_SELECTOR, ".txt_up").click()
+        finally:
+            self.driver.switch_to.default_content()
+
+    def fechar_tomador(self):
+        self._fechar_prestador()
 
         # Encerrar Tomador
-        self.driver.switch_to.default_content()
         self.driver.switch_to.frame(0)
         self.driver.find_element(By.ID, "6").click()
         self.driver.switch_to.default_content()
@@ -114,7 +162,7 @@ class GissGui(FileOperations, WDShorcuts):
             self.driver.find_element(By.ID, "5").click()
             self.driver.switch_to.default_content()
 
-            self._inserir_mes_e_competencia(date_to_compt(_first_compt))
+            self.__inserir_mes_e_competencia(date_to_compt(_first_compt))
 
             self.driver.switch_to.frame(2)
             # Encerrar Prestador
@@ -130,7 +178,7 @@ class GissGui(FileOperations, WDShorcuts):
                 # procurando qual declarar!
                 _first_compt -= relativedelta(months=1)
 
-    def _inserir_mes_e_competencia(self, compt=None):
+    def __inserir_mes_e_competencia(self, compt=None):
         self.driver.switch_to.frame(2)
         compt_splitted = self.loop_compt if compt is None else compt
 
@@ -276,7 +324,7 @@ class GissGui(FileOperations, WDShorcuts):
         driver = self.driver
         cont_senha = 0
         while True:
-            # TxtIdent
+            # sometimes it's required to refresh...
             self.driver.get(weblink)
             driver.find_element(By.XPATH,
                                 '//input[@name="TxtIdent"]').send_keys(self._logar)
