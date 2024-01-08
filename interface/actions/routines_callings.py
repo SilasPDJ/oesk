@@ -74,7 +74,7 @@ class RoutinesCallings:
         for e, row in df.iterrows():
             row_required = row[attributes_required]
             args = row_required.to_list()
-            GissGui(args, compt=self.compt, first_compt=get_compt(-2))
+            GissGui(args, compt=self.compt, headless=False)
 
     def call_ginfess(self):
         df = self.aps.client_compts_df

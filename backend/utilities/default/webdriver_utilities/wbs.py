@@ -88,11 +88,15 @@ class WDShorcuts:
                 driver.implicitly_wait(2.5)
         action.perform()
 
-    def tag_with_text(self, tag, searched) -> WebElement:
+    def tag_with_text(self, tag, searched, wait=0) -> WebElement:
         driver = self.__arg_driver
-        td_tag = driver.find_element(By.XPATH,
-                                     f"//{tag}[contains(text(),'{searched.rstrip()}')]")
-        return td_tag
+
+        _expression = (By.XPATH,
+                       f"//{tag}[contains(text(),'{searched.rstrip()}')]")
+
+        if wait > 0:
+            return self.webdriverwait_el_by(*_expression)
+        return driver.find_element(*_expression)
 
     def contains_text(self, item) -> WebElement:
         driver = self.__arg_driver
