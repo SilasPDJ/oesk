@@ -3,7 +3,8 @@ from .export2same_folder import Export2SameFolder
 from .contimatic import Contimatic
 from .gias import GIA
 from .ginfess_download import DownloadGinfessGui
-from .giss_online_pt11 import GissGui
+# from .giss_online_pt11 import GissGui
+from .giss_online_pt12 import GissGui
 from .gshopee_excel_values import ShopeeExcel
 from .rotina_pgdas import  PgdasDeclaracao, PgdasDeclaracaoRetificaVarias
 from .send_pgdamail import PgDasmailSender

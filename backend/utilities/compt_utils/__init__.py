@@ -11,6 +11,10 @@ def compt_to_date_obj(compt) -> date:
     return Now.str_to_date(compt, "%m-%Y")
 
 
+def date_to_compt(date: date) -> str:
+    return date.strftime('%m-%Y')
+
+
 def calc_date_compt_offset(m_cont=-1, y_cont=0, past_only=True) -> date:
     """ - returns `date` object based on the two first arguments
     Args:
