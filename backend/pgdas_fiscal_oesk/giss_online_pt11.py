@@ -18,9 +18,8 @@ class GissGui(FileOperations, WDShorcuts):
     def __init__(self, dados, compt, first_compt, headless=True):
         from functools import partial
         self.__COMPT = compt
-        __senhas = os.getenv('GISS_PASSWORDS').split(',')
         # [print(s) for s in __senhas]
-        __r_social, _giss_cnpj, _logar = dados[:3]
+        __r_social, _giss_cnpj, self._logar = dados[:3]
         self.compt_atual = compt
         print(self.compt_atual)
         self.client_path = self.files_pathit(
@@ -38,32 +37,7 @@ class GissGui(FileOperations, WDShorcuts):
             print(__r_social)
             # self.driver = ginfess_driver()
 
-            # holy
-            cont_senha = 0
-            while True:
-                # TxtIdent
-                self.driver.get(weblink)
-                driver.find_element(By.XPATH,
-                                    '//input[@name="TxtIdent"]').send_keys(_logar)
-                driver.find_element(By.XPATH,
-                                    '//input[@name="TxtSenha"]').send_keys(__senhas[cont_senha])
-                print(f'Senha: {__senhas[cont_senha]}', end=' ')
-
-                self.preenche_captcha()
-
-                cont_senha += 1
-                driver.find_element(By.LINK_TEXT, "Acessar").click()
-                try:
-                    WebDriverWait(driver, 5).until(expected_conditions.alert_is_present(),
-                                                   'Timed out waiting for PA creation ' +
-                                                   'confirmation popup to appear.')
-                    alert = driver.switch_to.alert
-                    alert.accept()
-                    print("estou no try")
-                    driver.execute_script("window.history.go(-1)")
-                except TimeoutException:
-                    print("no alert, sem alerta, exceptado")
-                    break
+            self.logar_giss()
             for loop_compt in ate_atual_compt(first_compt):
                 # driver.get(
                 #     'https://www10.gissonline.com.br/interna/default.cfm')
@@ -102,7 +76,7 @@ class GissGui(FileOperations, WDShorcuts):
                             loop_compt, constr)
                         self.gerar_cert(f'{loop_compt}_giss-tomador.png')
                         if fez_ok:
-                            break
+                            continue
                         else:
                             print("\033[1;31m ATENÇÃO AO TODO=checar \033[m")
                         # TODO: testar se fez_ok for False
@@ -442,3 +416,33 @@ class GissGui(FileOperations, WDShorcuts):
         a.clear()
         m.send_keys(mes)
         a.send_keys(ano)
+
+    def logar_giss(self):
+        __senhas = os.getenv('GISS_PASSWORDS').split(',')
+
+        driver = self.driver
+        cont_senha = 0
+        while True:
+            # TxtIdent
+            self.driver.get(weblink)
+            driver.find_element(By.XPATH,
+                                '//input[@name="TxtIdent"]').send_keys(self._logar)
+            driver.find_element(By.XPATH,
+                                '//input[@name="TxtSenha"]').send_keys(__senhas[cont_senha])
+            print(f'Senha: {__senhas[cont_senha]}', end=' ')
+
+            self.preenche_captcha()
+
+            cont_senha += 1
+            driver.find_element(By.LINK_TEXT, "Acessar").click()
+            try:
+                WebDriverWait(driver, 5).until(expected_conditions.alert_is_present(),
+                                               'Timed out waiting for PA creation ' +
+                                               'confirmation popup to appear.')
+                alert = driver.switch_to.alert
+                alert.accept()
+                print("estou no try")
+                driver.execute_script("window.history.go(-1)")
+            except TimeoutException:
+                print("no alert, sem alerta, exceptado")
+                break
