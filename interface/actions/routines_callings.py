@@ -68,6 +68,12 @@ class RoutinesCallings:
 
     def call_giss(self):
         df = self.aps.client_compts_df
+        # Abaixo são as mesmas expressões...
+        # df = df.loc[(df['giss_login'] != 'não há') & (df['giss_login'].str.lower() != 'ginfess cód') & (
+        #             df['giss_login'] != '')].fillna('')
+        df = df.loc[~df['giss_login'].str.lower().isin(['não há', 'ginfess cód', ''])].fillna('')
+        df = df.loc[df['gissonline'].str.lower() == 'https://portal.gissonline.com.br/login/index.html']
+        # ...
         attributes_required = ['razao_social',
                                'cnpj', 'giss_login']
 
