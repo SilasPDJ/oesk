@@ -70,50 +70,66 @@ class GissGui(FileOperations, WDShorcuts):
         self.driver.switch_to.default_content()
         return False
 
+    def fechar_constr_civil(self):
+        def _get_func_compt(_func_compt=None) -> str:
+            if _func_compt is None:
+                return self.loop_compt
+            if isinstance(_func_compt, date):
+                return date_to_compt(_func_compt)
 
-    def fechar_constr_civil(self, func_compt=None):
-        if func_compt is None:
-            func_compt = self.loop_compt
-        if isinstance(func_compt, date):
-            func_compt = date_to_compt(func_compt)
+        def encerrar_part_1(func_compt=None):
+            func_compt = _get_func_compt(func_compt)
+            self.driver.switch_to.default_content()
+            self.driver.switch_to.frame(0)
+            self.driver.find_element(By.ID, "7").click()
+            self.driver.switch_to.default_content()
+            self.driver.switch_to.frame(2)
+            self.driver.find_element(By.CSS_SELECTOR, "table:nth-child(2) tr:nth-child(1) font").click()
+            self.driver.switch_to.default_content()
+            self._inserir_mes_e_competencia(func_compt)
 
-        self.driver.switch_to.default_content()
-        self.driver.switch_to.frame(0)
-        self.driver.find_element(By.ID, "7").click()
-        self.driver.switch_to.default_content()
-        self.driver.switch_to.frame(2)
-        self.driver.find_element(By.CSS_SELECTOR, "table:nth-child(2) tr:nth-child(1) font").click()
-        self.driver.switch_to.default_content()
-        self._inserir_mes_e_competencia(func_compt)
+            self.driver.switch_to.frame(2)
+            self.driver.find_element(By.LINK_TEXT, "Encerrar Competência").click()
+            try:
+                self.webdriverwait_el_by(By.CSS_SELECTOR, "td:nth-child(3) span").click()
+            except (TimeoutException, NoSuchElementException):
+                # precisa encerrar a competencia anterior...
+                encerrar_part_1(compt_to_date_obj(func_compt) - relativedelta(months=1))
 
-        self.driver.switch_to.frame(2)
-        self.driver.find_element(By.LINK_TEXT, "Encerrar Competência").click()
-        try:
-            self.webdriverwait_el_by(By.CSS_SELECTOR, "td:nth-child(3) span").click()
-        except (TimeoutException, NoSuchElementException):
-            # precisa encerrar a competencia anterior...
-            self.fechar_constr_civil(compt_to_date_obj(func_compt) - relativedelta(months=1))
+            except UnexpectedAlertPresentException as e:
+                if 'Competência encerrada' in e.alert_text:
+                    print(f"Constr Civil pt1 {self.loop_compt} - já encerrado!")
+                    try:
+                        self.driver.switch_to.alert.accept()
+                    finally:
+                        encerrar_part_1(compt_to_date_obj(func_compt) + relativedelta(months=1))
 
-        except UnexpectedAlertPresentException as e:
-            if 'Competência encerrada' in e.alert_text:
-                print(f"Constr Civil pt1 {self.loop_compt} - já encerrado!")
+            self.driver.switch_to.alert.accept()
+
+        # self.driver.find_element(By.CSS_SELECTOR, ".impressora:nth-child(1) > .bold").click()
+        encerrar_part_1()
+        def encerrar_part_2(func_compt=None):
+            func_compt = _get_func_compt(func_compt)
+            self.driver.switch_to.default_content()
+
+            self.driver.switch_to.frame(0)
+            self.driver.find_element(By.ID, "7").click()
+            self.driver.switch_to.default_content()
+            self.driver.switch_to.frame(2)
+            self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(2) > td > span > font").click()
+            self.driver.find_element(By.LINK_TEXT, "Encerrar Escrituração").click()
+            try:
+                self.webdriverwait_el_by(By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
+                self.driver.find_element(By.CSS_SELECTOR, ".txt_up").click()
+            except (TimeoutException, NoSuchElementException):
+                encerrar_part_2(compt_to_date_obj(func_compt) + relativedelta(months=1))
+            except UnexpectedAlertPresentException as e:
                 try:
                     self.driver.switch_to.alert.accept()
                 finally:
-                    self.fechar_constr_civil(compt_to_date_obj(func_compt) + relativedelta(months=1))
+                    encerrar_part_2(compt_to_date_obj(func_compt) - relativedelta(months=1))
 
-        self.driver.switch_to.alert.accept()
-        # self.driver.find_element(By.CSS_SELECTOR, ".impressora:nth-child(1) > .bold").click()
-        self.driver.switch_to.default_content()
-
-        self.driver.switch_to.frame(0)
-        self.driver.find_element(By.ID, "7").click()
-        self.driver.switch_to.default_content()
-        self.driver.switch_to.frame(2)
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(2) > td > span > font").click()
-        self.driver.find_element(By.LINK_TEXT, "Encerrar Escrituração").click()
-        self.driver.find_element(By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
-        self.driver.find_element(By.CSS_SELECTOR, ".txt_up").click()
+        encerrar_part_2()
         self.driver.switch_to.default_content()
 
         self.driver.switch_to.frame(0)
