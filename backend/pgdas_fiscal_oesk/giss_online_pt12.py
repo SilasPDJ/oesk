@@ -41,7 +41,7 @@ class GissGui(FileOperations, WDShorcuts):
         if not is_construcao_civil:
             first_compt = self.find_first_compt(indx=0)
         else:
-            first_compt = get_compt(-2)
+            first_compt = self.find_first_compt(indx=1)
         for loop_compt in ate_atual_compt(self.compt_atual, first_compt):
             self.loop_compt = loop_compt
             # TODO: gerenciar por JSON, remover compt
@@ -50,8 +50,8 @@ class GissGui(FileOperations, WDShorcuts):
             #     'https://www10.gissonline.com.br/interna/default.cfm')
 
             if is_construcao_civil:
-                # self.fechar_tomador_para_ambas()
-                # self.fechar_constr_civil()
+                self.fechar_tomador_para_ambas()
+                self.fechar_constr_civil()
                 print(f"passando construção civil p/ {__r_social}")
                 pass
             else:
@@ -70,8 +70,52 @@ class GissGui(FileOperations, WDShorcuts):
         self.driver.switch_to.default_content()
         return False
 
-    def fechar_constr_civil(self):
-        print("Fechar construção civil")
+    def fechar_constr_civil(self, func_compt=None):
+        func_compt = func_compt if func_compt else self.loop_compt
+
+        self.driver.switch_to.frame(0)
+        self.driver.find_element(By.ID, "7").click()
+        self.driver.switch_to.default_content()
+        self.driver.switch_to.frame(2)
+        self.driver.find_element(By.CSS_SELECTOR, "table:nth-child(2) tr:nth-child(1) font").click()
+        self.driver.find_element(By.CSS_SELECTOR, "html").click()
+
+        self._inserir_mes_e_competencia(func_compt)
+
+        self.driver.find_element(By.LINK_TEXT, "Encerrar Competência").click()
+        try:
+            self.webdriverwait_el_by(By.CSS_SELECTOR, "td:nth-child(3) span").click()
+        except (TimeoutException, NoSuchElementException):
+            # precisa encerrar a competencia anterior...
+            self.fechar_constr_civil(func_compt - relativedelta(months=1))
+
+        except UnexpectedAlertPresentException as e:
+            if 'Competência encerrada' in e.alert_text:
+                self.driver.switch_to.alert.accept()
+
+                self.fechar_constr_civil(func_compt + relativedelta(months=1))
+
+        self.driver.switch_to.alert.accept()
+        self.driver.find_element(By.CSS_SELECTOR, ".impressora:nth-child(1) > .bold").click()
+        self.driver.switch_to.default_content()
+
+        self.driver.switch_to.frame(0)
+        self.driver.find_element(By.ID, "7").click()
+        self.driver.switch_to.default_content()
+        self.driver.switch_to.frame(2)
+        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(2) > td > span > font").click()
+        self.driver.find_element(By.LINK_TEXT, "Encerrar Escrituração").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".txt_up").click()
+        self.driver.switch_to.default_content()
+
+        self.driver.switch_to.frame(0)
+        self.driver.find_element(By.ID, "7").click()
+        self.driver.switch_to.default_content()
+        self.driver.switch_to.frame(2)
+        self.driver.find_element(By.CSS_SELECTOR, "table:nth-child(4) span > font").click()
+        self.driver.find_element(By.LINK_TEXT, "Encerrar Sem Movimento").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
 
     def fechar_prestador(self):
         self.driver.switch_to.default_content()
@@ -117,6 +161,8 @@ class GissGui(FileOperations, WDShorcuts):
             pass
         except UnexpectedAlertPresentException as e:
             self.driver.switch_to.alert.accept()
+            self.find_first_compt(indx=1)
+            self.fechar_tomador_para_ambas()
 
         self.driver.find_element(By.LINK_TEXT, "Menu Principal").click()
         self.driver.find_element(By.LINK_TEXT, "Encerrar Sem Movimento").click()
@@ -132,6 +178,8 @@ class GissGui(FileOperations, WDShorcuts):
         options_encerrar = (("5", "Encerrar Escrituração"),
                             ("6", "Encerrar Sem Movimento"))
 
+        if indx >= len(options_encerrar):
+            indx = 0
         bt_opt, escrituracao_link_text = options_encerrar[indx]
 
         while True:
