@@ -107,10 +107,10 @@ class GissGui(FileOperations, WDShorcuts):
             self.driver.switch_to.alert.accept()
 
         # self.driver.find_element(By.CSS_SELECTOR, ".impressora:nth-child(1) > .bold").click()
-        encerrar_part_1()
         def encerrar_part_2(func_compt=None):
             func_compt = _get_func_compt(func_compt)
             self.driver.switch_to.default_content()
+            self._inserir_mes_e_competencia(func_compt)
 
             self.driver.switch_to.frame(0)
             self.driver.find_element(By.ID, "7").click()
@@ -126,19 +126,27 @@ class GissGui(FileOperations, WDShorcuts):
             except UnexpectedAlertPresentException as e:
                 try:
                     self.driver.switch_to.alert.accept()
+                except NoAlertPresentException:
+                    pass
                 finally:
                     encerrar_part_2(compt_to_date_obj(func_compt) - relativedelta(months=1))
 
-        encerrar_part_2()
-        self.driver.switch_to.default_content()
+        def encerrar_part_3(func_compt=None):
+            func_compt = _get_func_compt(func_compt)
+            self.driver.switch_to.default_content()
+            self._inserir_mes_e_competencia(func_compt)
 
-        self.driver.switch_to.frame(0)
-        self.driver.find_element(By.ID, "7").click()
-        self.driver.switch_to.default_content()
-        self.driver.switch_to.frame(2)
-        self.driver.find_element(By.CSS_SELECTOR, "table:nth-child(4) span > font").click()
-        self.driver.find_element(By.LINK_TEXT, "Encerrar Sem Movimento").click()
-        self.driver.find_element(By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
+            self.driver.switch_to.frame(0)
+            self.driver.find_element(By.ID, "7").click()
+            self.driver.switch_to.default_content()
+            self.driver.switch_to.frame(2)
+            self.driver.find_element(By.CSS_SELECTOR, "table:nth-child(4) span > font").click()
+            self.driver.find_element(By.LINK_TEXT, "Encerrar Sem Movimento").click()
+            self.driver.find_element(By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
+
+        encerrar_part_1()
+        encerrar_part_2()
+        encerrar_part_3()
 
     def fechar_prestador(self):
         self.driver.switch_to.default_content()
