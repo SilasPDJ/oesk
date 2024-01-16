@@ -70,33 +70,40 @@ class GissGui(FileOperations, WDShorcuts):
         self.driver.switch_to.default_content()
         return False
 
-    def fechar_constr_civil(self, func_compt=None):
-        func_compt = func_compt if func_compt else self.loop_compt
 
+    def fechar_constr_civil(self, func_compt=None):
+        if func_compt is None:
+            func_compt = self.loop_compt
+        if isinstance(func_compt, date):
+            func_compt = date_to_compt(func_compt)
+
+        self.driver.switch_to.default_content()
         self.driver.switch_to.frame(0)
         self.driver.find_element(By.ID, "7").click()
         self.driver.switch_to.default_content()
         self.driver.switch_to.frame(2)
         self.driver.find_element(By.CSS_SELECTOR, "table:nth-child(2) tr:nth-child(1) font").click()
-        self.driver.find_element(By.CSS_SELECTOR, "html").click()
-
+        self.driver.switch_to.default_content()
         self._inserir_mes_e_competencia(func_compt)
 
+        self.driver.switch_to.frame(2)
         self.driver.find_element(By.LINK_TEXT, "Encerrar Competência").click()
         try:
             self.webdriverwait_el_by(By.CSS_SELECTOR, "td:nth-child(3) span").click()
         except (TimeoutException, NoSuchElementException):
             # precisa encerrar a competencia anterior...
-            self.fechar_constr_civil(func_compt - relativedelta(months=1))
+            self.fechar_constr_civil(compt_to_date_obj(func_compt) - relativedelta(months=1))
 
         except UnexpectedAlertPresentException as e:
             if 'Competência encerrada' in e.alert_text:
-                self.driver.switch_to.alert.accept()
-
-                self.fechar_constr_civil(func_compt + relativedelta(months=1))
+                print(f"Constr Civil pt1 {self.loop_compt} - já encerrado!")
+                try:
+                    self.driver.switch_to.alert.accept()
+                finally:
+                    self.fechar_constr_civil(compt_to_date_obj(func_compt) + relativedelta(months=1))
 
         self.driver.switch_to.alert.accept()
-        self.driver.find_element(By.CSS_SELECTOR, ".impressora:nth-child(1) > .bold").click()
+        # self.driver.find_element(By.CSS_SELECTOR, ".impressora:nth-child(1) > .bold").click()
         self.driver.switch_to.default_content()
 
         self.driver.switch_to.frame(0)
@@ -206,6 +213,7 @@ class GissGui(FileOperations, WDShorcuts):
                 _first_compt -= relativedelta(months=1)
 
     def _inserir_mes_e_competencia(self, compt=None):
+        self.driver.switch_to.default_content()
         self.driver.switch_to.frame(2)
         compt_splitted = self.loop_compt if compt is None else compt
 
