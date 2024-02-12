@@ -108,7 +108,7 @@ class GIA(WDShorcuts):
                 cont = 0
                 while True:
                     try:
-                        print(f"tentaiva {i+1}")
+                        print(f"tentaiva {cont+1}")
                         sleep(7)
                         self.click_elements_by_tt('Cadastrar mais tarde')
                         break
@@ -116,7 +116,7 @@ class GIA(WDShorcuts):
                         print("Tentando clicar em cadastrar mais tarde")
                         cont += 1
                         if cont == 10:
-                            raise e
+                            break
                 # enter entrar
                 self.webdriverwait_el_by(
                     By.LINK_TEXT, 'Guia de Informação (Arts. 253-254 RICMS/00)').click()
