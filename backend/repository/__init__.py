@@ -170,6 +170,7 @@ class ClientComptsRepository(RepositoryUtils):
 
                     def get_status_imports_g5(
                             campo: str):
+                        campo = '' if campo is None else campo
                         return campo if campo.upper() != 'OK' else ''
 
                     new_row = self.orm(

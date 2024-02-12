@@ -30,7 +30,6 @@ class G5(Contimatic):
         self.__path_icms_autorizadas = os.path.join(
             self.client_path, value)
 
-
     def __init__(self, *args: str, compt):
         __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular, nf_out, nf_in = args
         __client = __r_social
@@ -77,7 +76,8 @@ class G5(Contimatic):
                     timesleep_import = 30
                     print('\033[1;31m self.nfcanceladas is None \033[m')
                     self.nfcanceladas = None
-
+                if timesleep_import <= 0:
+                    timesleep_import *= -1
                 sleep(timesleep_import)
 
                 __wcenter = pygui.getActiveWindow().center
@@ -114,7 +114,8 @@ class G5(Contimatic):
                 _already_exist += self.walget_searpath(
                     "LIVRO_SAIDA", self.client_path, 2)
             else:
-                _already_exist = True  # it could not exist (zerou), but it's just a logic to pass
+                # it could not exist (zerou), but it's just a logic to pass
+                _already_exist = True
             if not _already_exist:
                 self.abre_ativa_programa('G5 ')
                 self.activating_client(self.formatar_cnpj(__cnpj))
@@ -364,6 +365,7 @@ class G5(Contimatic):
         # os.remove(self.caminho_canceladas_destino)
         # os.remove(os.path.join(self.client_path, 'NFS'))
         pass
+
     def importa_nfs_iss(self):
         def exe_bt_executar(import_items=True):
             def minimenu_gotmore_opts() -> bool:
