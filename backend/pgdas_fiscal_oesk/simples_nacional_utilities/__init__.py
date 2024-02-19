@@ -209,6 +209,23 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
         if solver.err_string != '':
             print(solver.err_string)
 
+    def __ecac_captcha(self):
+        driver = self.driver
+        url = driver.current_url
+        site_key = "93b08d40-d46c-400a-ba07-6f91cda815b9"
+
+        solver = hCaptchaProxyless()
+        solver.set_verbose(1)
+        solver.set_key(os.getenv("ANTI_HCA_KEY"))
+        solver.set_website_url(url)
+        solver.set_website_key(site_key)
+        solved_resposta = solver.solve_and_return_solution()
+
+        # driver.switch_to.frame(driver.find_element(By.CSS_SELECTOR, "#hcaptcha > iframe"))
+        secret_input = driver.find_element(By.ID, 'hcaptcha').find_element(By.TAG_NAME, "textarea")
+        driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input, solved_resposta)
+        driver.switch_to.default_content()
+
     def __loga_simples_capt_old(self) -> str:
         import subprocess
         import os
@@ -265,33 +282,12 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
 
         driver.get(
             "https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
-        # 17bd6f43454
-        # initial = WebDriverWait(driver, 30).until(
-        #     expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Seu certificado digital')))
-        # driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + 'T')
-        # sleep(2)
-        # make_login = initial.get_attribute("href")
-
-        # driver.execute_script("window.open()")
-
-        # driver.switch_to.window(driver.window_handles[1])
-        # a = Thread(target=lambda: driver.get(make_login))
-        # a.start()
-        # sleep(randsleep2(0.71, 2.49))
-        # [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))  # down, enter
-        #  for i in range(3)]
-        # pygui.hotkey('ctrl', 'w')
-        # # driver.close()
-        # driver.switch_to.window(driver.window_handles[0])
-        # # driver.execute_script("closeModal('modal-tips')")
-        # initial.click()
-        print('ativando janela acima, logando certificado abaixo, linhas 270')
-        sleep(randsleep2(3, 7))
-        driver.get("https://cav.receita.fazenda.gov.br/autenticacao/login")
+        # driver.get("https://cav.receita.fazenda.gov.br/autenticacao/login")
         # sleep(10)
         # driver.execute_script("validarRecaptcha('frmLoginCert')")
-        sleep(10)
-
+        sleep(5)
+        self.__ecac_captcha()
+        # TODO: fazer funcionar...
         # self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
         # while self.driver.current_url == "https://cav.receita.fazenda.gov.br/autenticacao/login":
         #     try:
