@@ -1,16 +1,17 @@
 import os
 from user_agent import generate_user_agent as random
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+# from selenium.webdriver.chrome.options import Options
+
 from backend.utilities.default.sets.pathmanager import Dirs
 # continuar a desenvolver a def real_path, p/ driver
-from selenium.webdriver.chrome.service import Service
+# from selenium.webdriver.chrome.service import Service
+import undetected_chromedriver as uc
 
-SERVICE = Service()
+# SERVICE = Service()
 this_file_path = os.path.realpath(__file__)
 path = os.path.dirname(this_file_path)
-
+Options = uc.ChromeOptions
 
 # procura link chamado pela variável __file__
 
@@ -23,6 +24,7 @@ def default_qrcode_driver(path='') -> webdriver.Remote:
 
     # new_path_set -> abre uma pasta para download especificada caso ela não exista ainda
     """
+
     def __profiles_main_folder(recria_padrao=False):
         """
         :param recria_padrao: True -> apaga arquivo e abre caixa de diálogo
@@ -74,8 +76,10 @@ def default_qrcode_driver(path='') -> webdriver.Remote:
 
     # vindo do ginfess_driver [magic]
 
-    driver = webdriver.Chrome(
-        service=SERVICE, options=chrome_options)
+    # driver = webdriver.Chrome(
+    #     service=SERVICE, options=chrome_options)
+
+    driver = uc.Chrome(options=chrome_options, )
     return driver
 
 
@@ -107,8 +111,8 @@ def pgdas_driver(path='') -> webdriver.Remote:
 
     # real_path_for_chromedriver()
     # vindo do ginfess_driver [magic]
-    driver = webdriver.Chrome(
-        service=SERVICE, options=chrome_options)
+    driver = uc.Chrome(options=chrome_options)
+
     return driver
 
 
@@ -147,8 +151,8 @@ def pgdas_driver_ua(path='') -> webdriver.Remote:
 
     # real_path_for_chromedriver()
     # vindo do ginfess_driver [magic]
-    driver = webdriver.Chrome(
-        service=SERVICE, options=chrome_options)
+    driver = uc.Chrome(options=chrome_options)
+
     return driver
 
 
@@ -191,14 +195,11 @@ def ginfess_driver(path='') -> webdriver.Remote:
     # #################### Difference from above --> safe_browsing enabled
 
     # real_path_for_chromedriver()
-
-    driver = webdriver.Chrome(
-        service=SERVICE, options=chrome_options)
+    driver = uc.Chrome(options=chrome_options)
     # self.tags_wait('body', 'input', 'div')
 
     # sleep(5)
     return driver
-
 
 
 def jucesp_simple_driver():
@@ -236,8 +237,7 @@ def jucesp_simple_driver():
     # real_path_for_chromedriver()
     # vindo do ginfess_driver [magic]
 
-    driver = webdriver.Chrome(
-        service=SERVICE, options=chrome_options)
+    driver = uc.Chrome(options=chrome_options)
 
     # self.tags_wait('body', 'input', 'div')
 
@@ -247,4 +247,3 @@ def jucesp_simple_driver():
 
 if __name__ == "__main__":
     pass
-
