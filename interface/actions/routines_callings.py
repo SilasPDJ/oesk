@@ -7,7 +7,7 @@ import subprocess
 
 import pandas as pd
 
-from backend.repository import MainEmpresasRepository, ClientComptsRepository
+from backend.repository import ClientComptsRepository
 from interface.settings import AppSettings
 from backend.utilities.helpers import modify_dataframe_at, sort_dataframe
 

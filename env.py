@@ -20,6 +20,7 @@ class DotEnv(Util):
         self.CONTIMATIC_PASSWORD = self.get('CONTMATIC_PASSWORD')
         self.GISS_PASSWORDS = self.get('GISS_PASSWORDS').split(',')
 
+
 if __name__ == '__main__':
     env = DotEnv()
     a = env.GISS_PASSWORDS
