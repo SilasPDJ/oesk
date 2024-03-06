@@ -1,5 +1,18 @@
 import pandas as pd
+from sqlalchemy import inspect
+
+
 # TODO descobrir pq todos menos o from_object nao estão funcionando
+
+def _to_snaked_case(s):
+    _case = ''
+    for i, char in enumerate(s):
+        if i != 0 and char.isupper():
+            _case += '_' + char.lower()
+        else:
+            _case += char.lower()
+    return _case
+
 
 class RepositoryUtils:
     def __init__(self, orm, session):
@@ -19,6 +32,12 @@ class RepositoryUtils:
             query = session.query(self.orm).filter_by(**kwargs)
             data = query.one_or_none()
             return data
+
+    def get_pk(self) -> str:
+        """
+        :return: the primary key
+        """
+        return inspect(self.orm).primary_key[0].name
 
     # methods for updates in a db table
     def update_from_dataframe(self, df: pd.DataFrame):
@@ -53,3 +72,34 @@ class RepositoryUtils:
             session.merge(orm_object)
             session.commit()
 
+    # integração inicial com appian, mantendo local e online por enquanto
+    def insert_objects_if_not_exist(self, objects_list: list[dict]):
+        with self.Session() as session:
+            # gets first value as id
+            existing_ids = [getattr(obj, self.get_pk()) for obj in session.query(self.orm).filter(
+                getattr(self.orm, self.get_pk()).in_([list(obj.values())[0] for obj in objects_list])).all()]
+
+            new_ids_found = [list(obj.values())[0] for obj in objects_list if list(obj.values())[0] not in existing_ids]
+
+            for _obj in objects_list:
+
+                # transforma para o que o banco de dados ta esperando, a api devolve cammel cased
+                new_obj = {_to_snaked_case(key): value for key, value in _obj.items() if
+                           _to_snaked_case(key) in self._orm_columns}
+
+                new_orm_object = self.orm(**new_obj)
+                _obj_id_value = new_obj.get(self.get_pk())
+
+                # Se o id já existir cadastrado, atualiza
+                if _obj_id_value in existing_ids:
+                    existing_object = session.query(self.orm).filter(
+                        getattr(self.orm, self.get_pk()) == _obj_id_value).first()
+                    for key, value in new_obj.items():
+                        if key != _obj_id_value:
+                            setattr(existing_object, key, value)
+                    session.merge(existing_object)
+                # Se o id for novo, será inserido
+                elif new_ids_found:
+                    if _obj_id_value in new_ids_found:
+                        session.add(new_orm_object)
+            session.commit()
