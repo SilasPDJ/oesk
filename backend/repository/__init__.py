@@ -12,7 +12,31 @@ import sqlalchemy as sql
 # OrmTables.MainEmpresas
 # OrmTables.ClientsCompts
 
-main_empresas, clients_compts = OrmTables.get_classes().values()
+main_empresas, clients_compts, oe_empresas, empresas_gias, empresas_servicos = OrmTables.get_classes().values()
+
+
+class OeEmpresasRepository(RepositoryUtils):
+    def __init__(self):
+        self.dba = DbAccessManager()
+        self.Session = self.dba.Session
+        self.orm = OrmTables.OEEmpresas
+        super().__init__(self.orm, self.Session)
+
+
+class OeGiasRepository(RepositoryUtils):
+    def __init__(self):
+        self.dba = DbAccessManager()
+        self.Session = self.dba.Session
+        self.orm = OrmTables.OEGias
+        super().__init__(self.orm, self.Session)
+
+
+class OeServicosRepository(RepositoryUtils):
+    def __init__(self):
+        self.dba = DbAccessManager()
+        self.Session = self.dba.Session
+        self.orm = OrmTables.OEServicos
+        super().__init__(self.orm, self.Session)
 
 
 class MainEmpresasRepository(RepositoryUtils):
@@ -62,7 +86,6 @@ class ClientComptsRepository(RepositoryUtils):
         :param is_authorized: Filter by 'pode_declarar' in the ORM.
         :param must_have_status_ativo: Filter by 'status_ativo'. Defaults to True.
         :param to_df: If True, return a DataFrame; if False, return a list of ORM queries.
-        :param another_compt: if you need to query another specific compt
         :return: Either a DataFrame or a list of ORM queries.
         """
 
@@ -145,9 +168,6 @@ class ClientComptsRepository(RepositoryUtils):
         return df
 
     # Updates...
-    def update_from_object(self, orm_object: OrmTables.MainEmpresas):
-        """Overriden"""
-        super().update_from_object(orm_object)
 
     # add new compt
     def _add_new_compt(self) -> None:
@@ -162,7 +182,6 @@ class ClientComptsRepository(RepositoryUtils):
                 for row in self.start_new_compt_query(another_compt=get_compt(-2)):
                     _envio = True if str(
                         row.imposto_a_calcular) == 'LP' else False
-
 
                     # _declarado = True if str(
                     #     row.imposto_a_calcular) == 'LP' and '//' not in row.ginfess_cod else False
@@ -232,6 +251,6 @@ class ClientComptsRepository(RepositoryUtils):
 
 if __name__ == '__main__':
     cc = ClientComptsRepository(compt='08-2023')
-    me = MainEmpresasRepository()
+    # me = MainEmpresasRepository()
     # df = cc.query(id=2)
     cc.get_g5_df()
