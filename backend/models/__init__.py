@@ -7,6 +7,7 @@ from utilities.db import DbAccessManager
 
 Base = declarative_base()
 
+
 class OrmTables:
     class MainEmpresas(Base):
         __tablename__ = 'main_empresas'
@@ -37,7 +38,12 @@ class OrmTables:
         main_empresa_id = Column(Integer, ForeignKey('main_empresas.id'))
         main_empresas = relationship(
             "MainEmpresas", back_populates="clients_compts")
-        # razao_social = Column(String(100))
+
+        empresa_id = Column(Integer, ForeignKey('oe_empresas.id'))
+        empresa = relationship(
+            "OEEmpresas", back_populates="clients_compts")
+
+        # TODO a parte dos anexos depois de inserir no appian
         declarado = Column(Boolean())
         nf_saidas = Column(String(30))
         nf_entradas = Column(String(30))
@@ -52,7 +58,7 @@ class OrmTables:
         venc_das = Column(Date())
 
         def __repr__(self):
-            return f"{self.id} - {self.main_empresa_id:03d} - {self.main_empresas.razao_social}"
+            return f"{self.id} - {self.empresa_id:03d} - {self.empresa.razao_social}"
 
     # parte da integração
 
@@ -70,9 +76,31 @@ class OrmTables:
 
         oe_servicos = relationship("OEServicos", back_populates="empresa")
         oe_gias = relationship("OEGias", back_populates="empresa")
+        oe_icms__sem_mov = relationship("OEEmpresasICMS_SemMov", back_populates="empresa")
+
+        clients_compts = relationship(
+            "ClientsCompts", back_populates="empresa")
 
         def __repr__(self):
             return f"<oe_empresas(cnpj='{self.cnpj}', razao_social='{self.razao_social}')>"
+
+    class OEEmpresasICMS_SemMov(Base):
+        """ 'outras' Empresas """
+        __tablename__ = 'oe_icms__sem_mov'
+
+        id = Column(Integer, ForeignKey('oe_empresas.id'), primary_key=True)
+        razao_social = Column(String(255))
+        cnpj = Column(String(18), unique=True)
+        cpf = Column(String(14))
+        codigo_simples = Column(String(12))
+        email = Column(String(255))
+        ha_procuracao_ecac = Column(String(15))
+        status_ativo = Column(Boolean())
+
+        empresa = relationship("OEEmpresas", back_populates="oe_icms__sem_mov")
+
+        def __repr__(self):
+            return f"<oe_icms__sem_mov(cnpj='{self.cnpj}', razao_social='{self.razao_social}')>"
 
     class OEServicos(Base):
         __tablename__ = 'oe_servicos'
@@ -98,7 +126,6 @@ class OrmTables:
 
         empresa = relationship("OEEmpresas", back_populates="oe_gias")
         ativa = Column(Boolean())
-
 
     @classmethod
     def get_classes(cls) -> dict:

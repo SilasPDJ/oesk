@@ -13,8 +13,8 @@ class AppSettings:
         'razao_social', 'cnpj', 'valor_total', 'codigo_simples', 'email',
         'sem_retencao', 'com_retencao', 'cpf', 'anexo',
         'gissonline', 'giss_login', 'ginfess_cod', 'ginfess_link',
-        'venc_das', 'status_ativo', 'main_empresa_id']
-    
+        'venc_das', 'status_ativo', 'empresa_id']
+
     main_df_col = None
     load_dotenv()
 
