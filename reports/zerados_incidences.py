@@ -22,7 +22,7 @@ def gerar_report_outros_zerados(meses: int, incidence: int, relatorio_filename_p
     dfs = []
     for compt in ate_atual_compt(get_compt(), get_compt(meses)):
         df = ClientComptsRepository(compt)
-        dfs.append(df._query_all_data_in_compt())
+        dfs.append(df.query_data_by_routine_in_compt())
 
     df = pd.concat(dfs)
 
