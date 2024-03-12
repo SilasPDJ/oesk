@@ -66,7 +66,8 @@ class ClientComptsRepository(RepositoryUtils):
     def get_as_orm(self, row) -> OrmTables.ClientsCompts:
         kwargs = {
             'id': row.id,
-            'main_empresa_id': row.main_empresa_id
+            # 'main_empresa_id': row.main_empresa_id
+            'main_empresa_id': row.empresa_id
         }
         return super().get_as_orm(**kwargs)
 

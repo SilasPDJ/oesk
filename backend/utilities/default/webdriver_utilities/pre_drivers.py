@@ -13,6 +13,7 @@ this_file_path = os.path.realpath(__file__)
 path = os.path.dirname(this_file_path)
 Options = uc.ChromeOptions
 
+
 # procura link chamado pela variável __file__
 
 def default_qrcode_driver(path='') -> webdriver.Remote:
@@ -165,8 +166,13 @@ def ginfess_driver(path='') -> webdriver.Remote:
     download PDF automatic
 
     """
+    from selenium.webdriver.chrome.options import Options as ChromeOptions
+    from selenium.webdriver.chrome.service import Service
+    SERVICE = Service()
+    chrome_options = ChromeOptions()
+    # chrome_options = Options()
+
     print('\033[1;33m Headless\033[m')
-    chrome_options = Options()
     chrome_options.add_argument(
         "--disable-blink-features=AutomationControlled")
 
@@ -195,7 +201,10 @@ def ginfess_driver(path='') -> webdriver.Remote:
     # #################### Difference from above --> safe_browsing enabled
 
     # real_path_for_chromedriver()
-    driver = uc.Chrome(options=chrome_options)
+    # driver = uc.Chrome(options=chrome_options)
+
+    driver = webdriver.Chrome(
+        service=SERVICE, options=chrome_options)
     # self.tags_wait('body', 'input', 'div')
 
     # sleep(5)

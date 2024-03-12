@@ -17,7 +17,7 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
         # TODO: settar ginfess_valores nos nos outros municipios
         # em especial São Paulo
         # driver
-        __r_social, __cnpj, _ginfess_cod, link = dados
+        __r_social, login, pswd, link = dados
 
         self.compt = compt
         # mesma coisa de self.any_to_str, só que ele aceita args desempacotados
@@ -25,7 +25,7 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
         self.ginfess_valores = None
 
         # Checa se já existe certificado
-        if _ginfess_cod.lower() == 'não há':
+        if pswd.lower() == 'não há':
             # removi o ja_imported
             print(
                 f'\033[1;31m o cliente {__r_social} não possui notas\n...(muito bom) O certificado anula o _ja_imported...\033[m')
@@ -62,7 +62,7 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
 
                 # driver.maximize_window()
                 # #######################################################
-                self.ABC_ginfess(__cnpj, _ginfess_cod)
+                self.ABC_ginfess(login, pswd)
                 # #######################################################
 
                 try:
@@ -78,7 +78,7 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
 
                     # Creation initial
                     excel_file = os.path.join(
-                        self.client_path, f'{__r_social[:__r_social.find(" ")]}_{__cnpj}.xlsx')
+                        self.client_path, f'{__r_social[:__r_social.find(" ")]}_{login}.xlsx')
                     # Aqui
                     self.excel_from_html_above(
                         excel_file, html=self.ginfess_table_valores_html_code())
@@ -95,12 +95,11 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
             elif self.driver.current_url == 'https://tremembe.sigiss.com.br/tremembe/contribuinte/login.php':
                 driver.implicitly_wait(5)
 
-                zero_um = _ginfess_cod.split('//')
+                zero_um = pswd.split('//')
 
                 # ginfess login//senha
                 self.tags_wait('html')
                 self.tags_wait('body')
-
 
                 def login_tremembe_2():
                     driver.implicitly_wait(5)
@@ -207,15 +206,15 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
                         print('Já encerrado')
 
             elif self.driver.current_url == 'https://app.siappa.com.br/issqn_itupeva/servlet/com.issqnwebev3v2.login':
-                self.driver.find_element(By.ID, 'vUSR_COD').send_keys(__cnpj)
+                self.driver.find_element(By.ID, 'vUSR_COD').send_keys(login)
                 self.driver.find_element(By.CSS_SELECTOR,
-                                         '[type="password"]').send_keys(_ginfess_cod)
+                                         '[type="password"]').send_keys(pswd)
                 # d = Chrome().
                 press_keys_b4('f9')
                 driver.save_screenshot(self.certif_feito(
                     self.client_path, add=f"{__r_social}-ginfessDone"))
             elif 'bragancapaulista.giap.com.br' in self.driver.current_url:
-                a = __login, __senha = _ginfess_cod.split('//')
+                a = __login, __senha = pswd.split('//')
 
                 self.driver.find_element(By.ID,
                                          'P101_USERNAME').send_keys(__login)
@@ -252,9 +251,9 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
                 # while 'login.aspx' in self.driver.current_url:
                 # TODO acima... para fazser login
 
-                self.send_keys_anywhere(__cnpj)
+                self.send_keys_anywhere(login)
                 self.send_keys_anywhere(Keys.TAB)
-                self.send_keys_anywhere(_ginfess_cod)
+                self.send_keys_anywhere(pswd)
                 self.send_keys_anywhere(Keys.TAB)
 
                 print('Pressione Enter após login - GINFESS')
@@ -315,9 +314,9 @@ class DownloadGinfessGui(FileOperations, WDShorcuts):
             else:
                 print(__r_social)
                 driver.execute_script("javascript:location.reload();")
-                self.send_keys_anywhere(__cnpj)
+                self.send_keys_anywhere(login)
                 self.send_keys_anywhere(Keys.TAB)
-                self.send_keys_anywhere(_ginfess_cod)
+                self.send_keys_anywhere(pswd)
                 self.send_keys_anywhere(Keys.TAB)
 
                 if self.__driver__name == "pgdas_driver":
