@@ -172,8 +172,8 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
             # press_keys_b4('f9')
             while True:
                 try:
-                    submit = driver.find_element(By.XPATH,
-                                                 "//input[@type='submit']").click()
+                    driver.find_element(By.XPATH,
+                                        "//input[@type='submit']").click()
                     break
                 except (NoSuchElementException, ElementClickInterceptedException):
                     print('sleepin'
@@ -209,7 +209,58 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
         if solver.err_string != '':
             print(solver.err_string)
 
+    def solve_captcha_if_required(self):
+        try:
+            driver = self.driver
+            url = self.driver.current_url
+            hour = datetime.now().hour
+            if hour < 8 or 18 <= hour:
+                return
+            solver = hCaptchaProxyless()
+            solver.set_verbose(1)
+            solver.set_key(os.getenv("ANTI_HCA_KEY"))
+
+            form = self.webdriverwait_el_by(By.TAG_NAME, 'form')
+
+            hcaptcha = form.find_element(By.XPATH, "//*[@data-sitekey]")
+            site_key = hcaptcha.get_attribute('data-sitekey')
+            solver.set_website_url(url)
+            solver.set_website_key(site_key)
+            solved_resposta = solver.solve_and_return_solution()
+
+            if solved_resposta != 0:
+                names = "g-recaptcha-response", "h-captcha-response"
+                driver.execute_script("arguments[0].removeAttribute('data-callback');", hcaptcha)
+
+                textarea_element_g = self.webdriverwait_el_by(By.NAME, names[0])
+                textarea_element_h = self.webdriverwait_el_by(By.NAME, names[1])
+                driver.execute_script("arguments[0].setAttribute('value',arguments[1])", textarea_element_g,
+                                      solved_resposta)
+                driver.execute_script("arguments[0].setAttribute('value',arguments[1])", textarea_element_h,
+                                      solved_resposta)
+
+                iframes = driver.find_elements(By.TAG_NAME, 'iframe')
+                driver.switch_to.frame(iframes[0])
+                sleep(2)
+                driver.find_element(By.ID, 'checkbox').click()
+                driver.switch_to.default_content()
+                sleep(2)
+                self.find_submit_form()
+                sleep(3)
+            if solver.err_string != '':
+                print(solver.err_string)
+        except Exception as e:
+            pass
+        not_found = 'The resource cannot be found.' == self.driver.title.lower()
+        clear_url = 'clear' in self.driver.current_url.lower()
+        captcha_url = '/captcha' in self.driver.current_url.lower()
+        if not_found or clear_url or captcha_url:
+            self.solve_captcha_if_required()
+
     def __ecac_captcha(self):
+        hour = datetime.now().hour
+        if hour < 8 or 18 <= hour:
+            return
         driver = self.driver
         url = driver.current_url
         site_key = "93b08d40-d46c-400a-ba07-6f91cda815b9"
