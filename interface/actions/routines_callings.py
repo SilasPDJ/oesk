@@ -54,12 +54,11 @@ class RoutinesCallings:
             # set with get_compt util in first_compt when you need more than one
 
             # update declaracao
-            orm_row = self.compts_repository.get_as_orm(row)
-            if not orm_row.declarado:
-                orm_row.declarado = True
-                orm_row.envio = True
+            if not row['declarado']:
+                row['declarado'] = True
+                row['envio'] = True
 
-                self.compts_repository.update_from_object(orm_row)
+                self.compts_repository.update_from_dictionary(row.to_dict())
 
     def call_giss(self):
         # df = self.aps.client_compts_df
@@ -83,14 +82,14 @@ class RoutinesCallings:
         # TODO: substituir por nova tabela propria do giss, pois o giss tem pra icms e iss, e sem mov
         df = self.compts_repository.query_data_by_routine_in_compt('iss')
 
-        df['ginfess_link'] = df['ginfess_link'].fillna('').astype(str)
+        df['nfs_login_link'] = df['nfs_login_link'].fillna('').astype(str)
 
         attributes_required = ['razao_social',
-                               'cnpj', 'ginfess_cod', 'ginfess_link']
+                               'login', 'password', 'nfs_login_link']
 
         for e, row in df.iterrows():
             row_required = row[attributes_required]
-            if row_required['ginfess_link'] == '' or row_required['ginfess_link'].lower() == 'não há':
+            if row_required['nfs_login_link'] == '' or row_required['nfs_login_link'].lower() == 'não há':
                 print(f'\nGinfess pula {row["razao_social"]}')
                 continue
             try:
@@ -101,13 +100,16 @@ class RoutinesCallings:
                 print("Pulando por enquanto...")
                 continue
             else:
-                orm_row = self.compts_repository.get_as_orm(row)
+                row['pode_declarar'] = True
                 if dgg.ginfess_valores:
-                    for key_indx, key in enumerate(["sem_retencao", "com_retencao", "valor_total"]):
-                        setattr(orm_row, key, dgg.ginfess_valores[key_indx])
-
-                orm_row.pode_declarar = True
-                self.compts_repository.update_from_object(orm_row)
+                    self.compts_repository.update_from_dictionary(row.to_dict() |
+                                                                  {key: dgg.ginfess_valores[key_indx] for key_indx, key
+                                                                   in
+                                                                   enumerate(
+                                                                       ["sem_retencao", "com_retencao", "valor_total"])
+                                                                   } if dgg.ginfess_valores else None)
+                else:
+                    self.compts_repository.update_from_dictionary(row.to_dict())
 
     def call_g5(self):
         # df = self.aps.client_compts_df
@@ -122,9 +124,8 @@ class RoutinesCallings:
             args = row_required.to_list()
             G5(*args, compt=self.compt)
 
-            orm_row = self.compts_repository.get_as_orm(row)
-            orm_row.nf_saidas = 'OK'
-            self.compts_repository.update_from_object(orm_row)
+            row['nf_saidas'] = 'OK'
+            self.compts_repository.update_from_dictionary(row.to_dict())
 
     def call_pgdas_declaracao(self):
         # df = self.aps.client_compts_df
@@ -145,15 +146,14 @@ class RoutinesCallings:
                 row_required = row[attributes_required]
                 args = row_required.to_list()
 
-                orm_row = self.compts_repository.get_as_orm(row)
                 if row['ha_procuracao_ecac'] == 'sim':
                     PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row),
                                     driver=ecac_driver)
                 else:
                     PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row))
 
-                orm_row.declarado = True
-                self.compts_repository.update_from_object(orm_row)
+                row['declarado'] = True
+                self.compts_repository.update_from_dictionary(row.to_dict())
 
             # What about to update???
             print()
@@ -176,12 +176,11 @@ class RoutinesCallings:
         # required_df = df.loc[:, attributes_required]  # type: pd.DataFrame
         for e, row in df.iterrows():
             row_required = row[attributes_required]
-            orm_row = self.compts_repository.get_as_orm(row)
-            if not orm_row.envio and orm_row.declarado:
+            if not row['envio'] and row['declarado']:
                 PgDasmailSender(*row_required, compt=self.compt, venc_das=row['venc_das'] or self.aps.get_venc_das(),
                                 email=row['email'])
-                orm_row.envio = True
-                self.compts_repository.update_from_object(orm_row)
+                row['envio'] = True
+                self.compts_repository.update_from_dictionary(row.to_dict())
 
     def run_oesk_project_excel(self):
 

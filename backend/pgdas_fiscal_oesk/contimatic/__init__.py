@@ -38,7 +38,7 @@ class Contimatic(FileOperations):
             else:
                 registronta = True
         return registronta
-    
+
     def __read_login(self, admin=False):
         """
         :return: password
@@ -69,6 +69,7 @@ class Contimatic(FileOperations):
         :return:
         """
         login, passwd = self.__read_login()
+
         # _sname = f'{name} Phoenix'
 
         def faz_login():
@@ -131,7 +132,8 @@ class Contimatic(FileOperations):
         pygui.click(x, y)
         sleep(.7)
         # ativa empresa
-
+        pygui.click(x=669, y=427)
+        sleep(.5)
         pygui.write(self.first_and_last_day_compt(self.compt_used, '')[1])
 
         foritab(6, 'tab', interval=0.13)  # PESQUISA
@@ -167,6 +169,7 @@ class Contimatic(FileOperations):
     def start_walk_menu():
         x, y = 30, 30
         pygui.click(x, y)
+
     # free onedrive diskspace
 
     @staticmethod

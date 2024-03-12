@@ -1,3 +1,5 @@
+import time
+
 import pandas as pd
 from sqlalchemy import inspect
 
@@ -62,14 +64,8 @@ class RepositoryUtils:
         with self.Session() as session:
             # preventing data from joins
             dict_to_orm = {key: dictionary[key] for key in self._orm_columns if key in dictionary}
-
             session.merge(self.orm(**dict_to_orm))
             # session.merge(self.orm(**dictionary))
-            session.commit()
-
-    def update_from_object(self, orm_object):
-        with self.Session() as session:
-            session.merge(orm_object)
             session.commit()
 
     # integração inicial com appian, mantendo local e online por enquanto

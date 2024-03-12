@@ -12,7 +12,7 @@ class AppSettings:
     copiable_fields = [
         'razao_social', 'cnpj', 'valor_total', 'codigo_simples', 'email',
         'sem_retencao', 'com_retencao', 'cpf', 'anexo',
-        'gissonline', 'giss_login', 'ginfess_cod', 'ginfess_link',
+        'gissonline', 'giss_login', 'ginfess_cod', 'nfs_login_link',
         'venc_das', 'status_ativo', 'empresa_id']
 
     main_df_col = None

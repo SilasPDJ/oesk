@@ -373,8 +373,9 @@ class G5(Contimatic):
                 imbutton = pygui.screenshot(
                     'is_sp_city.png', region=(841, 791, 20, 20))
                 if imbutton.getpixel((5, 5)) in possible_rgbs:
-                    return 841+5, 791+5
+                    return 841 + 5, 791 + 5
                 return False
+
             # g5 opts menu is bigger
             gotmore_x_y = minimenu_gotmore_opts()
             if gotmore_x_y:

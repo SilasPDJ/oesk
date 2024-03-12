@@ -12,7 +12,6 @@ from repository import OeGiasRepository, OeServicosRepository, OeEmpresasReposit
 
 load_dotenv()
 
-
 # params = {'empresa_id': 10}
 API = os.getenv("APPIAN_EMPRESAS_API")
 
@@ -23,6 +22,7 @@ def set_empresas_appian_data_to_local():
     gias = acessar_api_default(url=API, token=token, params={'tipo_empresa': 'gias'})
     outras_icms = acessar_api_default(url=API, token=token, params={'tipo_empresa': 'outras'})
     todas = acessar_api_default(url=API, token=token, params={'tipo_empresa': 'todas'})
+    
     print()
 
     oe_geral = OeEmpresasRepository()
