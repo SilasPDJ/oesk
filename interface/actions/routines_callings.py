@@ -25,6 +25,8 @@ class RoutinesCallings:
     # Iniciais dos métodos:
     # `run`: para projetos externos
     # `call`: para rotinas de automação
+    # Automações com driver teoricamente podem ser quebradas e continuar...
+
     def __init__(self, app_settings: AppSettings):
         # composição... recebendo self
         self.aps = app_settings
@@ -49,16 +51,19 @@ class RoutinesCallings:
             row_required = row[attributes_required]
 
             args = row_required.to_list()
+            try:
+                GIA(*args, compt=self.compt, first_compt=self.compt)
+                # set with get_compt util in first_compt when you need more than one
+            except Exception as e:
+                print(args)
+                raise e
+            else:
+                # update declaracao
+                if not row['declarado']:
+                    row['declarado'] = True
+                    row['envio'] = True
 
-            GIA(*args, compt=self.compt, first_compt=self.compt)
-            # set with get_compt util in first_compt when you need more than one
-
-            # update declaracao
-            if not row['declarado']:
-                row['declarado'] = True
-                row['envio'] = True
-
-                self.compts_repository.update_from_dictionary(row.to_dict())
+                    self.compts_repository.update_from_dictionary(row.to_dict())
 
     def call_giss(self):
         # df = self.aps.client_compts_df
@@ -75,7 +80,11 @@ class RoutinesCallings:
         for e, row in df.iterrows():
             row_required = row[attributes_required]
             args = row_required.to_list()
-            GissGui(args, compt=self.compt, headless=False)
+            try:
+                GissGui(args, compt=self.compt, headless=False)
+            except Exception as e:
+                print(args, e)
+                # raise e
 
     def call_ginfess(self):
         # df = self.aps.client_compts_df
@@ -97,7 +106,7 @@ class RoutinesCallings:
                 dgg = DownloadGinfessGui(*args, compt=self.compt)
             except Exception as e:
                 print("\033[1;33mNão foi possível conferir...\033[m", row_required.values)
-                print("Pulando por enquanto...")
+                print("Pulando por enquanto...", e)
                 continue
             else:
                 row['pode_declarar'] = True
@@ -122,10 +131,14 @@ class RoutinesCallings:
         for e, row in df.iterrows():
             row_required = row[attributes_required]
             args = row_required.to_list()
-            G5(*args, compt=self.compt)
-
-            row['nf_saidas'] = 'OK'
-            self.compts_repository.update_from_dictionary(row.to_dict())
+            try:
+                G5(*args, compt=self.compt)
+            except Exception as e:
+                print(args)
+                raise e
+            else:
+                row['nf_saidas'] = 'OK'
+                self.compts_repository.update_from_dictionary(row.to_dict())
 
     def call_pgdas_declaracao(self):
         # df = self.aps.client_compts_df
@@ -145,15 +158,17 @@ class RoutinesCallings:
             else:
                 row_required = row[attributes_required]
                 args = row_required.to_list()
-
-                if row['ha_procuracao_ecac'] == 'sim':
-                    PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row),
-                                    driver=ecac_driver)
+                try:
+                    if row['ha_procuracao_ecac'] == 'sim':
+                        PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row),
+                                        driver=ecac_driver)
+                    else:
+                        PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row))
+                except Exception as e:
+                    print(f'Failed: {row["razao_social"]}')
                 else:
-                    PgdasDeclaracao(*args, compt=self.compt, all_valores=self._generate_all_valores(row))
-
-                row['declarado'] = True
-                self.compts_repository.update_from_dictionary(row.to_dict())
+                    row['declarado'] = True
+                    self.compts_repository.update_from_dictionary(row.to_dict())
 
             # What about to update???
             print()

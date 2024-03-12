@@ -6,7 +6,7 @@ from .ginfess_download import DownloadGinfessGui
 # from .giss_online_pt11 import GissGui
 from .giss_online_pt12 import GissGui
 from .gshopee_excel_values import ShopeeExcel
-from .rotina_pgdas import  PgdasDeclaracao, PgdasDeclaracaoRetificaVarias
+from .rotina_pgdas import PgdasDeclaracao
 from .send_pgdamail import PgDasmailSender
 from .silas_abre_g5_loop_v10 import G5
 from .silas_jr import JR
