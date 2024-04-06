@@ -62,10 +62,9 @@ def update_compt():
     return status
 
 
-def maior_id_menor_id():
+def ____maior_id_menor_id():
     compts_data = get_compts_data_from_appian(2)
     maior = menor = 0
-    # TODO DELETAR ids comptsValoresImpostos: 2126, 2057 (duplicados)
     for row in compts_data:
         test = row['comptsValoresImpostos']
 
@@ -84,9 +83,11 @@ def maior_id_menor_id():
 
 
 def create_new_compt():
+    """
+    Creates new compt in appian if not exists
+    :return:
+    """
     token = get_token()
-
-    compt = compt_to_date_obj(get_compt())
 
     def get_status_imports_g5(
             campo: str):
@@ -95,13 +96,14 @@ def create_new_compt():
 
     compts_data = get_compts_data_from_appian(2)
 
-    compts_exist_len = len(get_compts_data_from_appian(1))
+    compts_exist_length = len(get_compts_data_from_appian(1))
 
-    if compts_exist_len == len(compts_data):
+    if compts_exist_length == len(compts_data):
+        print('Compt already exists, passing...')
         return
 
     for e, row in enumerate(compts_data):
-        if e <= compts_exist_len:
+        if e <= compts_exist_length:
             continue
         # row['comptsValoresImpostos'] = row['comptsValoresImpostos'][0]
         new_row: dict = row.copy()
@@ -120,16 +122,18 @@ def create_new_compt():
         created_compt = acessar_api_default(method="POST", url=update_compt_url, token=token, data=new_row)
 
         if isinstance(valores, list):
-            # new_row['comptsValoresImpostos'] = new_row['comptsValoresImpostos'][0]
             for i in range(len(valores)):
                 valores[i].pop('id')
                 valores[i]['valorTotal'] = 0
                 valores[i]['semRetencao'] = 0
                 valores[i]['comRetencao'] = 0
+                valores[i]['nfSaidaPrestador'] = get_status_imports_g5(valores[i]['nfSaidaPrestador'])
+                valores[i]['nfEntradaTomador'] = get_status_imports_g5(valores[i]['nfEntradaTomador'])
+
                 valores[i]['idClientCompt'] = created_compt[0]['id']
 
                 status = acessar_api_default(method="POST", url=update_compt_valores_url, token=token, data=valores[i])
-                print('status')
+                print('creating: ', status)
 
 
 if __name__ == '__main__':
