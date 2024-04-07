@@ -15,7 +15,7 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
         WDShorcuts.__init__(self, driver)
         self.driver = driver
         # self.url_loga_simples = f'https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/Autentica.aspx?id={randint(1, 99)}'
-        self.url_loga_simples = f'https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/Autentica.aspx?id=60'
+        self.url_loga_simples = f'https://www8.receita.fazenda.gov.br/SimplesNacional/Servicos/Grupo.aspx?grp=5&id=60'
         self.__set_driver()
         self._uclient_path = client_path
 
@@ -141,7 +141,7 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
 
         driver.get(self.url_loga_simples)
         while str(driver.current_url.strip()).endswith('id=60'):
-            self.__loga_simples_capt()
+            # self.__loga_simples_capt()
             self.tags_wait('body')
             self.tags_wait('html')
             self.tags_wait('input')
@@ -149,17 +149,17 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
             # driver.find_elements(By.XPATH, "//*[contains(text(), 'CNPJ:')]")[0].click()
             # pygui.hotkey('tab', interval=0.5)
             cpcp = driver.find_element(By.NAME,
-                                       'ctl00$ContentPlaceHolder$txtCNPJ')
+                                       'ctl00$ContentPlaceHolder$authForm$txtCNPJ')
             cpcp.clear()
             cpcp.send_keys(CNPJ)
 
             cpfcpf = driver.find_element(By.NAME,
-                                         'ctl00$ContentPlaceHolder$txtCPFResponsavel')
+                                         'ctl00$ContentPlaceHolder$authForm$txtCPFResponsavel')
             cpfcpf.clear()
             cpfcpf.send_keys(CPF)
 
             cod = driver.find_element(By.NAME,
-                                      'ctl00$ContentPlaceHolder$txtCodigoAcesso')
+                                      'ctl00$ContentPlaceHolder$authForm$txtCodigoAcesso')
             cod.clear()
             cod.send_keys(CodSim)
 

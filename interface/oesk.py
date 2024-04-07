@@ -8,7 +8,7 @@ import customtkinter as ctk
 from interface.settings import AppSettings
 from interface.actions import RoutinesCallings, BindingActions
 
-from backend.repository import ClientComptsRepository
+from backend.repository import OeClientComptsRepository as ClientComptsRepository
 
 ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"

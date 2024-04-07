@@ -6,7 +6,7 @@ import subprocess
 import pandas as pd
 
 from backend.utilities.default.sets import FileOperations
-from backend.repository import ClientComptsRepository
+from backend.repository import OeClientComptsRepository as ClientComptsRepository
 from interface.settings import AppSettings
 
 

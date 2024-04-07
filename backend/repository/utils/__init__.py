@@ -25,6 +25,10 @@ class RepositoryUtils:
     def _orm_columns(self) -> list:
         return [column.name for column in self.orm.__table__.columns]
 
+    @staticmethod
+    def flatten_list(lst: list):
+        return [item for sublist in lst for item in (sublist if isinstance(sublist, list) else [sublist])]
+
     def get_as_orm(self, **kwargs):
         """
         Sobrescreva para settar os kwargs defaults... (conforme em ComptsRepository)
@@ -76,7 +80,7 @@ class RepositoryUtils:
                 getattr(self.orm, self.get_pk()).in_([list(obj.values())[0] for obj in objects_list])).all()]
 
             new_ids_found = [list(obj.values())[0] for obj in objects_list if list(obj.values())[0] not in existing_ids]
-
+            # TODO: ids not in new_ids and not in existing_ids, desativar (GIAS)...
             for _obj in objects_list:
 
                 # transforma para o que o banco de dados ta esperando, a api devolve cammel cased
