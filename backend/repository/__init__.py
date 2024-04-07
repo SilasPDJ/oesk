@@ -9,10 +9,9 @@ from backend.repository.utils import RepositoryUtils
 from backend.utilities.helpers import modify_dataframe_at, sort_dataframe
 import sqlalchemy as sql
 
+
 # OrmTables.MainEmpresas
 # OrmTables.ClientsCompts
-
-empresas_servicos, empresas_gias, empresas_icms, oe_empresas, main_empresas, clients_compts = OrmTables.get_classes().values()
 
 
 class OeEmpresasRepository(RepositoryUtils):
@@ -47,7 +46,15 @@ class OeICMSRepository(RepositoryUtils):
         super().__init__(self.orm, self.Session)
 
 
-class ClientComptsRepository(RepositoryUtils):
+class OeComptsValoresImpostosRepository(RepositoryUtils):
+    def __init__(self):
+        self.dba = DbAccessManager()
+        self.Session = self.dba.Session
+        self.orm = OrmTables.ComptsValoresImpostos
+        super().__init__(self.orm, self.Session)
+
+
+class OeClientComptsRepository(RepositoryUtils):
     def __init__(self, compt: str):
         self.main_compt = compt_to_date_obj(compt)
         self.dba = DbAccessManager()
@@ -60,7 +67,9 @@ class ClientComptsRepository(RepositoryUtils):
         self.empresas_iss = OrmTables.OEServicos
         self.empresas_icms = OrmTables.OEEmpresasICMS_SemMov
 
-        self._add_new_compt()
+        self.valores_impostos = OrmTables.ComptsValoresImpostos
+        # self._add_new_compt()
+        # TODO add new compt
 
     # override
     def get_as_orm(self, row) -> OrmTables.ClientsCompts:
@@ -78,7 +87,7 @@ class ClientComptsRepository(RepositoryUtils):
                                        to_df=True,
                                        ) -> Union[pd.DataFrame, List[sql.orm.Query]]:
         """Get a DataFrame or a list of ORM queries by joining all registered fields based on its routine and compt
-
+        :param tipo_empresa_rotina: interface -> join valores_df (can have duplicated)
         :param must_be_authorized: Filter by 'pode_declarar'. Defaults to False
         :param must_have_status_ativo: Filter by 'status_ativo'. Defaults to True.
         :param to_df: If True, return a DataFrame; if False, return a list of ORM queries.
@@ -86,7 +95,7 @@ class ClientComptsRepository(RepositoryUtils):
         """
         tipo_empresa_rotina = tipo_empresa_rotina.lower().strip()
         assert tipo_empresa_rotina in ['sem_mov', 'iss', 'icms', 'gias', 'outros',
-                                       'todas'], 'tipo_empresa_rotina inválido'
+                                       'todas', 'interface'], 'tipo_empresa_rotina inválido'
 
         with self.Session() as session:
             # tipo rotina:
@@ -104,7 +113,7 @@ class ClientComptsRepository(RepositoryUtils):
                 query = session.query(self.orm, self.empresas_icms)
                 # no need main from empresas, 'cause empresas_icms is already based on it
                 query = query.join(self.empresas_icms, self.orm.empresa_id == self.empresas_icms.id)
-            elif tipo_empresa_rotina == 'todas':
+            elif tipo_empresa_rotina == 'todas' or tipo_empresa_rotina == 'interface':
                 query = session.query(self.orm, self.empresas).filter_by(compt=self.main_compt)
                 query = query.join(self.empresas, self.orm.empresa_id == self.empresas.id)
             else:
@@ -114,10 +123,30 @@ class ClientComptsRepository(RepositoryUtils):
                 query = query.filter_by(pode_declarar=True)
             if must_have_status_ativo:
                 query = query.filter_by(status_ativo=True)
+
+            # query valores
+            main_df = self.dba.query_to_dataframe(query)
+            valores_df = self.query_valores_df()
+
+            if tipo_empresa_rotina == 'interface':
+                return pd.merge(main_df, valores_df, how='left', left_on='id', right_on='id_client_compt')
+            elif tipo_empresa_rotina in ['iss', 'icms', 'sem_mov', 'outros', 'todas']:
+                grouped_values = valores_df.groupby('id_client_compt').apply(
+                    lambda group: group.to_dict(orient='records'))
+                main_df['comptsValoresImpostos'] = main_df['id'].map(grouped_values)
+
             if to_df:
-                return self.dba.query_to_dataframe(query)
+                return main_df
             else:
                 return query.all()
+
+    def query_valores_df(self) -> pd.DataFrame:
+
+        with self.Session() as session:
+            query = session.query(self.valores_impostos).join(self.orm,
+                                                              self.valores_impostos.id_client_compt == self.orm.id).filter(
+                self.orm.compt == self.main_compt)
+            return self.dba.query_to_dataframe(query)
 
     def start_new_compt_query(self, another_compt: str, to_df=False) -> Union[pd.DataFrame, List[sql.orm.Query]]:
         """
@@ -140,7 +169,7 @@ class ClientComptsRepository(RepositoryUtils):
 
     def get_interface_df(self, allowing_impostos_list=None) -> pd.DataFrame:
         _default_order = ["SEM_MOV", "ISS", "ICMS"]
-        _main_df = self.query_data_by_routine_in_compt('todas')
+        _main_df = self.query_data_by_routine_in_compt('interface')
 
         sorted_df = sort_dataframe(_main_df, _default_order, 'imposto_a_calcular')
 
@@ -154,7 +183,7 @@ class ClientComptsRepository(RepositoryUtils):
 
     # Updates...
     # add new compt
-    def _add_new_compt(self) -> None:
+    def __old_add_new_compt(self) -> None:
         with self.Session() as session:
             # check if the row already exists
             row_exists = session.query(self.orm).filter(
@@ -197,8 +226,7 @@ class ClientComptsRepository(RepositoryUtils):
 
 
 if __name__ == '__main__':
-    cc = ClientComptsRepository(compt='08-2023')
-    cc.get_g5_df()
+    cc = OeClientComptsRepository(compt='08-2023')
     print()
     # me = MainEmpresasRepository()
     # df = cc.query(id=2)
