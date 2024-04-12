@@ -12,6 +12,7 @@ from repository import OeGiasRepository, OeServicosRepository, OeEmpresasReposit
 from repository import OeComptsValoresImpostosRepository, OeClientComptsRepository
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
+from repository.utils import to_camel_case
 
 load_dotenv()
 
@@ -64,18 +65,18 @@ def set_compt_appian_data_to_local():
         campo = '' if campo is None else campo
         return campo if campo.upper() != 'OK' else ''
 
-    compts_data = _get_compts_data_from_appian(2)
+    compts_previous_data = _get_compts_data_from_appian(2)
 
     compts_exist_length = len(_get_compts_data_from_appian(1))
 
-    if compts_exist_length == len(compts_data):
+    if compts_exist_length == len(compts_previous_data):
         print('Compt already exists, passing...')
         return
 
     oe_valores = OeComptsValoresImpostosRepository()
     oe_compts = OeClientComptsRepository(get_compt())
 
-    for e, row in enumerate(compts_data):
+    for e, row in enumerate(compts_previous_data):
         if e <= compts_exist_length:
             continue
         # row['comptsValoresImpostos'] = row['comptsValoresImpostos'][0]
@@ -113,7 +114,8 @@ def set_compt_appian_data_to_local():
         oe_valores.insert_objects_if_not_exist(valores)
 
 
-def update_compt(compt_data: Union[dict, list]):
+def send_clients_compts_update(compt_data: Union[dict, list]):
+    compt_data = to_camel_case(compt_data)
     token = get_token()
     # data = get_compts_data_from_appian(-2)
     status_compt = acessar_api_default(method="POST", url=COMPT_UPDATE_URL, token=token, data=compt_data)
@@ -122,7 +124,8 @@ def update_compt(compt_data: Union[dict, list]):
     return bool(status_compt)
 
 
-def update_valores(valores_data: Union[dict, list]):
+def send_compts_valores_update(valores_data: Union[dict, list]):
+    valores_data = to_camel_case(valores_data)
     token = get_token()
     status = acessar_api_default(method="POST", url=COMPT_VALORES_UPDATE_URL, token=token, data=valores_data)
     print('updating valores: ', status)
@@ -151,7 +154,6 @@ def ____maior_id_menor_id():
 
 
 if __name__ == '__main__':
-    # on_update()
     set_compt_appian_data_to_local()
 
     # TODO: ids not in new_ids and not in existing_ids, desativar (GIAS), a api ta retornando bem...

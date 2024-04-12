@@ -16,6 +16,13 @@ def _to_snaked_case(s):
     return _case
 
 
+def to_camel_case(data: dict) -> dict:
+    return {
+        ''.join(word.title() if i > 0 else word for i, word in enumerate(key.split('_'))): value
+        for key, value in data.items()
+    }
+
+
 class RepositoryUtils:
     def __init__(self, orm, session):
         self.orm = orm
@@ -80,7 +87,6 @@ class RepositoryUtils:
                 getattr(self.orm, self.get_pk()).in_([list(obj.values())[0] for obj in objects_list])).all()]
 
             new_ids_found = [list(obj.values())[0] for obj in objects_list if list(obj.values())[0] not in existing_ids]
-            # TODO: ids not in new_ids and not in existing_ids, desativar (GIAS)...
             for _obj in objects_list:
 
                 # transforma para o que o banco de dados ta esperando, a api devolve cammel cased

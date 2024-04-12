@@ -2,7 +2,6 @@ import pandas as pd
 
 
 class NfCanceled:
-
     import pyautogui as pygui
     import openpyxl
     from time import sleep
@@ -55,7 +54,7 @@ class NfCanceled:
             print(r)
             # pyperclip.copy(str(r).strip())
 
-            pygui.click(x=753, y=265)  # Acha
+            pygui.click(x=753, y=245)  # Acha
             sleep(.9)
             # pyperclip.paste()
             for rr in r.strip():
@@ -64,7 +63,7 @@ class NfCanceled:
             sleep(2)
             pygui.hotkey('return')
             sleep(2)
-            pygui.click(x=1032, y=262)  # Apaga
+            pygui.click(x=1032, y=245)  # Apaga
 
             sleep(1)
             # apaga

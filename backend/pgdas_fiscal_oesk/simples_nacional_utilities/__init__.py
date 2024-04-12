@@ -141,7 +141,6 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
 
         driver.get(self.url_loga_simples)
         while str(driver.current_url.strip()).endswith('id=60'):
-            # self.__loga_simples_capt()
             self.tags_wait('body')
             self.tags_wait('html')
             self.tags_wait('input')
@@ -162,6 +161,8 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
                                       'ctl00$ContentPlaceHolder$authForm$txtCodigoAcesso')
             cod.clear()
             cod.send_keys(CodSim)
+
+            self.__loga_simples_capt()
 
             # cod_caract = driver.find_element(By.ID,
             #                                  'txtTexto_captcha_serpro_gov_br')
@@ -186,7 +187,9 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
         url = self.url_loga_simples
         driver = self.driver
 
-        site_key = driver.find_element(By.ID, 'hcaptcha').get_attribute('data-sitekey')
+        # site_key = driver.find_element(By.ID, 'hcaptcha').get_attribute('data-sitekey')
+        hcaptcha = driver.find_elements(By.CLASS_NAME, 'h-captcha')[0]
+        site_key = hcaptcha.get_attribute('data-sitekey')
 
         solver = hCaptchaProxyless()
         solver.set_verbose(1)
@@ -201,10 +204,9 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
             textarea_element = driver.find_element(By.NAME, "h-captcha-response")
             driver.execute_script("arguments[0].innerHTML = arguments[1];", textarea_element, solved_resposta)
 
-            hcaptcha = driver.find_element(By.ID, "hcaptcha")
             driver.execute_script("arguments[0].removeAttribute('data-callback');", hcaptcha)
 
-            secret_input = driver.find_element(By.ID, "ctl00_ContentPlaceHolder_hcaptchaResponse")
+            secret_input = driver.find_element(By.NAME, "ctl00$ContentPlaceHolder$authForm$hcaptchaResponse")
             driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input, solved_resposta)
         if solver.err_string != '':
             print(solver.err_string)

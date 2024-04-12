@@ -120,7 +120,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # driver.save_screenshot(self.certif_feito(
         #     self.client_path, add="SimplesNacional-SemMovimento"))
 
-    def declaracao_anexos(self, __valores_de_anexos: list, valor_competencia, cnpj):
+    def declaracao_anexos(self, valores_anexos: list, valor_competencia, cnpj):
         def new_seleciona_anexo(which_one):
             # Só ativa se ainda não estiver ativado
             self.driver.execute_script(f"""
@@ -140,7 +140,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         self.driver.execute_script(
             'for (el of document.getElementsByClassName("active atividade item-grupo")) el.click();')
 
-        for tres_valores in __valores_de_anexos:
+        for tres_valores in valores_anexos:
             print(tres_valores)
             print('\n\n')
 
@@ -191,7 +191,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         inputs_text = self.driver.find_elements(By.CSS_SELECTOR,
                                                 "input[type='text']")
         _count = 0
-        for tres_valores in __valores_de_anexos:
+        for tres_valores in valores_anexos:
             v_n_ret = trata_money_excel(
                 tres_valores.get("sem_retencao"))
             v_ret = trata_money_excel(tres_valores.get("com_retencao"))
