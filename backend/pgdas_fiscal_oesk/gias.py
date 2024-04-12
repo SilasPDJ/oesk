@@ -39,7 +39,7 @@ class GIA(WDShorcuts):
 
         # if certificado...
         if len(self.file_operations.files_get_anexos_v4(self.client_path, 'sfz')) < 1:
-            for loop_compt in ate_atual_compt(first_compt, compt):
+            for loop_compt in ate_atual_compt(compt, first_compt):
                 janelas_gias = pygui.getWindowsWithTitle('GIA')
                 for win in janelas_gias:
                     if win.title == 'GIA':
@@ -78,7 +78,7 @@ class GIA(WDShorcuts):
                 self.save_novagia()
 
         if not self.file_operations.certifs_exist(self.client_path, 'ReciboGIA', 1):
-            for loop_compt in ate_atual_compt(first_compt, compt):
+            for loop_compt in ate_atual_compt(compt, first_compt):
                 self.driver = driver = pgdas_driver(self.client_path)
                 super().__init__(self.driver)
                 driver.get(
@@ -108,14 +108,14 @@ class GIA(WDShorcuts):
                 cont = 0
                 while True:
                     try:
-                        print(f"tentaiva {cont+1}")
+                        print(f"tentaiva {cont + 1}")
                         sleep(7)
                         self.click_elements_by_tt('Cadastrar mais tarde')
                         break
                     except Exception as e:
                         print("Tentando clicar em cadastrar mais tarde")
                         cont += 1
-                        if cont == 10:
+                        if cont == 5:
                             break
                 # enter entrar
                 self.webdriverwait_el_by(
@@ -172,13 +172,15 @@ class GIA(WDShorcuts):
                 try:
                     driver.switch_to.frame(driver.find_element(By.CSS_SELECTOR, frame_str))
                     secret_input = driver.find_element(By.ID, "recaptcha-token")
-                    driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input, solved_resposta)
+                    driver.execute_script("arguments[0].setAttribute('value',arguments[1])", secret_input,
+                                          solved_resposta)
                     driver.switch_to.default_content()
 
                     for el_idname in ["g-recaptcha-response", "g-recaptcha-response-1"]:
                         try:
                             textarea_element = driver.find_element(By.ID, el_idname)
-                            driver.execute_script("arguments[0].innerHTML = arguments[1];", textarea_element, solved_resposta)
+                            driver.execute_script("arguments[0].innerHTML = arguments[1];", textarea_element,
+                                                  solved_resposta)
                         except Exception as e:
                             print(el_idname, "não existe")
                 except Exception as e:
@@ -205,8 +207,12 @@ class GIA(WDShorcuts):
         sleep(.5)
         foritab(2, 'tab')
         pygui.write(ie, interval=.1)
-        foritab(2, 'tab', 'enter')
-        # pygui.hotkey('tab', 'tab', 'enter')
+        # foritab(2, 'tab', 'enter')
+        # foritab(2, 'tab')
+        foritab(1, 'tab', 'enter')
+        sleep(.2)
+        foritab(1, 'tab', 'enter')
+        sleep(.2)
         foritab(2, 'tab')
         pygui.hotkey('enter')
         sleep(.2)

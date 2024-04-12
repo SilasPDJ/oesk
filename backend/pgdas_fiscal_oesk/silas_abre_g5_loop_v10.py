@@ -31,7 +31,7 @@ class G5(Contimatic):
             self.client_path, value)
 
     def __init__(self, *args: str, compt):
-        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular, nf_out, nf_in = args
+        __r_social, __cnpj, __cpf, __cod_simples, imposto_a_calcular, nf_out, nf_in = args
         __client = __r_social
         self.compt_used = compt
         self.__client = __client
@@ -469,6 +469,8 @@ class G5(Contimatic):
         sleep(1)
         pygui.write(filename)
         sleep(3.5)
+        pygui.hotkey('return', duration=1, interval=1)
+        sleep(.5)
         pygui.hotkey('return', duration=1, interval=1)
         # pygui.hotkey('alt', 'f4')
 
