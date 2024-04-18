@@ -3,6 +3,9 @@ from bs4 import BeautifulSoup
 
 from utilities.default import *
 from utilities.compt_utils import *
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # from . import *
 # qualquer coisa me devolve
@@ -119,6 +122,7 @@ class GissGui(FileOperations, WDShorcuts):
                 self.driver.switch_to.alert.accept()
             except Exception as e:
                 pass
+
         # self.driver.find_element(By.CSS_SELECTOR, ".impressora:nth-child(1) > .bold").click()
 
         def encerrar_part_2(func_compt=None):
@@ -171,6 +175,7 @@ class GissGui(FileOperations, WDShorcuts):
             except Exception as e:
                 print("Parte 3 exception - falta completar da onde prosseguir")
                 pass
+
         encerrar_part_1()
         encerrar_part_2()
         encerrar_part_3()
@@ -211,6 +216,7 @@ class GissGui(FileOperations, WDShorcuts):
         self.driver.switch_to.frame(2)
 
         self.driver.find_element(By.LINK_TEXT, "Encerrar Escrituração").click()
+        has_alert_then_nomovement = False
         try:
             # Clica OK
             el_ok = self.webdriverwait_el_by(By.CSS_SELECTOR, "font > b")
@@ -222,19 +228,21 @@ class GissGui(FileOperations, WDShorcuts):
         except UnexpectedAlertPresentException as e:
             try:
                 self.driver.switch_to.alert.accept()
+                has_alert_then_nomovement = True
             except Exception as e:
                 pass
             self.find_first_compt(indx=1)
             self.fechar_tomador_para_ambas()
-
-        self.webdriverwait_el_by(By.LINK_TEXT, "Menu Principal").click()
-        self.driver.find_element(
-            By.LINK_TEXT, "Encerrar Sem Movimento").click()
-        self.driver.find_element(
-            By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
-        self.driver.find_element(By.CSS_SELECTOR, ".txt_up").click()
-
-        self.driver.find_element(By.CSS_SELECTOR, "html").click()
+        if has_alert_then_nomovement:
+            self.webdriverwait_el_by(By.LINK_TEXT, "Menu Principal").click()
+            self.driver.find_element(
+                By.LINK_TEXT, "Encerrar Sem Movimento").click()
+        try:
+            self.driver.find_element(
+                By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
+            self.driver.find_element(By.CSS_SELECTOR, ".txt_up").click()
+        finally:
+            self.driver.find_element(By.CSS_SELECTOR, "html").click()
 
     def find_first_compt(self, indx=0) -> str:
         _first_compt = compt_to_date_obj(
@@ -430,6 +438,7 @@ class GissGui(FileOperations, WDShorcuts):
             driver.find_element(By.XPATH,
                                 '//input[@name="TxtSenha"]').send_keys(__senhas[cont_senha])
             # print(f'Senha: {__senhas[cont_senha]}', end=' ')
+            senha = __senhas[cont_senha]
 
             self.__logar_giss_preenche_captcha()
 
@@ -488,3 +497,7 @@ class GissGui(FileOperations, WDShorcuts):
         for v in autentic_list:
             sleep(.5)
             autenticate[v].click()
+
+
+if __name__ == '__main__':
+    GissGui(['GABRIEL PINHEIRO SAMPAIO', '40122869000123', '301245'], compt='03-2024', headless=False)
