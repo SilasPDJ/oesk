@@ -53,13 +53,13 @@ class GissGui(FileOperations, WDShorcuts):
             #     'https://www10.gissonline.com.br/interna/default.cfm')
 
             if is_construcao_civil:
-                self.fechar_tomador_para_ambas()
                 self.fechar_constr_civil()
                 print(f"passando construção civil p/ {__r_social}")
-                pass
             else:
-                self.fechar_tomador_para_ambas()
                 self.fechar_prestador()
+        for loop_compt in ate_atual_compt(self.compt_atual, first_compt):
+            self.loop_compt = loop_compt
+            self.fechar_tomador_para_ambas()
 
         print('GISS encerrado!')
 
@@ -216,7 +216,7 @@ class GissGui(FileOperations, WDShorcuts):
         self.driver.switch_to.frame(2)
 
         self.driver.find_element(By.LINK_TEXT, "Encerrar Escrituração").click()
-        has_alert_then_nomovement = False
+        nomovement = False
         try:
             # Clica OK
             el_ok = self.webdriverwait_el_by(By.CSS_SELECTOR, "font > b")
@@ -224,16 +224,19 @@ class GissGui(FileOperations, WDShorcuts):
             print(f"Tomador {self.loop_compt} - já encerrado!")
             return
         except (TimeoutException, NoSuchElementException):
-            pass
+            nomovement = True
         except UnexpectedAlertPresentException as e:
             try:
-                self.driver.switch_to.alert.accept()
-                has_alert_then_nomovement = True
+                if 'após encerrar o mês anterior' in e.alert_text.lower():
+                    self.driver.switch_to.alert.accept()
+                else:
+                    print(f'\032[1;32m {e.alert_text} \033[m')
+                    input(f"{nomovement} input, stopped: ")
             except Exception as e:
                 pass
             self.find_first_compt(indx=1)
             self.fechar_tomador_para_ambas()
-        if has_alert_then_nomovement:
+        if nomovement:
             self.webdriverwait_el_by(By.LINK_TEXT, "Menu Principal").click()
             self.driver.find_element(
                 By.LINK_TEXT, "Encerrar Sem Movimento").click()
