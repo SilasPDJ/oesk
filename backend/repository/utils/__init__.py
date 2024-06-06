@@ -109,3 +109,26 @@ class RepositoryUtils:
                     if _obj_id_value in new_ids_found:
                         session.add(new_orm_object)
             session.commit()
+
+    def insert_compts_if_exists_update(self, objects_list: list[dict], valores):
+        # TODO......... VALORES
+        with self.Session() as session:
+            # gets first value as id
+            for _obj in objects_list:
+                if _obj.get('compt'):
+                    _obj['compt'] = _obj['compt'][:-1]
+                    _obj['vencDas'] = _obj['vencDas'] if not _obj['vencDas'] else _obj['vencDas'][:-1]
+                    new_obj = {_to_snaked_case(key): value for key, value in _obj.items() if
+                               _to_snaked_case(key) in self._orm_columns}
+                    existing_results = session.query(self.orm)
+                    existing_results = existing_results.filter_by(compt=new_obj.get('compt'),
+                                                                  empresa_id=new_obj.get('empresa_id'))
+                    existing_results = existing_results.all()
+
+                    orm_obj = self.orm(**new_obj)
+                    if existing_results:
+                        session.merge(orm_obj)
+                    else:
+                        session.add(orm_obj)
+
+            session.commit()

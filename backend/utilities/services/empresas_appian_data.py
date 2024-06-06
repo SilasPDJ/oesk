@@ -77,8 +77,8 @@ def set_compt_appian_data_to_local():
     oe_compts = OeClientComptsRepository(get_compt())
 
     for e, row in enumerate(compts_previous_data):
-        if e <= compts_exist_length:
-            continue
+        # if e <= compts_exist_length:
+        #     continue
         # row['comptsValoresImpostos'] = row['comptsValoresImpostos'][0]
         new_row: dict = row.copy()
         new_row.pop('id')
@@ -88,7 +88,7 @@ def set_compt_appian_data_to_local():
         new_row['declarado'] = False
         new_row['compt'] = (datetime.strptime(new_row['compt'], '%Y-%m-%dZ') + relativedelta(months=1)).strftime(
             '%Y-%m-%dZ')
-        new_row['venc_das'] = datetime.strptime(new_row['venc_das'], '%Y-%m-%dZ')
+        # new_row['vencDas'] = new_row['vencDas'].strftime('%Y-%m-%d')
 
         new_row.pop('empresasAll')
         valores = new_row.pop('comptsValoresImpostos')
@@ -110,8 +110,7 @@ def set_compt_appian_data_to_local():
                 status = acessar_api_default(method="POST", url=COMPT_VALORES_UPDATE_URL, token=token, data=valores[i])
                 print('creating: ', status)
 
-        oe_compts.insert_objects_if_not_exist([new_row])
-        oe_valores.insert_objects_if_not_exist(valores)
+        oe_compts.insert_compts_if_exists_update([new_row], valores)
 
 
 def send_clients_compts_update(compt_data: Union[dict, list]):
