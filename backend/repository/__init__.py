@@ -68,7 +68,7 @@ class OeClientComptsRepository(RepositoryUtils):
         self.empresas_icms = OrmTables.OEEmpresasICMS_SemMov
 
         self.valores_impostos = OrmTables.ComptsValoresImpostos
-        # self._add_new_compt()
+        self._add_new_compt()
         # TODO add new compt
 
     # override
@@ -148,24 +148,31 @@ class OeClientComptsRepository(RepositoryUtils):
                 self.orm.compt == self.main_compt)
             return self.dba.query_to_dataframe(query)
 
-    def start_new_compt_query(self, another_compt: str, to_df=False) -> Union[pd.DataFrame, List[sql.orm.Query]]:
+    def start_new_compt_query(self, another_compt: str, to_df=False) -> Tuple[
+        Union[pd.DataFrame, List[sql.orm.Query]], Union[pd.DataFrame, List[sql.orm.Query]]]:
         """
         :param another_compt: based on this compt it will rethrive the data to set a new compt
+        :param to_df:
         :return:
         """
 
         with self.Session() as session:
-            query = session.query(self.orm).filter_by(compt=compt_to_date_obj(another_compt))
+            query_compts = session.query(self.orm).filter_by(compt=compt_to_date_obj(another_compt))
             empresas_allowed = session.query(self.empresas).filter_by(status_ativo=True)
 
             # empresa.status_ativo deve ser True
             main_empresas_allowed__ids = [row.id for row in empresas_allowed]
-            query = query.filter(self.orm.empresa_id.in_(main_empresas_allowed__ids))
+            query_compts = query_compts.filter(self.orm.empresa_id.in_(main_empresas_allowed__ids))
+            # query_compts = query_compts.join(self.valores_impostos, self.orm.id == self.valores_impostos.id_client_compt)
+
+            query_compts__ids = [row.id for row in query_compts]
+            query_valores = session.query(self.valores_impostos).filter(
+                self.valores_impostos.id_client_compt.in_(query_compts__ids))
 
             if to_df:
-                return self.dba.query_to_dataframe(query)
+                return self.dba.query_to_dataframe(query_compts), self.dba.query_to_dataframe(query_valores)
             else:
-                return query.all()
+                return query_compts.all(), query_valores.all()
 
     def get_interface_df(self, allowing_impostos_list=None) -> pd.DataFrame:
         _default_order = ["SEM_MOV", "ISS", "ICMS"]
@@ -183,7 +190,30 @@ class OeClientComptsRepository(RepositoryUtils):
 
     # Updates...
     # add new compt
-    def __old_add_new_compt(self) -> None:
+    def _add_new_compt(self) -> None:
+
+        compts_df, valores_df = self.start_new_compt_query(another_compt=get_compt(-2), to_df=True)
+        id_mapping = {}
+
+        def if_value_in_then_true(id_client_compt: int, field, should_be_in: list) -> bool:
+            """
+            :param id_client_compt:
+            :param field:
+            :param should_be_in:
+            :return:
+            """
+            field_values_list = valores_df.loc[
+                (valores_df['id_client_compt'] == id_client_compt), field].to_list()
+            exp = [val in should_be_in for val in field_values_list]
+
+            checkup_for_all = all(exp)
+            checkup_for_any = any(exp)
+
+            assert checkup_for_all == checkup_for_any, f"Lista de impostos não permitidas no checkup: {field_values_list}, (id_client_compt: {id_client_compt})"
+
+            return checkup_for_all and checkup_for_any
+
+        row_exists = True
         with self.Session() as session:
             # check if the row already exists
             row_exists = session.query(self.orm).filter(
@@ -192,37 +222,56 @@ class OeClientComptsRepository(RepositoryUtils):
                 print("Init new compt: ", self.main_compt, '-------')
                 # create new rows with incremented date
 
-                for row in self.start_new_compt_query(another_compt=get_compt(-2)):
-                    _envio = True if str(
-                        row.imposto_a_calcular) == 'LP' else False
+                for _, row in compts_df.iterrows():
+                    _envio = if_value_in_then_true(row.id, field='imposto_a_calcular',
+                                                   should_be_in=['LP', 'SEM_MOV'])
 
                     # _declarado = True if str(
                     #     row.imposto_a_calcular) == 'LP' and '//' not in row.ginfess_cod else False
                     _declarado = False
 
-                    def get_status_imports_g5(
-                            campo: str):
-                        campo = '' if campo is None else campo
-                        return campo if campo.upper() != 'OK' else ''
-
-                    new_row = self.orm(
-                        main_empresa_id=row.main_empresa_id,
+                    new_compt_row = self.orm(
                         empresa_id=row.empresa_id,
                         declarado=_declarado,
-                        nf_saidas=get_status_imports_g5(row.nf_saidas),
-                        nf_entradas=get_status_imports_g5(row.nf_entradas),
-                        sem_retencao=0.00,
-                        com_retencao=0.00,
-                        valor_total=0.00,
-                        anexo=row.anexo,
-                        imposto_a_calcular=row.imposto_a_calcular,
-                        compt=self.main_compt,
                         envio=_envio,
-                        pode_declarar=False if row.imposto_a_calcular != "SEM_MOV" else True,
+                        compt=self.main_compt,
+                        pode_declarar=if_value_in_then_true(row.id, field='imposto_a_calcular',
+                                                            should_be_in=['LP', 'SEM_MOV']),
                         venc_das=get_next_venc_das(row.venc_das) if row.venc_das else row.venc_das,
                     )
-                    session.add(new_row)
+                    session.add(new_compt_row)
+                    # flusha a sessão para gerar ID
+                    session.flush()
+                    id_mapping[row.id] = new_compt_row.id
+
                 session.commit()
+
+        with self.Session() as session:
+            if row_exists:
+                return
+            for _, row in valores_df.iterrows():
+                def get_status_imports_g5(
+                        campo: str):
+                    campo = '' if campo is None else campo
+                    return campo if campo.upper() != 'OK' else ''
+
+                id_client_compt = id_mapping.get(row.id_client_compt)
+                if id_client_compt is None:
+                    print(row.id_client_compt, 'Não foi encontrado')
+                    continue
+
+                new_valores_row = self.valores_impostos(
+                    nf_saida_prestador=get_status_imports_g5(row.nf_saida_prestador),
+                    nf_entrada_tomador=get_status_imports_g5(row.nf_entrada_tomador),
+                    sem_retencao=0.00,
+                    com_retencao=0.00,
+                    valor_total=0.00,
+                    anexo=row.anexo,
+                    imposto_a_calcular=row.imposto_a_calcular,
+                    id_client_compt=id_mapping.get(row.id_client_compt),
+                )
+                session.add(new_valores_row)
+            session.commit()
 
 
 if __name__ == '__main__':
