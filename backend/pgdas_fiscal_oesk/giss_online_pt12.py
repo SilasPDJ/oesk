@@ -188,7 +188,7 @@ class GissGui(FileOperations, WDShorcuts):
         self.driver.find_element(By.ID, "5").click()
         self.driver.switch_to.default_content()
 
-        # self._inserir_mes_e_competencia()
+        self._inserir_mes_e_competencia()
 
         self.driver.switch_to.frame(2)
         # Encerrar Prestador

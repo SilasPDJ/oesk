@@ -1,8 +1,8 @@
+import json
 import os
 import sys
 from datetime import datetime
 from typing import List, Tuple, Union, Any
-
 import clipboard
 import subprocess
 
@@ -15,9 +15,7 @@ from backend.utilities.helpers import modify_dataframe_at, sort_dataframe
 
 from backend.pgdas_fiscal_oesk import *
 from utilities.compt_utils import get_compt
-from utilities.default import default_qrcode_driver, pgdas_driver
-from utilities.services.empresas_appian_data import set_empresas_appian_data_to_local, set_compt_appian_data_to_local
-from utilities.services.empresas_appian_data import send_clients_compts_update, send_compts_valores_update
+from utilities.default import default_qrcode_driver, pgdas_driver, FileOperations
 
 
 # Se quiser lidar com os repositories direto dentro da classse de rotina
@@ -37,9 +35,11 @@ class RoutinesCallings:
         self.compt = self.aps.compt
         self.compts_repository = ClientComptsRepository(self.compt)
         self.valores_repository = OeComptsValoresImpostosRepository()
+        self.system_folder = FileOperations.files_pathit("system", self.aps.compt)
 
-        set_empresas_appian_data_to_local()
-        set_compt_appian_data_to_local()
+        # set_empresas_appian_data_to_local()
+        # set_compt_appian_data_to_local()
+        #
         # Abaixo não funciona pq oobjeto ta sendo atualizado dentro da classe
         # client_compts_df = self.aps.client_compts_df
 
@@ -50,38 +50,6 @@ class RoutinesCallings:
         valor_total = sum([item.get('valor_total') for item in row])
         assert valor_total == row[0]['valor_total']
         return valor_total, valores_correspondentes
-
-    def _run_update_cloud(self, row, shall_update_valores=False):
-        from repository.utils import to_camel_case
-
-        row_compt = row.to_dict()
-
-        if row_compt['venc_das']:
-            row_compt['venc_das'] = row_compt['venc_das'].strftime('%Y-%m-%dZ')
-
-        row_compt['compt'] = row_compt['compt'].strftime('%Y-%m-%dZ')
-        if shall_update_valores:
-            try:
-                row_vals = row.pop('comptsValoresImpostos')
-                for val in row_vals:
-                    if not val['nf_saida_prestador']:
-                        val['nf_saida_prestador'] = ''
-                    if not val['nf_entrada_tomador']:
-                        val['nf_saida_prestador'] = ''
-                    print(val)
-                    send_compts_valores_update(val)
-            except Exception as e:
-                print(row['razao_social'], 'Não atualizou valores na cloud')
-        try:
-            del row_compt['razao_social']
-            del row_compt['cnpj']
-            del row_compt['cpf']
-            del row_compt['email']
-            send_clients_compts_update(row_compt)
-        except Exception as e:
-            print(e, 'erro ao atualizar a compt de', row['razao_social'])
-        # update_compt()
-        # update_valores
 
     def call_gias(self):
         df = self.compts_repository.query_data_by_routine_in_compt('gias')
@@ -105,7 +73,6 @@ class RoutinesCallings:
                     row['envio'] = True
 
                     self.compts_repository.update_from_dictionary(row.to_dict())
-                    self._run_update_cloud(row)
 
     def call_giss(self):
         # df = self.aps.client_compts_df
@@ -121,14 +88,23 @@ class RoutinesCallings:
         attributes_required = ['razao_social',
                                'cnpj', 'giss_login']
 
+        falhas = []
+
         for e, row in df.iterrows():
             row_required = row[attributes_required]
             args = row_required.to_list()
-            try:
-                GissGui(args, compt=self.compt, headless=False)
-            except Exception as e:
-                print(args, e)
-                # raise e
+            for i in range(3):
+                tentativa = i + 1
+                try:
+                    GissGui(args, compt=self.compt, headless=False)
+                except Exception as e:
+                    print(print(f'{tentativa}ª Exception. Faremos até 3 tentativas...'))
+                finally:
+                    if tentativa == 3:
+                        falhas.append({row.cnpj: args})
+        if falhas:
+            with open(os.path.join(self.system_folder, 'gissonline.json'), 'w') as f:
+                json.dump(falhas, f)
 
     def call_ginfess(self):
         # df = self.aps.client_compts_df
@@ -167,7 +143,6 @@ class RoutinesCallings:
                     self.valores_repository.update_from_dictionary(valores_required)
                 else:
                     self.compts_repository.update_from_dictionary(row.to_dict())
-                self._run_update_cloud(row, shall_update_valores=True)
 
     def call_g5(self):
         # df = self.aps.client_compts_df
@@ -191,7 +166,6 @@ class RoutinesCallings:
             else:
                 row['nf_saidas'] = 'OK'
                 self.compts_repository.update_from_dictionary(row.to_dict())
-                self._run_update_cloud(row)
 
     def call_pgdas_declaracao(self):
         # df = self.aps.client_compts_df
@@ -232,10 +206,6 @@ class RoutinesCallings:
                     # self.valores_repository.dba.query(f'SELECT * FROM OE_COMPTS_VALORES_IMPOSTOS WHERE ID={row["comptsValoresImpostos"][0]["id"]}')
                     self.compts_repository.update_from_dictionary(row.to_dict())
 
-                    self._run_update_cloud(row, shall_update_valores=True)
-
-            print()
-
     def call_jr(self):
         df = self.compts_repository.query_data_by_routine_in_compt('icms')
         attributes_required = ['razao_social', 'cnpj']
@@ -266,7 +236,6 @@ class RoutinesCallings:
                                 email=row['email'])
                 row['envio'] = True
                 self.compts_repository.update_from_dictionary(row.to_dict())
-                self._run_update_cloud(row)
 
     def run_oesk_project_excel(self):
 
