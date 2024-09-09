@@ -56,6 +56,8 @@ class GissGui(GissUtils):
                 print(f"passando construção civil p/ {__r_social}")
             else:
                 self.fechar_prestador()
+
+        first_compt = self.find_first_compt(indx=1)
         for loop_compt in ate_atual_compt(self.compt_atual, first_compt):
             self.loop_compt = loop_compt
             self.fechar_tomador_para_ambas()
@@ -223,8 +225,8 @@ class GissGui(GissUtils):
                     input(f"{nomovement} input, stopped: ")
             except Exception as e:
                 pass
-            self.find_first_compt(indx=1)
-            self.fechar_tomador_para_ambas()
+            # self.fechar_tomador_para_ambas()
+            return
         if nomovement:
             self.webdriverwait_el_by(By.LINK_TEXT, "Menu Principal").click()
             self.driver.find_element(
