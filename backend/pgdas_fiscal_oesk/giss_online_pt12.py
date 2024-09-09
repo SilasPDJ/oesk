@@ -16,11 +16,12 @@ load_dotenv()
 # self.pyautogui
 class GissGui(GissUtils):
 
-    def __init__(self, dados, compt, headless=True):
+    def __init__(self, dados, compt, headless=True, pswd=None):
         from functools import partial
         self.__COMPT = compt
         # [print(s) for s in __senhas]
         __r_social, _giss_cnpj, self._logar = dados[:3]
+        self._pswd = pswd
         self.compt_atual = compt
         print('~' * 30)
         print(self.compt_atual)
@@ -277,4 +278,28 @@ class GissGui(GissUtils):
 
 
 if __name__ == '__main__':
-    GissGui(['GABRIEL PINHEIRO SAMPAIO', '40122869000123', '301245'], compt='03-2024', headless=False)
+    from backend.repository import OeClientComptsRepository as ClientComptsRepository
+    from utilities.db import DbAccessManager
+    import os.path
+    import pandas as pd
+    import json
+
+    db = DbAccessManager()
+    compt = get_compt()
+    cc = ClientComptsRepository(compt)
+
+    df = cc.query_data_by_routine_in_compt('iss')
+    df = df.loc[~df['giss_login'].str.lower().isin(['não há', 'ginfess cód', ''])].fillna('')
+    df = df.loc[df['giss_login'] != df['cnpj']]
+
+    system_folder = FileOperations.files_pathit("system", compt)
+
+    json_file = os.path.join(system_folder, 'gissonline.json')
+    with open(json_file, 'r') as file:
+        data_json = json.load(file)
+    cnpjs = [list(item.keys())[0] for item in data_json]
+
+    # Conferir se todos os cnpjs do erro estão nos cnpjs
+    df = df.loc[~df['cnpj'].isin(cnpjs)]
+
+    GissGui(['empresa', '13510432000194', '352254'], compt='07-2024', headless=False)
