@@ -6,40 +6,48 @@ link = "ChromeDriver/chromedriver.exe"
 
 
 class GissUtils(FileOperations, WDShorcuts):
+    _logar: str
+    _pswd: str
+
     def __init__(self, driver):
         super().__init__(driver)
         self.driver = driver
 
     def logar_giss(self):
         __senhas = os.getenv('GISS_PASSWORDS').split(',')
-
-        driver = self.driver
         cont_senha = 0
-        while True:
-            # sometimes it's required to refresh...
-            self.driver.get(weblink)
-            driver.find_element(By.XPATH,
-                                '//input[@name="TxtIdent"]').send_keys(self._logar)
-            driver.find_element(By.XPATH,
-                                '//input[@name="TxtSenha"]').send_keys(__senhas[cont_senha])
-            # print(f'Senha: {__senhas[cont_senha]}', end=' ')
-            senha = __senhas[cont_senha]
+        logado = False
 
-            self.__logar_giss_preenche_captcha()
-
+        while not logado:
+            pswd = self._pswd if self._pswd is not None else __senhas[cont_senha]
+            logado = self._logar_giss(pswd)
             cont_senha += 1
-            driver.find_element(By.LINK_TEXT, "Acessar").click()
-            try:
-                WebDriverWait(driver, 5).until(expected_conditions.alert_is_present(),
-                                               'Timed out waiting for PA creation ' +
-                                               'confirmation popup to appear.')
-                alert = driver.switch_to.alert
-                alert.accept()
-                # print("estou no try")
-                driver.execute_script("window.history.go(-1)")
-            except TimeoutException:
-                print("no alert, sem alerta, exceptado")
-                break
+
+    def _logar_giss(self, pswd: str):
+        driver = self.driver
+        # sometimes it's required to refresh...
+        self.driver.get(weblink)
+        driver.find_element(By.XPATH,
+                            '//input[@name="TxtIdent"]').send_keys(self._logar)
+        driver.find_element(By.XPATH,
+                            '//input[@name="TxtSenha"]').send_keys(pswd)
+        # print(f'Senha: {__senhas[cont_senha]}', end=' ')
+
+        self.__logar_giss_preenche_captcha()
+
+        driver.find_element(By.LINK_TEXT, "Acessar").click()
+
+        try:
+            WebDriverWait(driver, 5).until(expected_conditions.alert_is_present(),
+                                           'Timed out waiting for PA creation ' +
+                                           'confirmation popup to appear.')
+            alert = driver.switch_to.alert
+            alert.accept()
+            # print("estou no try")
+            driver.execute_script("window.history.go(-1)")
+        except TimeoutException:
+            print("no alert, sem alerta, exceptado")
+            return True
 
     def __logar_giss_preenche_captcha(self):
         # from pgdas_fiscal_oesk.sbfconverter import SbFConverter
