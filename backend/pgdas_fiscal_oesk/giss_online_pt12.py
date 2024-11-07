@@ -84,6 +84,8 @@ class GissGui(GissUtils):
         def encerrar_part_1(func_compt=None):
             _ativa_constr_civil()
             func_compt = _get_func_compt(func_compt)
+            if func_compt > self.compt_atual:
+                return
             self.driver.switch_to.default_content()
             self._inserir_mes_e_competencia(func_compt)
 
@@ -119,6 +121,8 @@ class GissGui(GissUtils):
         def encerrar_part_2(func_compt=None):
             _ativa_constr_civil()
             func_compt = _get_func_compt(func_compt)
+            if func_compt > self.compt_atual:
+                return
             self.driver.switch_to.default_content()
             self._inserir_mes_e_competencia(func_compt)
 
@@ -149,6 +153,8 @@ class GissGui(GissUtils):
         def encerrar_part_3(func_compt=None):
             _ativa_constr_civil()
             func_compt = _get_func_compt(func_compt)
+            if func_compt > self.compt_atual:
+                return
             self.driver.switch_to.default_content()
             self._inserir_mes_e_competencia(func_compt)
 
@@ -280,28 +286,6 @@ class GissGui(GissUtils):
 
 
 if __name__ == '__main__':
-    from backend.repository import OeClientComptsRepository as ClientComptsRepository
-    from utilities.db import DbAccessManager
-    import os.path
-    import pandas as pd
-    import json
-
-    db = DbAccessManager()
-    compt = get_compt()
-    cc = ClientComptsRepository(compt)
-
-    df = cc.query_data_by_routine_in_compt('iss')
-    df = df.loc[~df['giss_login'].str.lower().isin(['não há', 'ginfess cód', ''])].fillna('')
-    df = df.loc[df['giss_login'] != df['cnpj']]
-
-    system_folder = FileOperations.files_pathit("system", compt)
-
-    json_file = os.path.join(system_folder, 'gissonline.json')
-    with open(json_file, 'r') as file:
-        data_json = json.load(file)
-    cnpjs = [list(item.keys())[0] for item in data_json]
-
-    # Conferir se todos os cnpjs do erro estão nos cnpjs
-    df = df.loc[~df['cnpj'].isin(cnpjs)]
+    # gissonline.json (mensal, pendentes)
 
     GissGui(['empresa', '13510432000194', '352254'], compt='07-2024', headless=False)

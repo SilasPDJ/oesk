@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from typing import List, Tuple, Union, Any
 import clipboard
@@ -75,36 +76,64 @@ class RoutinesCallings:
                     self.compts_repository.update_from_dictionary(row.to_dict())
 
     def call_giss(self):
-        # df = self.aps.client_compts_df
         df = self.compts_repository.query_data_by_routine_in_compt('iss')
-        # Abaixo são as mesmas expressões...
-        # df = df.loc[(df['giss_login'] != 'não há') & (df['giss_login'].str.lower() != 'ginfess cód') & (
-        #             df['giss_login'] != '')].fillna('')
         df = df.loc[~df['giss_login'].str.lower().isin(['não há', 'ginfess cód', ''])].fillna('')
         df = df.loc[df['giss_login'] != df['cnpj']]
 
-        # df = df.loc[df['inscricao_municipal'].str.lower() == 'https://portal.gissonline.com.br/login/index.html']
-        # ...
-        attributes_required = ['razao_social',
-                               'cnpj', 'giss_login']
-
+        attributes_required = ['razao_social', 'cnpj', 'giss_login']
         falhas = []
 
-        for e, row in df.iterrows():
-            row_required = row[attributes_required]
-            args = row_required.to_list()
+        def process_row(row):
+            args = row[attributes_required].to_list()
+            pswd = ''
+
             for i in range(3):
                 tentativa = i + 1
                 try:
-                    GissGui(args, compt=self.compt, headless=False)
-                except Exception as e:
-                    print(print(f'{tentativa}ª Exception. Faremos até 3 tentativas...'))
-                finally:
-                    if tentativa == 3:
-                        falhas.append({row.cnpj: args})
+                    giss_inst = GissGui(args, compt=self.compt, headless=True)
+                    pswd = giss_inst._pswd
+                    return None
+                except Exception:
+                    print(f'{tentativa}ª Exception. Faremos até 3 tentativas...')
+                if tentativa == 3:
+                    args.append(pswd)
+                    return {row['cnpj']: args}
+
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = {executor.submit(process_row, row): row for _, row in df.iterrows()}
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    falhas.append(result)
+
         if falhas:
             with open(os.path.join(self.system_folder, 'gissonline.json'), 'w') as f:
                 json.dump(falhas, f)
+
+    def call_giss_pendentes(self):
+        from utilities.default import FileOperations
+
+        compt = get_compt()
+        cc = ClientComptsRepository(compt)
+
+        df = cc.query_data_by_routine_in_compt('iss')
+        df = df.loc[~df['giss_login'].str.lower().isin(['não há', 'ginfess cód', ''])].fillna('')
+        df = df.loc[df['giss_login'] != df['cnpj']]
+
+        system_folder = FileOperations.files_pathit("system", compt)
+
+        json_file = os.path.join(system_folder, 'gissonline.json')
+        with open(json_file, 'r') as file:
+            data_json = json.load(file)
+        cnpjs = [list(item.keys())[0] for item in data_json]
+
+        # cnpjs de erro estão nos cnpjs
+        df = df.loc[df['cnpj'].isin(cnpjs)]
+        attributes_required = ['razao_social', 'cnpj', 'giss_login']
+        for _, row in df.iterrows():
+            args = row[attributes_required].to_list()
+            giss_inst = GissGui(args, compt=get_compt(), headless=False)
+            # pswd = giss_inst._pswd
 
     def call_ginfess(self):
         # df = self.aps.client_compts_df
