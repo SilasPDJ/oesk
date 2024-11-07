@@ -186,3 +186,4 @@ yarn-error.log*
 test.html
 /.streamlit
 /backend/pgdas_fiscal_oesk/data_clients_files/
+/backend/utilities/queries/
