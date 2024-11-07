@@ -47,6 +47,7 @@ class GissUtils(FileOperations, WDShorcuts):
             driver.execute_script("window.history.go(-1)")
         except TimeoutException:
             print("no alert, sem alerta, exceptado")
+            self._pswd = pswd
             return True
 
     def __logar_giss_preenche_captcha(self):
@@ -117,4 +118,7 @@ class GissUtils(FileOperations, WDShorcuts):
 
         mes_input_el.send_keys(mes)
         ano_input_el.send_keys(ano)
-        self.driver.switch_to.default_content()
+        try:
+            self.driver.switch_to.default_content()
+        except Exception as e:
+            print(e)

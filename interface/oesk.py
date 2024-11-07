@@ -85,6 +85,10 @@ class App(ctk.CTk, AppSettings):
             self._set_button_data(self.rc.call_giss, 'Fazer Giss'
                                   ),
 
+            self._set_button_data(self.rc.call_giss_pendentes, 'Fazer Giss Pendentes',
+                                  fg_color='#BA8E23'
+                                  ),
+
             self._set_button_data(lambda: print("DESATIVADO POR ENQT"), 'Rotina Dívidas - DSTV',
                                   '#fff', 'darkgray', 'gray'),
 
