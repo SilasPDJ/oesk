@@ -189,7 +189,7 @@ class GissGui(GissUtils):
 
         self.driver.switch_to.frame(2)
         # Encerrar Prestador
-        self.driver.find_element(By.LINK_TEXT, "Encerrar Escrituração").click()
+        self.webdriverwait_el_by(By.LINK_TEXT, "Encerrar Escrituração").click()
 
         try:
             self.tag_with_text('a', 'Menu Principal', 7).click()

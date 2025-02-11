@@ -111,8 +111,8 @@ class GissUtils(FileOperations, WDShorcuts):
         self.driver.switch_to.frame(2)
         mes, ano = compt_str.split('-')
 
-        mes_input_el = self.driver.find_element(By.NAME, "mes")
-        ano_input_el = self.driver.find_element(By.NAME, "ano")
+        mes_input_el = self.webdriverwait_el_by(By.NAME, "mes")
+        ano_input_el = self.webdriverwait_el_by(By.NAME, "ano")
         mes_input_el.clear()
         ano_input_el.clear()
 
