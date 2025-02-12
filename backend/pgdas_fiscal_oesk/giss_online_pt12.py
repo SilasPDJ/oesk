@@ -132,7 +132,7 @@ class GissGui(GissUtils):
             self.driver.switch_to.frame(2)
             self.driver.find_element(
                 By.CSS_SELECTOR, "tr:nth-child(2) > td > span > font").click()
-            self.driver.find_element(
+            self.webdriverwait_el_by(
                 By.LINK_TEXT, "Encerrar Escrituração").click()
             try:
                 self.webdriverwait_el_by(
@@ -164,7 +164,7 @@ class GissGui(GissUtils):
             self.driver.switch_to.frame(2)
             self.driver.find_element(
                 By.CSS_SELECTOR, "table:nth-child(4) span > font").click()
-            self.driver.find_element(
+            self.webdriverwait_el_by(
                 By.LINK_TEXT, "Encerrar Sem Movimento").click()
             try:
                 self.driver.find_element(
@@ -212,7 +212,7 @@ class GissGui(GissUtils):
 
         self.driver.switch_to.frame(2)
 
-        self.driver.find_element(By.LINK_TEXT, "Encerrar Escrituração").click()
+        self.webdriverwait_el_by(By.LINK_TEXT, "Encerrar Escrituração").click()
         nomovement = False
         try:
             # Clica OK
@@ -235,14 +235,17 @@ class GissGui(GissUtils):
             return
         if nomovement:
             self.webdriverwait_el_by(By.LINK_TEXT, "Menu Principal").click()
-            self.driver.find_element(
+            self.webdriverwait_el_by(
                 By.LINK_TEXT, "Encerrar Sem Movimento").click()
         try:
-            self.driver.find_element(
+            self.webdriverwait_el_by(
                 By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
-            self.driver.find_element(By.CSS_SELECTOR, ".txt_up").click()
+            try:
+                self.webdriverwait_el_by(By.CSS_SELECTOR, ".txt_up").click()
+            except Exception as e:
+                pass
         finally:
-            self.driver.find_element(By.CSS_SELECTOR, "html").click()
+            self.webdriverwait_el_by(By.CSS_SELECTOR, "html").click()
 
     def find_first_compt(self, indx=0) -> str:
         _first_compt = compt_to_date_obj(
