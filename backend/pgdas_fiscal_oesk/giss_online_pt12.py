@@ -1,4 +1,6 @@
 # dale
+import os
+
 from bs4 import BeautifulSoup
 
 from pgdas_fiscal_oesk.giss_online_utils import GissUtils
@@ -245,7 +247,10 @@ class GissGui(GissUtils):
             except Exception as e:
                 pass
         finally:
-            self.webdriverwait_el_by(By.CSS_SELECTOR, "html").click()
+            try:
+                self.webdriverwait_el_by(By.CSS_SELECTOR, "html").click()
+            except Exception as e:
+                pass
 
     def find_first_compt(self, indx=0) -> str:
         _first_compt = compt_to_date_obj(
@@ -271,12 +276,13 @@ class GissGui(GissUtils):
             self.driver.switch_to.frame(2)
             # Encerrar Prestador
             try:
-                self.driver.find_element(
+                sleep(1)
+                self.webdriverwait_el_by(
                     By.LINK_TEXT, escrituracao_link_text).click()
-                self.driver.find_element(
+                self.webdriverwait_el_by(
                     By.CSS_SELECTOR, ".txt_al_center:nth-child(12) > .txt_up").click()
                 return date_to_compt(_first_compt)
-            except NoSuchElementException as e:
+            except (NoSuchElementException, TimeoutException) as e:
                 # Já foi declarada!
                 return date_to_compt(_first_compt)
 
@@ -290,5 +296,8 @@ class GissGui(GissUtils):
 
 if __name__ == '__main__':
     # gissonline.json (mensal, pendentes)
-
-    GissGui(['empresa', '13510432000194', '352254'], compt='07-2024', headless=False)
+    load_dotenv()
+    client = os.getenv('GISS_FOR_DEBUG')
+    pswd = os.getenv('GISS_FOR_DEBUG_PSWD')
+    
+    GissGui(client, compt='03-2025', headless=False, pswd=pswd or None)
