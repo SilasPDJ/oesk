@@ -1,3 +1,5 @@
+import os.path
+
 import pandas as pd
 from win11toast import toast
 # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
@@ -8,6 +10,8 @@ from pgdas_fiscal_oesk.defis_utils.legato import Legato
 # from pgdas_fiscal_oesk.defis_utils.legato import transformers as tfms
 from pgdas_fiscal_oesk.simples_nacional_utilities import SimplesNacionalUtilities
 from utilities.compt_utils import get_compt
+from backend.repository import OeClientComptsRepository as ClientComptsRepository
+from backend.repository import OeEmpresasRepository as EmpresasRepository
 
 COMPT = get_compt(-1)
 
@@ -19,13 +23,22 @@ class Defis(Legato, SimplesNacionalUtilities):
         # remember past_only arg from self.get_atual_competencia
         """
         # O vencimento DAS(seja pra qual for a compt) está certo, haja vista que se trata do mes atual
-        CONS = Consultar(COMPT)
+        # CONS = Consultar(COMPT)
         sh_name = 'DEFIS'
 
         self.compt = f"DEFIS_{self.y()}"
 
+        # self.compts_repository = ClientComptsRepository(self.compt)
+        # self.system_folder = FileOperations.files_pathit("system", self.compt)
+        # self.empresas_repository = EmpresasRepository()
+        #
+        # attributes_required = ['razao_social', 'cnpj', 'cpf',
+        #                        'codigo_simples', 'ha_procuracao_ecac']
+        #
+        # self.empresas_repository.query_empresas()
+
         # transcrevendo compt para que não confunda com PGDAS
-        _path = os.path.dirname(CONS.MAIN_FILE)
+        _path = os.path.dirname(self.files_location.getset_folderspath(False))
         excel_file_name = os.path.join(_path,
                                        'DEFIS', f'{self.y() - 1}-DEFIS-anual.xlsx')
         pdExcelFile = pd.ExcelFile(excel_file_name)
@@ -58,6 +71,9 @@ class Defis(Legato, SimplesNacionalUtilities):
             # Defis exclusivos
 
             # +2 Pois começa da linha 2, logo o excel está reconhendo isso como index
+            if _ja_declared == 'FORA':
+                print(_cliente, 'ESTÁ FORA, PULA...')
+                continue
             while int(self.after_socio[SK[-4]][cont_soc]) - 2 != i:
                 cont_soc += 1
             __ate_soc = self.after_socio[SK[-3]][cont_soc]
@@ -68,9 +84,9 @@ class Defis(Legato, SimplesNacionalUtilities):
             self.socios_now__nome = self.after_socio[SK[2]][cont_soc:__ate_soc]
             self.socios_now__cota = self.after_socio[SK[3]][cont_soc:__ate_soc]
             self.socios_now__tipo = self.after_socio[SK[5]][cont_soc:__ate_soc]
-            self.socios_valor_isento = self.after_socio[SK[6]
+            self.socios_valor_isento = self.after_socio[SK[7]
                                        ][cont_soc:__ate_soc]
-            self.socios_valor_tributado = self.after_socio[SK[7]
+            self.socios_valor_tributado = self.after_socio[SK[6]
                                           ][cont_soc:__ate_soc]
 
             self._socios__soma_cotas = sum(int(v)
@@ -93,7 +109,7 @@ class Defis(Legato, SimplesNacionalUtilities):
                 if _cert_or_login == 'certificado':
                     self.loga_cert()
                     # loga ECAC, Insere CNPJ
-                    self.change_ecac_client(CNPJ)
+                    # self.change_ecac_client(CNPJ)
 
                     self.current_url = driver.current_url
                     self.opta_script() if self.m() == 12 else None
@@ -108,13 +124,17 @@ class Defis(Legato, SimplesNacionalUtilities):
 
                 while True:
                     try:
+                        # DEFIS, seria bom se resolver
+                        print("F8 para prosseguir, após login")
+                        press_key_b4('f8')
+                        # self.solve_captcha_if_required()
                         WebDriverWait(self.driver, 10).until(
                             expected_conditions.presence_of_element_located((By.TAG_NAME, 'input')))
-                        my_radios_bt = driver.find_elements_by_name(
-                            'ctl00$conteudo$AnoC')
+                        my_radios_bt = driver.find_elements(By.NAME,
+                                                            'ctl00$conteudo$AnoC')
                         my_radios_bt[-2].click()
-                        driver.find_element_by_id(
-                            'ctl00_conteudo_lnkContinuar').click()
+                        driver.find_element(By.ID,
+                                            'ctl00_conteudo_lnkContinuar').click()
                         break
                     except TimeoutException:
                         driver.get(
@@ -248,3 +268,7 @@ class Defis(Legato, SimplesNacionalUtilities):
         print(self.socios_now__tipo)
         print('-' * 60)
         print()
+
+
+if __name__ == '__main__':
+    Defis()

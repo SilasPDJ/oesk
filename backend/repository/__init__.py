@@ -21,6 +21,14 @@ class OeEmpresasRepository(RepositoryUtils):
         self.orm = OrmTables.OEEmpresas
         super().__init__(self.orm, self.Session)
 
+    def query_empresas(self, cnpj=None):
+        with self.Session() as session:
+            query = session.query(self.orm)
+            if cnpj is not None:
+                query.filter_by(cnpj=cnpj)
+
+            return self.dba.query_to_dataframe(query)
+
 
 class OeGiasRepository(RepositoryUtils):
     def __init__(self):

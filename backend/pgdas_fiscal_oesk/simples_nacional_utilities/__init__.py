@@ -162,7 +162,7 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
             cod.clear()
             cod.send_keys(CodSim)
 
-            self.__loga_simples_capt()
+            # self._loga_simples_capt()
 
             # cod_caract = driver.find_element(By.ID,
             #                                  'txtTexto_captcha_serpro_gov_br')
@@ -175,6 +175,10 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
                 try:
                     driver.find_element(By.XPATH,
                                         "//input[@type='submit']").click()
+                    # self.solve_captcha_if_required()
+                    # DEFIS, seria bom se resolver...
+                    print("F8 para prosseguir")
+                    press_key_b4('f8')
                     break
                 except (NoSuchElementException, ElementClickInterceptedException):
                     print('sleepin'
@@ -183,7 +187,7 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
                     sleep(5)
             sleep(5)
 
-    def __loga_simples_capt(self):
+    def _loga_simples_capt(self):
         url = self.url_loga_simples
         driver = self.driver
 
@@ -339,7 +343,7 @@ class SimplesNacionalUtilities(FileOperations, WDShorcuts):
         # sleep(10)
         # driver.execute_script("validarRecaptcha('frmLoginCert')")
         sleep(5)
-        self.__ecac_captcha()
+        # self.__ecac_captcha()
         # TODO: fazer funcionar...
         # self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
         # while self.driver.current_url == "https://cav.receita.fazenda.gov.br/autenticacao/login":
