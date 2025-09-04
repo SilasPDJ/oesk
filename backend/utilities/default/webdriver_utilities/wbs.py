@@ -99,13 +99,11 @@ class WDShorcuts:
         return driver.find_element(*_expression)
 
     def contains_text(self, item) -> WebElement:
-        driver = self.__arg_driver
-        el = driver.find_element(By.XPATH, f'//*[contains(text(),"{item}")]')
+        el = self.webdriverwait_el_by(By.XPATH, f'//*[contains(text(),"{item}")]')
         return el
 
     def contains_title(self, item, ta='title') -> WebElement:
-        driver = self.__arg_driver
-        el = driver.find_element(By.CSS_SELECTOR, f"[{ta}*='{item}']")
+        el = self.webdriverwait_el_by(By.CSS_SELECTOR, f"[{ta}*='{item}']")
         return el
 
     def tags_wait(self, *tags):

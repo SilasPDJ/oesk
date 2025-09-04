@@ -297,7 +297,7 @@ class GissGui(GissUtils):
 if __name__ == '__main__':
     # gissonline.json (mensal, pendentes)
     load_dotenv()
-    client = os.getenv('GISS_FOR_DEBUG')
+    client = os.getenv('GISS_FOR_DEBUG').split(",")
     pswd = os.getenv('GISS_FOR_DEBUG_PSWD')
-    
-    GissGui(client, compt='03-2025', headless=False, pswd=pswd or None)
+
+    GissGui(client, compt='05-2025', headless=False, pswd=pswd or None)

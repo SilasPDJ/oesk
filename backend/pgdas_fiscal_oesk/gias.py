@@ -49,10 +49,12 @@ class GIA(WDShorcuts):
         driver = self.driver
         driver.get(
             'https://www3.fazenda.sp.gov.br/CAWEB/Account/Login.aspx')
-        self.click_ac_elementors(driver.find_element(By.ID, 'ConteudoPagina_ImageButton1'))
+        self.driver.implicitly_wait(10)
+        self.driver.execute_script("showSefazIDUsuarioSenha(); return false;")
+        self.click_ac_elementors(self.webdriverwait_el_by(By.ID, 'ConteudoPagina_ImageButton1'))
 
         login_url = ''
-        while driver.current_url == login_url or login_url == '':
+        while 'LoginPFE.aspx' in driver.current_url or login_url == '':
             if login_url != '':
                 self.driver.refresh()
             login_url = driver.current_url
@@ -268,7 +270,8 @@ class GIA(WDShorcuts):
         :return: winleft+r open
         """
         if path is False:
-            programa = _contmatic_select_by_name(name)
+            raise ValueError
+            # programa = _contmatic_select_by_name(name)
         else:
             programa = name
 
